@@ -1,6 +1,12 @@
 #include "ConnectionManager.h"
+
 #include "AutoconnectoSDK.h"
 #include "core/Config.h"
+
+// =========================================
+// CONFIGURE
+// =========================================
+
 void ConnectionManager::configure(
   SDKConfig* config,
   AttributeCallback attrCb
@@ -8,66 +14,89 @@ void ConnectionManager::configure(
 
   _config = config;
 
-  mqtt.configure(config, attrCb);
-
-  ws.configure(config, attrCb);
+  mqtt.configure(
+    config,
+    attrCb
+  );
 }
+
+// =========================================
+// BEGIN
+// =========================================
 
 void ConnectionManager::begin() {
 
-  if (_config->enableMQTT) {
-    mqtt.begin();
-  }
-
-  if (_config->enableWS) {
-    ws.begin();
-  }
+  mqtt.begin();
 }
+
+// =========================================
+// LOOP
+// =========================================
 
 void ConnectionManager::loop() {
 
-  if (_config->enableWS) {
-    ws.loop();
+  mqtt.loop();
+
+  // =====================================
+  // ACTIVE TRANSPORT STATE
+  // =====================================
+
+  if (mqtt.connected()) {
+
+    state.activeTransport =
+      TRANSPORT_MQTT;
+
+  } else {
+
+    state.activeTransport =
+      TRANSPORT_NONE;
   }
-
-  if (_config->enableMQTT) {
-    mqtt.loop();
-  }
-
-  if (
-    _config->preferWS &&
-    ws.connected()
-  ) {
-
-    state.activeTransport = TRANSPORT_WS;
-
-    return;
-  }
-
-  if (
-    _config->mqttFallback &&
-    mqtt.connected()
-  ) {
-
-    state.activeTransport = TRANSPORT_MQTT;
-
-    return;
-  }
-
-  state.activeTransport = TRANSPORT_NONE;
 }
 
-ITransport* ConnectionManager::activeTransport() {
+// =========================================
+// ACTIVE TRANSPORT
+// =========================================
 
-  switch(state.activeTransport) {
+ITransport*
+ConnectionManager::activeTransport() {
 
-    case TRANSPORT_WS:
-      return &ws;
+  if (
+    state.activeTransport ==
+    TRANSPORT_MQTT
+  ) {
 
-    case TRANSPORT_MQTT:
-      return &mqtt;
-
-    default:
-      return nullptr;
+    return &mqtt;
   }
+
+  return nullptr;
+}
+
+// =========================================
+// TRANSPORT MODE
+// =========================================
+
+String ConnectionManager::transportMode() {
+
+  if (!mqtt.connected()) {
+
+    return "NONE";
+  }
+
+  if (mqtt.isUsingWSS()) {
+
+    return "WSS";
+  }
+
+  return "MQTTS";
+}
+
+// =========================================
+// RPC
+// =========================================
+
+void ConnectionManager::onRPC(
+  RPCCallback cb
+) {
+
+  mqtt.onRPC(cb);
 }

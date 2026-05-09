@@ -4,32 +4,59 @@
 
 struct SDKConfig {
 
-  // WiFi
+  // =========================================
+  // WIFI
+  // =========================================
+
   String wifiSSID;
+
   String wifiPassword;
 
-  // MQTT
+  // =========================================
+  // MQTT / WSS HOST
+  // =========================================
+
   String mqttHost;
-  uint16_t mqttPort = 1883;
 
-  // WS
-  String wsHost;
-  uint16_t wsPort = 3001;
-  String wsPath = "/";
+  // =========================================
+  // PORTS
+  // =========================================
 
-  // Device
+  uint16_t mqttPort = 8883;
+
+  uint16_t wssPort = 443;
+
+  // =========================================
+  // DEVICE
+  // =========================================
+
   String deviceToken;
 
-  // Runtime
+  // =========================================
+  // TRANSPORT
+  // =========================================
+
   bool enableMQTT = true;
+
   bool enableWS = true;
 
-  bool preferWS = true;
-  bool mqttFallback = true;
+  // =========================================
+  // TLS
+  // =========================================
 
-  // Telemetry
+  bool allowInsecureTLS = true;
+
+  const char* rootCA = nullptr;
+
+  // =========================================
+  // TELEMETRY
+  // =========================================
+
   unsigned long telemetryIntervalMs = 5000;
 
-  // Debug
+  // =========================================
+  // DEBUG
+  // =========================================
+
   bool enableSerialLogs = true;
 };

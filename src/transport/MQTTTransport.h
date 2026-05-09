@@ -1,12 +1,20 @@
+// =========================================
+// MQTTTransport.h
+// =========================================
+
 #pragma once
 
 #include <WiFi.h>
-#include <PubSubClient.h>
+
+#include <mqtt_client.h>
+
 #include <ArduinoJson.h>
 
 #include "../core/Config.h"
 #include "../core/Callbacks.h"
 #include "../core/Logger.h"
+#include "../core/Types.h"
+
 #include "ITransport.h"
 
 class MQTTTransport : public ITransport {
@@ -15,10 +23,18 @@ public:
 
   MQTTTransport();
 
+  // =========================================
+  // CONFIGURE
+  // =========================================
+
   void configure(
     SDKConfig* config,
     AttributeCallback attrCb
   );
+
+  // =========================================
+  // LIFECYCLE
+  // =========================================
 
   bool begin() override;
 
@@ -26,43 +42,127 @@ public:
 
   bool connected() override;
 
+  // =========================================
+  // TRANSPORT INFO
+  // =========================================
+
+  bool isUsingWSS();
+
+  bool isUsingMQTTS();
+
+  String transportMode();
+
+  // =========================================
+  // TELEMETRY
+  // =========================================
+
   bool sendTelemetry(
     const String& payload
   ) override;
+
+  // =========================================
+  // CLIENT ATTRIBUTES
+  // =========================================
 
   bool sendClientAttribute(
     const String& key,
     float value
   ) override;
 
+  bool sendClientAttributes(
+    const String& payload
+  ) override;
+
+  // =========================================
+  // SHARED ATTRIBUTES
+  // =========================================
+
   void requestAttributes() override;
+
+  void requestAttributes(
+    const String& keys
+  ) override;
+
+  // =========================================
+  // RPC
+  // =========================================
+
+  bool sendRPCResponse(
+    const String& payload
+  ) override;
+
+  // =========================================
+  // RPC CALLBACK
+  // =========================================
+
+  void onRPC(
+    RPCCallback cb
+  );
 
 private:
 
-  WiFiClient wifiClient;
-  PubSubClient mqtt;
+  // =========================================
+  // CONFIG
+  // =========================================
 
   SDKConfig* _config = nullptr;
 
   AttributeCallback _attrCb = nullptr;
 
-  unsigned long lastReconnectAttempt = 0;
+  RPCCallback _rpcCb = nullptr;
 
-  String topic(const String& suffix);
+  // =========================================
+  // MQTT CLIENT
+  // =========================================
 
-  void reconnect();
+  esp_mqtt_client_handle_t client =
+    nullptr;
 
-  static MQTTTransport* instance;
+  bool reconnectRequested =
+    false;
 
-  static void mqttCallbackStatic(
-    char* topic,
-    byte* payload,
-    unsigned int length
+  // =========================================
+  // STATE
+  // =========================================
+
+  bool mqttConnected =
+    false;
+
+  bool usingWSS =
+    true;
+
+  String lastRPCRequestId =
+    "";
+
+  // =========================================
+  // INTERNALS
+  // =========================================
+
+  void connectClient();
+
+  String topic(
+    const String& suffix
   );
 
-  void mqttCallback(
-    char* topic,
-    byte* payload,
-    unsigned int length
+  String buildBrokerURI();
+
+  bool publish(
+    const String& topic,
+    const String& payload
+  );
+
+  // =========================================
+  // EVENTS
+  // =========================================
+
+  static void mqttEventHandlerStatic(
+    void* handler_args,
+    esp_event_base_t base,
+    int32_t event_id,
+    void* event_data
+  );
+
+  void mqttEventHandler(
+    esp_mqtt_event_handle_t event
   );
 };

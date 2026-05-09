@@ -4,16 +4,37 @@
 
 struct RuntimeState {
 
+  // =====================================
+  // WIFI
+  // =====================================
+
   bool wifiConnected = false;
 
-  bool mqttConnected = false;
-  bool wsConnected = false;
-  bool wsAuthed = false;
+  // =====================================
+  // MQTT
+  // =====================================
 
-  TransportType activeTransport = TRANSPORT_NONE;
+  bool mqttConnected = false;
+
+  // =====================================
+  // ACTIVE TRANSPORT
+  // =====================================
+
+  TransportType activeTransport =
+    TRANSPORT_NONE;
+
+  // =====================================
+  // TIMERS
+  // =====================================
 
   unsigned long lastTelemetryAt = 0;
+
   unsigned long lastReconnectAt = 0;
 
-  ConnectionState state = STATE_DISCONNECTED;
+  // =====================================
+  // CONNECTION STATE
+  // =====================================
+
+  ConnectionState state =
+    STATE_DISCONNECTED;
 };
