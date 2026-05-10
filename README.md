@@ -307,16 +307,35 @@ void onRPC(const String& method, JsonObject payload) {
 
 ---
 
-## Example
+## Examples
 
-See `examples/AllFunctionTest/AllFunctionTest.ino` for a complete production-ready sketch covering:
+All examples use the **same keys** — one dashboard configuration works across all of them.
 
-- 4-channel relay control via Switch widget (channel1–channel4)
-- Slider/volume control via SliderControl widget
-- Voltage limit control via AttributeControlCard widget (limitVoltage → setVoltage pattern)
-- RPC handlers: `ping`, `getStatus`, `getConfig`, `getDiagnostics`, `setValue`, `relay_set`, `reset`, `reboot`, `telemetry_burst`
-- Periodic telemetry (temperature, humidity, voltage, current)
-- Periodic client attribute reporting (heap, RSSI, uptime)
+### `BasicTelemetry`
+`examples/BasicTelemetry/BasicTelemetry.ino`
+
+Start here. Connect to the platform and send telemetry every 10 seconds. No attributes, no RPC. Confirms your device token and network connectivity.
+
+### `SwitchControl`
+`examples/SwitchControl/SwitchControl.ino`
+
+Demonstrates the full attribute feedback loop:
+- 4-channel relay control via Switch widget (`channel1`–`channel4`)
+- Slider/volume control via SliderControl widget (`volume`)
+- Voltage limit control via AttributeControlCard widget (`limitVoltage1/2/3` → `setVoltage1/2/3`)
+- Power-cycle sync via `requestSharedAttributes()` at startup
+
+### `RPCCommands`
+`examples/RPCCommands/RPCCommands.ino`
+
+Demonstrates how to handle RPC commands from the dashboard RPC Widget:
+- `ping`, `getStatus`, `getDiagnostics`, `relay_set`, `setValue`, `reset`, `reboot`, `telemetry_burst`
+- Correct `replyRPC()` pattern for all cases including unknown methods
+
+### `AllFunctionTest`
+`examples/AllFunctionTest/AllFunctionTest.ino`
+
+Production-grade reference sketch combining all of the above. Use this as a base for real device firmware.
 
 ---
 
