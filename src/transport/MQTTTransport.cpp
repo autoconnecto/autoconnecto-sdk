@@ -379,8 +379,9 @@ bool MQTTTransport::sendRPCResponse(
     return false;
   }
 
+  // Must match the backend ACK consumer subscription: devices/+/rpc/response/+
   String responseTopic =
-    "v1/devices/me/rpc/response/" +
+    topic("rpc/response/") +
     lastRPCRequestId;
 
   return publish(
