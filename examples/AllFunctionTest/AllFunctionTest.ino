@@ -143,14 +143,12 @@ void onAttributeUpdate(const String& key, float value) {
   }
 
   // ---- AttributeControlCard widgets (voltage limits) ----
-  // Shared attr key  : limitVoltageN  (dashboard writes this)
-  // Client attr key  : setVoltageN    (device confirms the applied value)
-  // Two different keys by design: "what the user set" vs "what the device is using".
+  // Dashboard writes limitVoltageN → device stores it and confirms back.
   if (key == "limitVoltage1") {
     limitVoltage1 = value;
     setVoltage1   = value;
     sdk.sendClientAttribute("setVoltage1", setVoltage1);
-    Serial.printf("[ATTR] limitVoltage1=%.2f → setVoltage1=%.2f\n", value, setVoltage1);
+    Serial.printf("[ATTR] setVoltage1 = %.2f\n", value);
     return;
   }
 
@@ -158,7 +156,7 @@ void onAttributeUpdate(const String& key, float value) {
     limitVoltage2 = value;
     setVoltage2   = value;
     sdk.sendClientAttribute("setVoltage2", setVoltage2);
-    Serial.printf("[ATTR] limitVoltage2=%.2f → setVoltage2=%.2f\n", value, setVoltage2);
+    Serial.printf("[ATTR] setVoltage2 = %.2f\n", value);
     return;
   }
 
@@ -166,7 +164,7 @@ void onAttributeUpdate(const String& key, float value) {
     limitVoltage3 = value;
     setVoltage3   = value;
     sdk.sendClientAttribute("setVoltage3", setVoltage3);
-    Serial.printf("[ATTR] limitVoltage3=%.2f → setVoltage3=%.2f\n", value, setVoltage3);
+    Serial.printf("[ATTR] setVoltage3 = %.2f\n", value);
     return;
   }
 
@@ -230,7 +228,7 @@ void onRPC(const String& method, JsonObject payload) {
     reply["channel2"]      = channelState[2] ? 1 : 0;
     reply["channel3"]      = channelState[3] ? 1 : 0;
     reply["channel4"]      = channelState[4] ? 1 : 0;
-    reply["volume"]      = volume;
+    reply["volume"]        = volume;
     reply["setVoltage1"] = setVoltage1;
     reply["setVoltage2"] = setVoltage2;
     reply["setVoltage3"] = setVoltage3;

@@ -1,7 +1,6 @@
-@"
 .pio
 .vscode
 build
 libdeps
 *.log
-"@ | Out-File -Encoding utf8 .gitignore
+*.bak
