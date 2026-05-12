@@ -159,7 +159,7 @@ void loop() {
 | `enableWS` | `bool` | No | Use WSS as primary transport (default `true`) |
 | `enableMQTT` | `bool` | No | Use MQTTS as fallback (default `true`) |
 | `allowInsecureTLS` | `bool` | No | Skip cert verification — only for local dev |
-| `rootCA` | `const char*` | No | PEM root CA certificate for TLS verification |
+| `rootCA` | `const char*` | No | PEM root CA bundle for TLS verification. Examples ship a multi-CA bundle (ISRG Root X1 + Root X2); device validates a chain that terminates at **any** root in the bundle. |
 | `enableSerialLogs` | `bool` | No | Print SDK logs to Serial |
 
 ---
