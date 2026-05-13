@@ -12,7 +12,7 @@ Device code provides `SDKConfig` including:
 - `deviceToken`
 - TLS configuration (`rootCA` and `allowInsecureTLS`)
 
-`rootCA` accepts a **multi-cert PEM bundle**. The example sketches ship with both `ISRG Root X1` (RSA, valid → 2035) and `ISRG Root X2` (ECDSA, valid → 2040) concatenated in one string. mbedtls (via esp_tls) validates the broker chain if it terminates at **any** root in the bundle. This keeps existing devices working across LE's gradual X1 → X2 transition without OTA firmware updates.
+`rootCA` accepts a **multi-cert PEM bundle**. The canonical bundle is `AUTOCONNECTO_ROOT_CA` in `src/AutoconnectoIsrgRoots.h` (included by `AutoconnectoSDK.h` and by HTTPS-only example sketches). It concatenates `ISRG Root X1` (RSA, valid → 2035) and `ISRG Root X2` (ECDSA, valid → 2040). mbedtls (via esp_tls) validates the broker chain if it terminates at **any** root in the bundle. This keeps existing devices working across LE's gradual X1 → X2 transition without OTA firmware updates.
 
 ### 2) Start
 

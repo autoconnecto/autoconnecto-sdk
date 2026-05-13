@@ -1,0 +1,16 @@
+# Syntax Coloring Map For AutoconnectoSDK
+# Delimiter between keyword and type must be TAB.
+
+# Classes (KEYWORD1)
+AutoconnectoSDK	KEYWORD1
+SDKConfig	KEYWORD1
+
+# Methods (KEYWORD2)
+activeTransport	KEYWORD2
+isUsingWSS	KEYWORD2
+isUsingMQTTS	KEYWORD2
+sendTelemetry	KEYWORD2
+sendClientAttribute	KEYWORD2
+sendClientAttributes	KEYWORD2
+requestSharedAttributes	KEYWORD2
+replyRPC	KEYWORD2

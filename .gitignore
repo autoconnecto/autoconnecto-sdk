@@ -4,3 +4,4 @@ build
 libdeps
 *.log
 *.bak
+.development

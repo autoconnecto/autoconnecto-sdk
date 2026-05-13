@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "AutoconnectoIsrgRoots.h"
+
 #include <WiFi.h>
 
 #include <ArduinoJson.h>

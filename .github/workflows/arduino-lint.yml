@@ -1,0 +1,23 @@
+# Validates this repository against the Arduino Library Specification and
+# Library Manager submission rules. See ARDUINO_LIBRARY_MANAGER.md.
+name: Arduino Lint
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Arduino Lint (Library Manager submission profile)
+        uses: arduino/arduino-lint-action@v2
+        with:
+          project-type: library
+          library-manager: submit
+          compliance: strict

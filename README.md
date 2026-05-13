@@ -57,14 +57,15 @@ https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32
 ```
 Then: **Tools → Board → Boards Manager** → search `esp32` → install **esp32 by Espressif Systems**.
 
-### Required Libraries
+### Required libraries
+
 Install from **Sketch → Include Library → Manage Libraries**:
 
 | Library | Author | Purpose |
-|---|---|---|
-| ArduinoJson | Benoit Blanchon | JSON parsing for attributes and RPC |
+|---------|--------|---------|
+| ArduinoJson | Benoit Blanchon | JSON for attributes and RPC |
 
-The SDK uses the ESP-IDF native MQTT client (built into ESP32 Arduino core) — no additional MQTT library needed.
+The ESP32 Arduino core provides the MQTT client used by this SDK (MQTTS and MQTT-over-WebSocket). No separate PubSub or WebSockets library is required.
 
 ---
 
@@ -89,6 +90,12 @@ Linux:    ~/Arduino/libraries/AutoconnectoSDK/
 ```
 
 Restart Arduino IDE.
+
+### Option C — Arduino Library Manager (after registration)
+
+Once this repository is **public** and has been **accepted** into the [Arduino Library Manager index](https://github.com/arduino/library-registry), install it from **Sketch → Include Library → Manage Libraries…** and search for **AutoconnectoSDK**.
+
+Maintainers: see **`ARDUINO_LIBRARY_MANAGER.md`** for the compliance checklist, `arduino-lint`, and how to open the registry pull request.
 
 ---
 
@@ -129,7 +136,7 @@ void setup() {
   config.enableWS        = true;
   config.enableMQTT      = true;
   config.allowInsecureTLS = false;
-  config.rootCA          = AUTOCONNECTO_ROOT_CA; // see examples
+  config.rootCA          = AUTOCONNECTO_ROOT_CA; // macro in AutoconnectoIsrgRoots.h (included via SDK)
 
   sdk.onAttributeUpdate(onAttributeUpdate);
   sdk.onRPC(onRPC);
@@ -159,7 +166,7 @@ void loop() {
 | `enableWS` | `bool` | No | Use WSS as primary transport (default `true`) |
 | `enableMQTT` | `bool` | No | Use MQTTS as fallback (default `true`) |
 | `allowInsecureTLS` | `bool` | No | Skip cert verification — only for local dev |
-| `rootCA` | `const char*` | No | PEM root CA bundle for TLS verification. Examples ship a multi-CA bundle (ISRG Root X1 + Root X2); device validates a chain that terminates at **any** root in the bundle. |
+| `rootCA` | `const char*` | No | PEM root CA bundle for TLS. Default: `AUTOCONNECTO_ROOT_CA` (macro in `src/AutoconnectoIsrgRoots.h`, included by `AutoconnectoSDK.h`). ISRG Root X1 + X2; chain valid if it terminates at **any** root in the bundle. |
 | `enableSerialLogs` | `bool` | No | Print SDK logs to Serial |
 
 ---
@@ -309,33 +316,31 @@ void onRPC(const String& method, JsonObject payload) {
 
 ## Examples
 
-All examples use the **same keys** — one dashboard configuration works across all of them.
+Naming: each example has an **MQTT** variant (`*_mqtt`, uses `AutoconnectoSDK`) and, where applicable, an **HTTPS** variant (`*_http`, device-token REST only — no SDK calls). HTTPS sketches still **install the AutoconnectoSDK library** so they can `#include <AutoconnectoIsrgRoots.h>` for the shared TLS bundle. The sketch folder name matches the `.ino` basename (Arduino IDE rule). Pairs share the **same telemetry and attribute keys** so one dashboard layout can be used for either transport.
 
-### `BasicTelemetry`
-`examples/BasicTelemetry/BasicTelemetry.ino`
+### `BasicTelemetry_mqtt` / `BasicTelemetry_http`
+- MQTT: `examples/BasicTelemetry_mqtt/BasicTelemetry_mqtt.ino`
+- HTTPS: `examples/BasicTelemetry_http/BasicTelemetry_http.ino`
 
-Start here. Connect to the platform and send telemetry every 10 seconds. No attributes, no RPC. Confirms your device token and network connectivity.
+Start here. Sends the same telemetry (and HTTPS sends the same periodic client health attributes). No shared-attribute control, no RPC.
 
-### `SwitchControl`
-`examples/SwitchControl/SwitchControl.ino`
+### `SwitchControl_mqtt` / `SwitchControl_http`
+- MQTT: `examples/SwitchControl_mqtt/SwitchControl_mqtt.ino`
+- HTTPS: `examples/SwitchControl_http/SwitchControl_http.ino`
 
-Demonstrates the full attribute feedback loop:
-- 4-channel relay control via Switch widget (`channel1`–`channel4`)
-- Slider/volume control via SliderControl widget (`volume`)
-- Voltage limit control via AttributeControlCard widget (`limitVoltage1/2/3` → `setVoltage1/2/3`)
-- Power-cycle sync via `requestSharedAttributes()` at startup
+Full attribute feedback loop (Switch, SliderControl, AttributeControlCard). HTTPS polls shared attributes (`GET .../attributes/flat?scope=SHARED`) instead of MQTT push.
 
-### `RPCCommands`
-`examples/RPCCommands/RPCCommands.ino`
+### `RPCCommands_mqtt` / `RPCCommands_http`
+- MQTT: `examples/RPCCommands_mqtt/RPCCommands_mqtt.ino`
+- HTTPS: `examples/RPCCommands_http/RPCCommands_http.ino`
 
-Demonstrates how to handle RPC commands from the dashboard RPC Widget:
-- `ping`, `getStatus`, `getDiagnostics`, `relay_set`, `setValue`, `reset`, `reboot`, `telemetry_burst`
-- Correct `replyRPC()` pattern for all cases including unknown methods
+MQTT: RPC from the dashboard (`ping`, `getStatus`, `getConfig`, `getDiagnostics`, `relay_set`, `setValue`, `reset`, `reboot`, `telemetry_burst`) with mandatory `replyRPC()`. HTTPS: same telemetry and client attributes as the MQTT sketch; **dashboard RPC is not delivered over device-token HTTPS** — see the `RPCCommands_http` header comment.
 
-### `AllFunctionTest`
-`examples/AllFunctionTest/AllFunctionTest.ino`
+### `AllFunctionTest_mqtt` / `AllFunctionTest_http`
+- MQTT: `examples/AllFunctionTest_mqtt/AllFunctionTest_mqtt.ino`
+- HTTPS: `examples/AllFunctionTest_http/AllFunctionTest_http.ino`
 
-Production-grade reference sketch combining all of the above. Use this as a base for real device firmware.
+Reference combining telemetry, attributes, and (on MQTT only) RPC. HTTPS matches MQTT for keys, relays, polling, and timing of telemetry + client health posts; RPC requires the MQTT sketch or a JWT command API.
 
 ---
 
