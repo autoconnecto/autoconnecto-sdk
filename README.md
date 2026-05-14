@@ -5,6 +5,8 @@
 **Target:** ESP32 (all variants)  
 **Transport:** MQTT over WSS (primary) / MQTTS (fallback)
 
+**Source & updates:** [github.com/autoconnecto/autoconnecto-sdk](https://github.com/autoconnecto/autoconnecto-sdk) — clone or download ZIP from the green **Code** button; use [Releases](https://github.com/autoconnecto/autoconnecto-sdk/releases) when you publish versioned zips.
+
 ---
 
 ## What this SDK does
