@@ -11,7 +11,7 @@ The Autoconnecto **workspace** meta-repo lists `sdk/` as a submodule pointing he
 - [x] Examples under `examples/` (lowercase), each sketch folder name matches its `.ino` name.
 - [x] `LICENSE` at repo root (MIT).
 - [x] `keywords.txt` at repo root (optional but recommended).
-- [ ] **Public** GitHub repository.
+- [x] **Public** GitHub repository (`https://github.com/autoconnecto/autoconnecto-sdk`).
 - [ ] **No** `.development` file in any tagged release (Arduino indexer rejects it). Listed in `.gitignore` for local use only.
 - [ ] **No** symlinks in the repo.
 - [ ] **No** `.exe` files.
@@ -28,13 +28,63 @@ arduino-lint --library-manager submit --compliance strict
 
 Or rely on the GitHub Action in `.github/workflows/arduino-lint.yml` after you push.
 
-## Submitting to the index
+## Submitting to the index (do this once)
 
-1. Make the repo public.
-2. Ensure `version` in `library.properties` matches the release you are tagging.
-3. Create an annotated tag (or GitHub Release), e.g. `v1.0.1`, and push it.
-4. Open a pull request on **[arduino/library-registry](https://github.com/arduino/library-registry)** following [their README](https://github.com/arduino/library-registry#readme) (add your repo URL to the registration list).
-5. Watch the [indexer logs](https://github.com/arduino/library-registry/blob/main/FAQ.md#can-i-check-on-library-releases-being-added-to-library-manager) if a release does not appear within ~1 hour.
+**Library URL to register (copy exactly):**
+
+```text
+https://github.com/autoconnecto/autoconnecto-sdk
+```
+
+### Steps (GitHub web — ~5 minutes)
+
+1. **Fork** the registry: [github.com/arduino/library-registry/fork](https://github.com/arduino/library-registry/fork) → **Create fork** (under your `autoconnecto` account or personal account).
+
+2. **Branch** on your fork: **main** → **Branches** → **New branch** → name e.g. `add-autoconnecto-sdk` → create from `arduino/library-registry` / `main`.
+
+3. **Edit** `repositories.txt` on that branch: open the file → pencil **Edit** → add this line anywhere (one line only):
+
+   ```text
+   https://github.com/autoconnecto/autoconnecto-sdk
+   ```
+
+   Commit directly to `add-autoconnecto-sdk`.
+
+4. **Pull request**: on your fork, **Contribute** → **Open pull request** → base `arduino/library-registry:main` ← compare your branch.
+
+   **Title:** `Add AutoconnectoSDK library`
+
+   **Body:**
+
+   ```text
+   - [x] My submission is for a library I maintain
+   - [x] I have read the [submission requirements](https://github.com/arduino/library-registry/blob/main/FAQ.md#submission-requirements)
+   - [x] The library repository is public and contains library.properties at the repo root
+   - [x] I have run / passed arduino-lint (Library Manager submit, strict) on the library repo
+
+   Library URL: https://github.com/autoconnecto/autoconnecto-sdk
+   ```
+
+5. **Watch the PR** — bot comments in a few minutes. Fix any **errors** it reports (warnings are OK).
+
+6. When the PR is **merged**, Library Manager usually lists the library within **~24 hours**. Latest indexed release comes from your **git tags** (e.g. `v1.0.5`).
+
+### If the bot rejects the library (not the PR)
+
+1. Fix the issue in `autoconnecto-sdk`.
+2. Bump `version` in `library.properties`.
+3. Tag and push (e.g. `git tag v1.0.6 && git push origin v1.0.6`).
+4. Comment on the registry PR: `@ArduinoBot please recheck`.
+
+### Prerequisites already done on our side
+
+- Tags on GitHub: `v1.0.0`, `v1.0.3`, `v1.0.5` (indexer uses tagged releases).
+- `library.properties` at repo root; `LICENSE`, `keywords.txt`, examples layout.
+- CI: `.github/workflows/arduino-lint.yml` on the SDK repo.
+
+### After merge
+
+Users: **Sketch → Include Library → Manage Libraries…** → search **AutoconnectoSDK** → Install (also installs **ArduinoJson**).
 
 ## After acceptance
 
