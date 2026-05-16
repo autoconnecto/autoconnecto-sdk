@@ -32,6 +32,16 @@ public:
   bool connected();
 
   // =====================================
+  // NETWORK (WiFi default; LTE when configured)
+  // =====================================
+
+  bool isNetworkUp();
+
+  int getNetworkRssi();
+
+  NetworkMode getNetworkMode() const;
+
+  // =====================================
   // TRANSPORT INFO
   // =====================================
 
@@ -168,10 +178,4 @@ private:
 
   String lastRPCRequestTopic =
     "";
-
-  // =====================================
-  // INTERNALS
-  // =====================================
-
-  void connectWiFi();
 };

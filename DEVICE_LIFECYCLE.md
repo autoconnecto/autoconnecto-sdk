@@ -7,7 +7,8 @@ This document describes the end-to-end device lifecycle implied by the current S
 ### 1) Configure
 
 Device code provides `SDKConfig` including:
-- WiFi credentials
+- **Network:** `networkMode` defaults to **WiFi** (existing behaviour). Optional **LTE PPP** (`NetworkMode::LtePpp`, Quectel EC200) — compile with `-DAUTOCONNECTO_ENABLE_LTE_PPP=1` and ESP32 core 3.x PPP library. See `LTE_PPP_EC200.md`.
+- WiFi credentials (when `networkMode` is WiFi)
 - MQTT host/ports (WSS port used by current transport)
 - `deviceToken`
 - TLS configuration (`rootCA` and `allowInsecureTLS`)
@@ -18,7 +19,7 @@ Device code provides `SDKConfig` including:
 
 `AutoconnectoSDK::begin(config)`:
 - stores config
-- connects WiFi (blocking loop until connected)
+- connects network: **WiFi** (default) or **LTE PPP** when configured
 - configures `ConnectionManager`
 - starts transport via `ConnectionManager.begin()`
 

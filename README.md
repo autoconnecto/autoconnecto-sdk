@@ -342,6 +342,11 @@ MQTT: RPC from the dashboard (`ping`, `getStatus`, `getConfig`, `getDiagnostics`
 - MQTT: `examples/AllFunctionTest_mqtt/AllFunctionTest_mqtt.ino`
 - HTTPS: `examples/AllFunctionTest_http/AllFunctionTest_http.ino`
 
+### `AllFunctionTest_lte_ppp_mqtt` (optional — LTE / EC200)
+- Same AllFunctions behaviour over **LTE PPP** (Quectel EC200, UART 16/17).
+- **Does not change default WiFi builds** — enable with `build_opt.h` in the sketch folder.
+- See **[LTE_PPP_EC200.md](LTE_PPP_EC200.md)** (ESP32 core **3.x**, no TinyGSM).
+
 Reference combining telemetry, attributes, and (on MQTT only) RPC. HTTPS matches MQTT for keys, relays, polling, and timing of telemetry + client health posts; RPC requires the MQTT sketch or a JWT command API.
 
 ---

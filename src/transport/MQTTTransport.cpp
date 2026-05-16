@@ -228,6 +228,21 @@ void MQTTTransport::connectClient() {
 
 String MQTTTransport::buildBrokerURI() {
 
+  // LTE PPP: MQTTS only (cellular). WiFi: unchanged WSS primary path.
+  if (
+    _config->networkMode ==
+    NetworkMode::LtePpp
+  ) {
+
+    usingWSS = false;
+
+    return
+      "mqtts://" +
+      _config->mqttHost +
+      ":" +
+      String(_config->mqttPort);
+  }
+
   usingWSS = true;
 
   return

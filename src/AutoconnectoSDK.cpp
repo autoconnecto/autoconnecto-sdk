@@ -4,40 +4,7 @@
 
 #include "AutoconnectoSDK.h"
 
-// =========================================
-// WIFI
-// =========================================
-
-void AutoconnectoSDK::connectWiFi() {
-
-  Logger::info(
-    "Connecting WiFi..."
-  );
-
-  WiFi.begin(
-    _config.wifiSSID.c_str(),
-    _config.wifiPassword.c_str()
-  );
-
-  while (
-    WiFi.status() != WL_CONNECTED
-  ) {
-
-    delay(500);
-
-    Serial.print(".");
-  }
-
-  Serial.println();
-
-  Logger::info(
-    "WiFi connected"
-  );
-
-  Logger::info(
-    WiFi.localIP().toString()
-  );
-}
+#include "network/NetworkConnect.h"
 
 // =========================================
 // BEGIN
@@ -49,9 +16,12 @@ void AutoconnectoSDK::begin(
 
   _config = config;
 
+  if (!networkConnect(_config)) {
 
-
-  connectWiFi();
+    Logger::warn(
+      "Network connect failed"
+    );
+  }
 
   manager.configure(
     &_config,
@@ -70,6 +40,8 @@ void AutoconnectoSDK::begin(
 // =========================================
 
 void AutoconnectoSDK::loop() {
+
+  networkMaintain(_config);
 
   manager.loop();
 
@@ -130,6 +102,25 @@ bool AutoconnectoSDK::connected() {
   return
     manager.activeTransport()
     != nullptr;
+}
+
+// =========================================
+// NETWORK (WiFi or LTE PPP)
+// =========================================
+
+bool AutoconnectoSDK::isNetworkUp() {
+
+  return networkLinkUp(_config);
+}
+
+int AutoconnectoSDK::getNetworkRssi() {
+
+  return networkSignalRssi(_config);
+}
+
+NetworkMode AutoconnectoSDK::getNetworkMode() const {
+
+  return _config.networkMode;
 }
 
 // =========================================
