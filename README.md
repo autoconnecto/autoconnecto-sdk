@@ -316,6 +316,10 @@ void onRPC(const String& method, JsonObject payload) {
 
 ---
 
+## Connectivity guide
+
+See **[CONNECTIVITY.md](CONNECTIVITY.md)** for HTTP batch, gateway relay, generic/LoRa webhooks, and WebSocket. Server-side webhook samples (curl, Python, ChirpStack/TTN JSON) are under **`examples/integrations/`**.
+
 ## Examples
 
 Naming: each example has an **MQTT** variant (`*_mqtt`, uses `AutoconnectoSDK`) and, where applicable, an **HTTPS** variant (`*_http`, device-token REST only — no SDK calls). HTTPS sketches still **install the AutoconnectoSDK library** so they can `#include <AutoconnectoIsrgRoots.h>` for the shared TLS bundle. The sketch folder name matches the `.ino` basename (Arduino IDE rule). Pairs share the **same telemetry and attribute keys** so one dashboard layout can be used for either transport.
@@ -325,6 +329,11 @@ Naming: each example has an **MQTT** variant (`*_mqtt`, uses `AutoconnectoSDK`) 
 - HTTPS: `examples/BasicTelemetry_http/BasicTelemetry_http.ino`
 
 Start here. Sends the same telemetry (and HTTPS sends the same periodic client health attributes). No shared-attribute control, no RPC.
+
+### `Generator_Monitoring_mqtt`
+- `examples/Generator_Monitoring_mqtt/Generator_Monitoring_mqtt.ino`
+
+Simulated diesel generator telemetry using the **`gen_*`** key contract for the dashboard **Generator Monitoring** widget (`generatorMonitoring`). Cycles stopped → starting → running → fault with realistic electrical and engine fields.
 
 ### `SwitchControl_mqtt` / `SwitchControl_http`
 - MQTT: `examples/SwitchControl_mqtt/SwitchControl_mqtt.ino`
@@ -341,6 +350,19 @@ MQTT: RPC from the dashboard (`ping`, `getStatus`, `getConfig`, `getDiagnostics`
 ### `AllFunctionTest_mqtt` / `AllFunctionTest_http`
 - MQTT: `examples/AllFunctionTest_mqtt/AllFunctionTest_mqtt.ino`
 - HTTPS: `examples/AllFunctionTest_http/AllFunctionTest_http.ino`
+
+### `TelemetryBatch_http`
+- `examples/TelemetryBatch_http/TelemetryBatch_http.ino`
+
+Posts multiple samples in one request to `POST /api/v1/{token}/telemetry/batch` (max 100 items).
+
+### `GatewayRelay_http`
+- `examples/GatewayRelay_http/GatewayRelay_http.ino`
+
+Gateway hub publishes child telemetry using `childDeviceId` + gateway token. Requires gateway + child devices configured in the platform.
+
+### Integration webhooks (scripts, not Arduino)
+- `examples/integrations/README.md` — generic, ChirpStack, and TTN samples (`*.sh`, `*.py`, sample JSON bodies).
 
 ### `AllFunctionTest_lte_ppp_mqtt` (optional — LTE / EC200)
 - Same AllFunctions behaviour over **LTE PPP** (Quectel EC200, UART 16/17).

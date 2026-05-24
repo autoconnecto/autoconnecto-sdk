@@ -64,6 +64,19 @@ If devices publish RPC responses only to `v1/devices/me/rpc/response/+`, the bac
 Implication:
 - The implementation assumes a single active `MQTTTransport` instance per process.
 
+## Related examples (SDK repo)
+
+| Path | Purpose |
+|------|---------|
+| `examples/BasicTelemetry_mqtt` | MQTT telemetry |
+| `examples/Generator_Monitoring_mqtt` | MQTT `gen_*` generator telemetry |
+| `examples/BasicTelemetry_http` | HTTPS telemetry |
+| `examples/TelemetryBatch_http` | `POST .../telemetry/batch` |
+| `examples/GatewayRelay_http` | Gateway `childDeviceId` relay over HTTPS |
+| `examples/integrations/` | Generic / ChirpStack / TTN webhook scripts |
+
+See `CONNECTIVITY.md` for full ingress documentation.
+
 ## Current Status
 
 - MQTT-over-WSS is the implemented transport path.

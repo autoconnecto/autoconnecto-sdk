@@ -1,0 +1,19 @@
+{
+  "deviceInfo": {
+    "devEui": "0102030405060708",
+    "deviceName": "sensor-01"
+  },
+  "object": {
+    "temperature": 21.4,
+    "humidity": 55
+  },
+  "fPort": 1,
+  "fCnt": 42,
+  "dr": 5,
+  "rxInfo": [
+    {
+      "rssi": -95,
+      "snr": 9.5
+    }
+  ]
+}

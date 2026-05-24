@@ -1,0 +1,31 @@
+{
+  "end_device_ids": {
+    "dev_eui": "0102030405060708",
+    "device_id": "sensor-01",
+    "application_ids": {
+      "application_id": "my-app"
+    }
+  },
+  "uplink_message": {
+    "decoded_payload": {
+      "temperature": 19.8,
+      "battery": 3.7
+    },
+    "f_port": 1,
+    "f_cnt": 100,
+    "settings": {
+      "data_rate": {
+        "lora": {
+          "bandwidth": 125000,
+          "spreading_factor": 7
+        }
+      }
+    },
+    "rx_metadata": [
+      {
+        "rssi": -102,
+        "snr": 7.2
+      }
+    ]
+  }
+}
