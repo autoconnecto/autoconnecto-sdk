@@ -3,14 +3,22 @@
 
 # Classes (KEYWORD1)
 AutoconnectoSDK	KEYWORD1
+AutoconnectoOta	KEYWORD1
 SDKConfig	KEYWORD1
+NetworkMode	KEYWORD1
+OtaConfig	KEYWORD1
 
 # Methods (KEYWORD2)
 activeTransport	KEYWORD2
 isUsingWSS	KEYWORD2
 isUsingMQTTS	KEYWORD2
+isNetworkUp	KEYWORD2
+getNetworkRssi	KEYWORD2
+getNetworkMode	KEYWORD2
 sendTelemetry	KEYWORD2
 sendClientAttribute	KEYWORD2
 sendClientAttributes	KEYWORD2
 requestSharedAttributes	KEYWORD2
 replyRPC	KEYWORD2
+onSharedAttribute	KEYWORD2
+isBusy	KEYWORD2

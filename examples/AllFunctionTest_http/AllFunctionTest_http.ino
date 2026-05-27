@@ -8,6 +8,9 @@
 //   client-attribute confirmations as AllFunctionTest_mqtt.
 //   Shared attributes are polled over HTTPS (no server push).
 //
+// NOTE
+//   Raspberry Pi mirrors of these examples live under `raspberrypi/`.
+//
 // RPC (dashboard widget)
 //   Not available on device-token HTTPS. Methods implemented on
 //   the MQTT sketch (ping, getStatus, getConfig, getDiagnostics,

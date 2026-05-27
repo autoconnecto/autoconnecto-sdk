@@ -9,6 +9,9 @@
 //   keeps dashboard widgets in sync with device state across
 //   power cycles without any user action.
 //
+// NOTE
+//   Raspberry Pi mirrors of these examples live under `raspberrypi/`.
+//
 // DASHBOARD WIDGETS THAT WORK WITH THIS SKETCH
 //   - Switch widget      : channel1, channel2, channel3, channel4
 //   - SliderControl      : volume

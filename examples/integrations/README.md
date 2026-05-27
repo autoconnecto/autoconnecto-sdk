@@ -60,6 +60,24 @@ If your middleware already posts to the generic endpoint using a **gateway** dev
 }
 ```
 
+## OPC‑UA gateway (Linux SBC)
+
+Read values from an OPC‑UA server and forward to Autoconnecto as telemetry over MQTTS:
+
+- `opcua-gateway/README.md`
+
+## Modbus gateway (Linux SBC)
+
+Poll Modbus (TCP/RTU) registers and forward to Autoconnecto over MQTTS:
+
+- `modbus-gateway/README.md`
+
+## MQTT bridge (Linux SBC)
+
+Subscribe to an existing MQTT broker/topic and republish to Autoconnecto token telemetry topics:
+
+- `mqtt-bridge/README.md`
+
 ## See also
 
 - `../../CONNECTIVITY.md` — full connectivity guide

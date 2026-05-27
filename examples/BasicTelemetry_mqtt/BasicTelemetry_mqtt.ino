@@ -9,6 +9,9 @@
 //   sensor readings every 10 seconds. No attributes, no RPC.
 //   Use this first to verify your device token and connection.
 //
+// NOTE
+//   Raspberry Pi mirrors of these examples live under `raspberrypi/`.
+//
 // DASHBOARD WIDGETS THAT WORK WITH THIS SKETCH
 //   - Any chart/telemetry widget configured with:
 //     temperature, humidity, current, power,

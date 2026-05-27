@@ -4,6 +4,9 @@
 // Pair sketch: examples/AllFunctionTest_http/AllFunctionTest_http.ino
 //   Same telemetry + attribute keys; uses HTTPS polling instead
 //   of MQTT. Dashboard RPC widget requires MQTT (or JWT API).
+//
+// NOTE
+//   Raspberry Pi mirrors of these examples live under `raspberrypi/`.
 // =============================================================
 
 #include <AutoconnectoSDK.h>

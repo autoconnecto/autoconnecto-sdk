@@ -1,0 +1,20 @@
+{
+  "opcua": {
+    "endpoint": "opc.tcp://127.0.0.1:4840",
+    "username": "",
+    "password": ""
+  },
+  "autoconnecto": {
+    "deviceToken": "YOUR_DEVICE_TOKEN",
+    "mqttHost": "mqtt.autoconnecto.in",
+    "mqttPort": 8883,
+    "caFile": "../../../raspberrypi/ca/isrg_roots.pem",
+    "insecureTls": false
+  },
+  "pollIntervalMs": 1000,
+  "mapping": [
+    { "key": "temperature", "nodeId": "ns=2;s=Demo.Temperature" },
+    { "key": "humidity", "nodeId": "ns=2;s=Demo.Humidity" }
+  ]
+}
+

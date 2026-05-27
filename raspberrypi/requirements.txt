@@ -1,0 +1,5 @@
+paho-mqtt>=2.0.0,<3
+requests>=2.28.0,<3
+
+# Optional: real GPIO on Raspberry Pi (examples simulate if missing)
+# gpiozero>=2.0

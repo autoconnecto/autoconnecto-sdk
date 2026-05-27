@@ -1,0 +1,21 @@
+{
+  "modbus": {
+    "mode": "tcp",
+    "tcp": { "host": "127.0.0.1", "port": 502 },
+    "rtu": { "port": "/dev/ttyUSB0", "baud": 9600, "parity": "N", "stopbits": 1, "bytesize": 8 },
+    "unitId": 1
+  },
+  "autoconnecto": {
+    "deviceToken": "YOUR_DEVICE_TOKEN",
+    "mqttHost": "mqtt.autoconnecto.in",
+    "mqttPort": 8883,
+    "caFile": "../../../raspberrypi/ca/isrg_roots.pem",
+    "insecureTls": false
+  },
+  "pollIntervalMs": 1000,
+  "mapping": [
+    { "key": "temperature", "type": "holding", "address": 0, "count": 1, "scale": 0.1, "signed": false },
+    { "key": "humidity", "type": "input", "address": 1, "count": 1, "scale": 0.1, "signed": false }
+  ]
+}
+

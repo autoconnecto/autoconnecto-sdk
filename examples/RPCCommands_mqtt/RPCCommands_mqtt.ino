@@ -8,6 +8,9 @@
 //   Demonstrates how to receive and reply to RPC commands sent
 //   from the Autoconnecto dashboard RPC Widget.
 //
+// NOTE
+//   Raspberry Pi mirrors of these examples live under `raspberrypi/`.
+//
 //   RPC = fire-and-forget command with a response. Unlike
 //   shared attributes (persistent state), RPC commands are
 //   one-time triggers: reboot, open door, get diagnostics, etc.

@@ -1,0 +1,51 @@
+name: Arduino Compile (ESP32)
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        core:
+          - "3.0.0"
+          - "latest"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile representative sketches (ESP32 core ${{ matrix.core }})
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: "esp32:esp32:esp32"
+          platforms: |
+            - name: esp32:esp32
+              source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+              version: ${{ matrix.core }}
+          libraries: |
+            - source-path: ./
+            - name: ArduinoJson
+          sketch-paths: |
+            - examples/BasicTelemetry_mqtt
+            - examples/BasicTelemetry_http
+            - examples/SwitchControl_mqtt
+            - examples/SwitchControl_http
+            - examples/RPCCommands_mqtt
+            - examples/RPCCommands_http
+            - examples/AllFunctionTest_mqtt
+            - examples/AllFunctionTest_http
+            - examples/Generator_Monitoring_mqtt
+            - examples/TelemetryBatch_http
+            - examples/TelemetryBatch_mqtt
+            - examples/WatchdogReconnect_mqtt
+            - examples/OtaFirmwareUpdate_mqtt
+            - examples/AllFunctionTest_lte_ppp_mqtt
+            - examples/BasicTelemetry_lte_ppp_mqtt
+          enable-warnings-report: true
+

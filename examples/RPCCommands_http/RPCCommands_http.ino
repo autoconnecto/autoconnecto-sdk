@@ -8,6 +8,9 @@
 //   SDK, not over the device-token HTTPS API. This sketch cannot
 //   receive ping, relay_set, reboot, etc. from the RPC widget.
 //
+// NOTE
+//   Raspberry Pi mirrors of these examples live under `raspberrypi/`.
+//
 //   It sends the SAME telemetry and periodic client attributes as
 //   RPCCommands_mqtt so charts and health widgets behave the same.
 //   For relay + shared-attribute control over HTTPS use

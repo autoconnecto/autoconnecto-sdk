@@ -1,19 +1,25 @@
 # Device connectivity (Autoconnecto SDK & integrations)
 
-This guide covers **confirmed** ingress paths for Autoconnecto v1.2.6+. Arduino sketches live under `examples/`; server-side integration samples live under `examples/integrations/`.
+This guide covers **confirmed** ingress paths for Autoconnecto v1.2.6+. Arduino sketches live under `examples/`; Raspberry Pi mirrors live under `raspberrypi/examples/`; server-side integration samples live under `examples/integrations/`.
 
 ## Choose a path
 
 | Your device / system | Example | Auth |
 |----------------------|---------|------|
 | ESP32 firmware (recommended) | `BasicTelemetry_mqtt` | Device token (MQTT username) |
+| Raspberry Pi (Python) | `raspberrypi/examples/BasicTelemetry_mqtt` | Same as ESP32 (`AUTOCONNECTO_DEVICE_TOKEN`) |
 | ESP32 diesel generator demo | `Generator_Monitoring_mqtt` | Device token; publishes `gen_*` keys for **Generator Monitoring** widget |
+| Raspberry Pi generator demo | `raspberrypi/examples/Generator_Monitoring_mqtt` | Same as ESP32 (`AUTOCONNECTO_DEVICE_TOKEN`) |
 | ESP32 over HTTPS only | `BasicTelemetry_http` | Device token in URL |
 | Edge gateway relaying children | `GatewayRelay_http` | Gateway device token |
 | Buffered / bulk HTTP upload | `TelemetryBatch_http` | Device token in URL |
+| Buffered flush over MQTT | `TelemetryBatch_mqtt` | Device token (MQTT username) |
 | External cloud (IFTTT, ERP, script) | `integrations/generic-webhook.*` | Tenant webhook secret |
 | ChirpStack LoRaWAN | `integrations/chirpstack-*` | Webhook secret + DevEUI on device |
 | TTN / The Things Stack v3 | `integrations/ttn-*` | Webhook secret + DevEUI on device |
+| OPC‑UA gateway | `integrations/opcua-gateway` | Device token (MQTTS) |
+| Modbus gateway | `integrations/modbus-gateway` | Device token (MQTTS) |
+| MQTT bridge | `integrations/mqtt-bridge` | Device token (MQTTS) |
 
 Platform UI: **Device Details → Check connectivity** (per-device curl/MQTT/WS) and **Tenant Settings → LoRa & integration webhooks** (tenant URLs and secret).
 

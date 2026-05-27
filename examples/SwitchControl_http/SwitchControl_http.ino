@@ -8,6 +8,9 @@
 //   attributes are polled (GET .../attributes/flat?scope=SHARED);
 //   there is no server push over HTTP, so react slower than MQTT.
 //
+// NOTE
+//   Raspberry Pi mirrors of these examples live under `raspberrypi/`.
+//
 // DEPENDENCIES
 //   ArduinoJson
 //   AutoconnectoSDK library — for `AutoconnectoIsrgRoots.h` (TLS roots) only.

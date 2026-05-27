@@ -9,6 +9,9 @@
 //   Arduino library anyway so `AutoconnectoIsrgRoots.h` resolves.
 //   Uses POST /api/v1/:deviceToken/telemetry.
 //
+// NOTE
+//   Raspberry Pi mirrors of these examples live under `raspberrypi/`.
+//
 // DEPENDENCIES (Arduino Library Manager)
 //   ArduinoJson
 //   AutoconnectoSDK — required for `AutoconnectoIsrgRoots.h` (TLS roots).

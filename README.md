@@ -7,6 +7,8 @@
 
 **Source & updates:** [github.com/autoconnecto/autoconnecto-sdk](https://github.com/autoconnecto/autoconnecto-sdk) — clone or download ZIP from the green **Code** button; use [Releases](https://github.com/autoconnecto/autoconnecto-sdk/releases) when you publish versioned zips.
 
+See **[CHANGELOG.md](CHANGELOG.md)** for release notes.
+
 ---
 
 ## What this SDK does
@@ -20,6 +22,33 @@ The Autoconnecto SDK connects your ESP32 to the Autoconnecto IoT platform. Once 
 - Reconnect automatically after WiFi or broker drops
 
 ---
+
+## Transport contracts (authoritative)
+
+- `contracts/MQTT_TOPICS.md`
+- `contracts/PAYLOADS.md`
+
+## Other hardware targets
+
+### STM32 (Arduino core)
+
+If your users start on STM32 boards, begin with the Arduino-core path here:
+
+- `stm32/README.md`
+
+### Linux SBC / gateways (Debian/Ubuntu/OpenWrt/x86)
+
+Many industrial deployments use Linux-based gateways (Raspberry Pi, routers, industrial PCs) to bridge field protocols to cloud. Start here:
+
+- `raspberrypi/README.md` (Python examples mirroring the ESP32 example names)
+- `examples/integrations/` (gateway/webhook scripts: curl, Python, ChirpStack/TTN)
+
+### Other MCU families (docs)
+
+Quick-start guides (contracts + TLS + MQTT) for other common MCU families:
+
+- `boards/nrf52/README.md` (Zephyr)
+- `boards/rp2040/README.md`
 
 ## How the attribute feedback loop works (platform USP)
 
@@ -68,6 +97,15 @@ Install from **Sketch → Include Library → Manage Libraries**:
 | ArduinoJson | Benoit Blanchon | JSON for attributes and RPC |
 
 The ESP32 Arduino core provides the MQTT client used by this SDK (MQTTS and MQTT-over-WebSocket). No separate PubSub or WebSockets library is required.
+
+### Compatibility (important)
+
+Arduino users can update dependencies independently (Boards Manager / Library Manager). For stable deployments:
+
+- **ESP32 Arduino core**: test upgrades intentionally (this SDK depends on Espressif’s MQTT client, and optional PPP for LTE).
+- **ArduinoJson**: major updates can change APIs and memory usage.
+
+This repo includes CI that compiles a representative set of sketches to catch breaking updates early.
 
 ---
 
@@ -351,10 +389,25 @@ MQTT: RPC from the dashboard (`ping`, `getStatus`, `getConfig`, `getDiagnostics`
 - MQTT: `examples/AllFunctionTest_mqtt/AllFunctionTest_mqtt.ino`
 - HTTPS: `examples/AllFunctionTest_http/AllFunctionTest_http.ino`
 
+### `TelemetryBatch_mqtt`
+- `examples/TelemetryBatch_mqtt/TelemetryBatch_mqtt.ino`
+
+Buffers telemetry locally and then flushes by sending N individual MQTT publishes sequentially (MQTT ingress is per-message JSON object; there is no single batch payload contract).
+
 ### `TelemetryBatch_http`
 - `examples/TelemetryBatch_http/TelemetryBatch_http.ino`
 
 Posts multiple samples in one request to `POST /api/v1/{token}/telemetry/batch` (max 100 items).
+
+### `WatchdogReconnect_mqtt`
+- `examples/WatchdogReconnect_mqtt/WatchdogReconnect_mqtt.ino`
+
+### OTA firmware update (ThingsBoard-style)
+
+- MQTT: `examples/OtaFirmwareUpdate_mqtt/OtaFirmwareUpdate_mqtt.ino`
+- Docs: **[OTA.md](OTA.md)** (chunked HTTPS API for non-ESP32 devices)
+
+If the device stays disconnected for too long, restarts the ESP32 to recover from wedged network states.
 
 ### `GatewayRelay_http`
 - `examples/GatewayRelay_http/GatewayRelay_http.ino`
@@ -364,10 +417,18 @@ Gateway hub publishes child telemetry using `childDeviceId` + gateway token. Req
 ### Integration webhooks (scripts, not Arduino)
 - `examples/integrations/README.md` — generic, ChirpStack, and TTN samples (`*.sh`, `*.py`, sample JSON bodies).
 
+### Raspberry Pi (Python)
+
+Same example names under **[`raspberrypi/`](raspberrypi/README.md)** — not installed via Arduino Library Manager.
+
 ### `AllFunctionTest_lte_ppp_mqtt` (optional — LTE / EC200)
 - Same AllFunctions behaviour over **LTE PPP** (Quectel EC200, UART 16/17).
 - **Does not change default WiFi builds** — enable with `build_opt.h` in the sketch folder.
 - See **[LTE_PPP_EC200.md](LTE_PPP_EC200.md)** (ESP32 core **3.x**, no TinyGSM).
+
+### `BasicTelemetry_lte_ppp_mqtt` (optional — LTE / EC200)
+- Minimal LTE PPP + MQTTS publish to validate modem bring-up first.
+- `examples/BasicTelemetry_lte_ppp_mqtt/BasicTelemetry_lte_ppp_mqtt.ino`
 
 Reference combining telemetry, attributes, and (on MQTT only) RPC. HTTPS matches MQTT for keys, relays, polling, and timing of telemetry + client health posts; RPC requires the MQTT sketch or a JWT command API.
 

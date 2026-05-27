@@ -4,6 +4,8 @@ This repository (`autoconnecto-sdk`) is laid out as a **standalone Arduino libra
 
 The Autoconnecto **workspace** meta-repo lists `sdk/` as a submodule pointing here; Library Manager indexes **this** GitHub repo only, not the parent monorepo.
 
+The **`raspberrypi/`** tree (Python examples) is shipped in this repo but is **not** part of the indexed Arduino library (ESP32 `src/` + `examples/*.ino` only).
+
 ## Requirements (checklist before you submit)
 
 - [x] `library.properties` at repo root, with `name`, `version`, `author`, `maintainer`, `sentence`, `paragraph`, `category`, `url`, `architectures`, `includes`, `depends`, `license`.
@@ -16,6 +18,7 @@ The Autoconnecto **workspace** meta-repo lists `sdk/` as a submodule pointing he
 - [ ] **No** symlinks in the repo.
 - [ ] **No** `.exe` files.
 - [ ] **Git submodules** must not be required for the library to build (Library Manager does not ship submodule contents).
+- [ ] Ensure non-Arduino sibling folders (e.g. `raspberrypi/`) do not contain extra `library.properties` files or anything that breaks `arduino-lint` in `project-type: library` mode.
 - [ ] **Git tag** (or GitHub Release) on a commit that satisfies all rules; bump `version` in `library.properties` for every indexed release and ensure it is **unique** per tag.
 
 ## Local verification

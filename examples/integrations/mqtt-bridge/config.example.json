@@ -1,0 +1,17 @@
+{
+  "source": {
+    "host": "127.0.0.1",
+    "port": 1883,
+    "topic": "sensors/+/telemetry"
+  },
+  "autoconnecto": {
+    "deviceToken": "YOUR_DEVICE_TOKEN",
+    "mqttHost": "mqtt.autoconnecto.in",
+    "mqttPort": 8883,
+    "caFile": "../../../raspberrypi/ca/isrg_roots.pem",
+    "insecureTls": false
+  },
+  "mode": "forward_json",
+  "wrapKey": "value"
+}
+

@@ -1,0 +1,16 @@
+[Unit]
+Description=Autoconnecto BasicTelemetry (MQTT)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/autoconnecto-sdk/raspberrypi
+EnvironmentFile=/opt/autoconnecto-sdk/raspberrypi/.env
+ExecStart=/opt/autoconnecto-sdk/raspberrypi/.venv/bin/python3 examples/BasicTelemetry_mqtt/basic_telemetry_mqtt.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+
