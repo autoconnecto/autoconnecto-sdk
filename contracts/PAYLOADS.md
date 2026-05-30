@@ -10,6 +10,7 @@ Topic: `devices/{token}/telemetry`
 - Keys: arbitrary, but examples standardize around:
   - `temperature`, `humidity`, `current`, `power`, `voltage1..3`
   - Generator demo: `gen_*` keys (see `examples/Generator_Monitoring_mqtt`)
+  - Machine fleet demo: `machine_current_a` (amps) — see `examples/Machine_Runtime_mqtt` and [`MACHINE_RUNTIME.md`](../MACHINE_RUNTIME.md)
 
 ## Client attributes (MQTT)
 

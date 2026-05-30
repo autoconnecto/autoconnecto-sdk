@@ -41,6 +41,7 @@ jobs:
             - examples/AllFunctionTest_mqtt
             - examples/AllFunctionTest_http
             - examples/Generator_Monitoring_mqtt
+            - examples/Machine_Runtime_mqtt
             - examples/TelemetryBatch_http
             - examples/TelemetryBatch_mqtt
             - examples/WatchdogReconnect_mqtt

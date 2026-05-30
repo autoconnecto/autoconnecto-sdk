@@ -373,6 +373,12 @@ Start here. Sends the same telemetry (and HTTPS sends the same periodic client h
 
 Simulated diesel generator telemetry using the **`gen_*`** key contract for the dashboard **Generator Monitoring** widget (`generatorMonitoring`). Cycles stopped → starting → running → fault with realistic electrical and engine fields.
 
+### `Machine_Runtime_mqtt`
+- `examples/Machine_Runtime_mqtt/Machine_Runtime_mqtt.ino`
+- Contract: [`MACHINE_RUNTIME.md`](MACHINE_RUNTIME.md)
+
+Factory machine current telemetry for the dashboard **Machine Fleet** widget (`machineFleetRuntime`). Publishes `machine_current_a` (amps) from ESP32 + PZEM; load thresholds are set in the widget and stored on the platform (SERVER attributes). Optional **Brevo email reports** (test, save & send, scheduled) are configured in the widget panel — see [`MACHINE_RUNTIME.md`](MACHINE_RUNTIME.md). Assign each device to a ZONE under your SITE/AREA asset tree before scoping the widget.
+
 ### `SwitchControl_mqtt` / `SwitchControl_http`
 - MQTT: `examples/SwitchControl_mqtt/SwitchControl_mqtt.ino`
 - HTTPS: `examples/SwitchControl_http/SwitchControl_http.ino`

@@ -10,6 +10,7 @@ This guide covers **confirmed** ingress paths for Autoconnecto v1.2.6+. Arduino 
 | Raspberry Pi (Python) | `raspberrypi/examples/BasicTelemetry_mqtt` | Same as ESP32 (`AUTOCONNECTO_DEVICE_TOKEN`) |
 | ESP32 diesel generator demo | `Generator_Monitoring_mqtt` | Device token; publishes `gen_*` keys for **Generator Monitoring** widget |
 | Raspberry Pi generator demo | `raspberrypi/examples/Generator_Monitoring_mqtt` | Same as ESP32 (`AUTOCONNECTO_DEVICE_TOKEN`) |
+| ESP32 machine current demo | `Machine_Runtime_mqtt` | Device token; publishes `machine_current_a` for **Machine Fleet** widget — see [`MACHINE_RUNTIME.md`](MACHINE_RUNTIME.md) |
 | ESP32 over HTTPS only | `BasicTelemetry_http` | Device token in URL |
 | Edge gateway relaying children | `GatewayRelay_http` | Gateway device token |
 | Buffered / bulk HTTP upload | `TelemetryBatch_http` | Device token in URL |
