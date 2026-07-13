@@ -73,6 +73,12 @@ struct SDKConfig {
 
   bool enableWS = true;
 
+  /** false = mqtt:// / ws:// (local EMQX :1883 / :8083). true = mqtts:// / wss:// */
+  bool mqttUseTls = true;
+
+  // Optional comma-separated SHARED keys for pull on connect (empty = all).
+  String sharedAttributeKeys = "";
+
   // =========================================
   // TLS
   // =========================================

@@ -131,6 +131,16 @@ private:
   bool usingWSS =
     true;
 
+  /** Toggle on WiFi connect timeout to try the other port (WSS ↔ MQTTS). */
+  bool wifiUseAlternateTransport =
+    false;
+
+  unsigned long reconnectEarliestMs =
+    0;
+
+  int subscribePending =
+    0;
+
   String lastRPCRequestId =
     "";
 

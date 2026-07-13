@@ -9,7 +9,7 @@ Dashboard widget **`machineFleetRuntime`** and sketch **`examples/Machine_Runtim
 
 | Layer | Responsibility |
 |-------|----------------|
-| **ESP32 + PZEM** | Publish `machine_current_a` (amps RMS) every ~10 s |
+| **ESP32 + PZEM** | Publish `machine_current_a`, `machine_voltage_v`, `machine_power_w` every ~10 s |
 | **Platform** | Store owner thresholds (SERVER scope / widget config) |
 | **Widget** | Classify **Off** / **Off load (idle)** / **On load**; KPIs, culprits, drawer |
 
@@ -20,10 +20,14 @@ Devices do **not** receive thresholds over MQTT.
 | Key | Required | Description |
 |-----|----------|-------------|
 | `machine_current_a` | Yes | Current in amps (one phase) |
+| `machine_voltage_v` | No | Line voltage from PZEM (used for no-power / standby fleet status) |
+| `machine_power_w` | No | Active power in watts from PZEM |
 | `machine_sensor_ok` | No | `false` if sensor/Modbus failed |
 | `machine_operator_id` | No | **Rev 2:** `employee_id` read from MIFARE card. **Rev 1:** card UID |
 | `machine_operator_name` | No | **Rev 2:** `display_name` read from card (no platform list). **Rev 1:** often same as UID |
-| `machine_session_active` | No | `true` between tap IN and tap OUT |
+| `machine_session_active` | No | `true` between session start and end |
+| `machine_session_start_ts` | No | Unix seconds (NTP) — worker **START SESSION** / NFC tap IN |
+| `machine_session_end_ts` | No | Unix seconds — **End shift** / tap OUT / timeout; omitted or `0` while active |
 
 ### SHARED attributes (platform → ESP)
 
@@ -74,7 +78,7 @@ Widget KPI: **Tool stopped** — count of machines with expired tool life.
 ## Dashboard widget (`machineFleetRuntime`)
 
 - Full-width default **12×10** grid units  
-- KPIs: Total, On load, Off load, Off, Stale, Setup pending, **Tool stopped**  
+- KPIs: Total, On load, Off load, Off, **Unavailable** (no live data / power / ESP), Setup pending, **Tool stopped**  
 - **Productivity over time** chart (jobs per bucket + cumulative jobs + on-load hours) — fleet litmus test  
 - Main table + alarms rail (desktop) or **Machines / Alarms** tabs (mobile)  
 - Tabs: Overview, Culprits, Worst 20 this week  
@@ -126,7 +130,7 @@ Schedules are stored per tenant in attribute `machine_fleet_report_schedules`.
 | Rev | Sketch | RFID |
 |-----|--------|------|
 | 1.0 | [`examples/Machine_Runtime_mqtt/`](examples/Machine_Runtime_mqtt/) | 125 kHz EM4100 UART |
-| **2.0** | [`examples/Machine_Runtime_NFC_mqtt/`](examples/Machine_Runtime_NFC_mqtt/) | **PN532 I2C** — see [`MACHINE_RUNTIME_NFC.md`](MACHINE_RUNTIME_NFC.md) |
+| **2.0** | [`tools/machine-runtime-nfc/`](../tools/machine-runtime-nfc/) | **PN532 I2C** — see [`MACHINE_RUNTIME_NFC.md`](MACHINE_RUNTIME_NFC.md) (pilot sketches, not SDK examples yet) |
 
 PZEM on UART2 (GPIO 16/17); `machine_current_a` ~10 s. Set `PZEM_DEMO_FALLBACK` to `0` in production.
 

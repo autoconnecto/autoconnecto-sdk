@@ -8,9 +8,20 @@
 
 static bool wifiConnect(SDKConfig& config) {
 
-  Logger::info("Connecting WiFi...");
-
   WiFi.mode(WIFI_STA);
+
+  if (WiFi.status() == WL_CONNECTED) {
+
+    Logger::info("WiFi already connected");
+
+    Logger::info(
+      WiFi.localIP().toString()
+    );
+
+    return true;
+  }
+
+  Logger::info("Connecting WiFi...");
 
   WiFi.begin(
     config.wifiSSID.c_str(),
@@ -31,6 +42,9 @@ static bool wifiConnect(SDKConfig& config) {
   Logger::info(
     WiFi.localIP().toString()
   );
+
+  // Let lwIP settle before the first TLS socket (avoids WSS connect timeouts).
+  delay(500);
 
   return true;
 }

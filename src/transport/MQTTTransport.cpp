@@ -55,7 +55,8 @@ void MQTTTransport::loop() {
 
   if (
     reconnectRequested &&
-    !mqttConnected
+    !mqttConnected &&
+    millis() >= reconnectEarliestMs
   ) {
 
     reconnectRequested = false;
@@ -132,6 +133,9 @@ void MQTTTransport::connectClient() {
 
   mqtt_cfg.credentials.client_id =
     _config->deviceToken.c_str();
+
+  mqtt_cfg.network.timeout_ms = 45000;
+  mqtt_cfg.network.reconnect_timeout_ms = 10000;
 
   // =====================================
   // TLS
@@ -228,7 +232,7 @@ void MQTTTransport::connectClient() {
 
 String MQTTTransport::buildBrokerURI() {
 
-  // LTE PPP: MQTTS only (cellular). WiFi: unchanged WSS primary path.
+  // LTE PPP: MQTTS only (cellular).
   if (
     _config->networkMode ==
     NetworkMode::LtePpp
@@ -243,14 +247,50 @@ String MQTTTransport::buildBrokerURI() {
       String(_config->mqttPort);
   }
 
-  usingWSS = true;
+  // WiFi: WSS or MQTTS; flip on connect timeout (wifiUseAlternateTransport).
+  const bool useWss =
+    wifiUseAlternateTransport
+      ? !_config->enableWS
+      : _config->enableWS;
+
+  if (useWss) {
+
+    usingWSS = true;
+
+    if (_config->mqttUseTls) {
+
+      return
+        "wss://" +
+        _config->mqttHost +
+        ":" +
+        String(_config->wssPort) +
+        "/mqtt";
+    }
+
+    return
+      "ws://" +
+      _config->mqttHost +
+      ":" +
+      String(_config->wssPort) +
+      "/mqtt";
+  }
+
+  usingWSS = false;
+
+  if (_config->mqttUseTls) {
+
+    return
+      "mqtts://" +
+      _config->mqttHost +
+      ":" +
+      String(_config->mqttPort);
+  }
 
   return
-    "wss://" +
+    "mqtt://" +
     _config->mqttHost +
     ":" +
-    String(_config->wssPort) +
-    "/mqtt";
+    String(_config->mqttPort);
 }
 
 // =========================================
@@ -362,6 +402,7 @@ void MQTTTransport::requestAttributes(
   if (keys.length()) {
 
     doc["keys"] = keys;
+    doc["sharedKeys"] = keys;
   }
 
   doc["requestId"] =
@@ -371,10 +412,30 @@ void MQTTTransport::requestAttributes(
 
   serializeJson(doc, out);
 
-  publish(
-    topic("attributes/shared/request"),
+  const String reqTopic =
+    topic("attributes/shared/request");
+
+  Logger::info(
+    "MQTT TX Topic: " +
+    reqTopic
+  );
+
+  Logger::info(
+    "MQTT TX Payload: " +
     out
   );
+
+  if (
+    !publish(
+      reqTopic,
+      out
+    )
+  ) {
+
+    Logger::warn(
+      "MQTT TX failed — not connected"
+    );
+  }
 }
 
 // =========================================
@@ -460,45 +521,130 @@ void MQTTTransport::mqttEventHandler(
         "MQTT CONNECTED"
       );
 
-      Logger::info(
-        usingWSS
-        ? "Connected via WSS"
-        : "Connected via MQTTS"
-      );
+      if (usingWSS) {
+
+        Logger::info(
+          _config && _config->mqttUseTls
+            ? "Connected via WSS"
+            : "Connected via WS"
+        );
+
+      } else {
+
+        Logger::info(
+          _config && _config->mqttUseTls
+            ? "Connected via MQTTS"
+            : "Connected via MQTT"
+        );
+      }
 
       // ===================================
       // SUBSCRIPTIONS
       // ===================================
 
-      esp_mqtt_client_subscribe(
-        client,
-        topic(
-          "attributes/shared"
-        ).c_str(),
-        1
+      const String sharedTopic =
+        topic("attributes/shared");
+
+      const String responseTopic =
+        topic("attributes/shared/response");
+
+      const String rpcTopic =
+        topic("rpc/request/+");
+
+      Logger::info(
+        "MQTT SUB " +
+        sharedTopic +
+        " (push/retain)"
       );
 
-      esp_mqtt_client_subscribe(
-        client,
-        topic(
-          "attributes/shared/response"
-        ).c_str(),
-        1
+      Logger::info(
+        "MQTT SUB " +
+        responseTopic +
+        " (pull response)"
       );
 
-      esp_mqtt_client_subscribe(
-        client,
-        topic(
-          "rpc/request/+"
-        ).c_str(),
-        1
+      Logger::info(
+        "MQTT SUB " +
+        rpcTopic
       );
 
-      // ===================================
-      // INITIAL ATTRIBUTE FETCH
-      // ===================================
+      subscribePending = 0;
 
-      requestAttributes();
+      if (
+        esp_mqtt_client_subscribe(
+          client,
+          sharedTopic.c_str(),
+          1
+        ) >= 0
+      ) {
+
+        subscribePending++;
+      }
+
+      if (
+        esp_mqtt_client_subscribe(
+          client,
+          responseTopic.c_str(),
+          1
+        ) >= 0
+      ) {
+
+        subscribePending++;
+      }
+
+      if (
+        esp_mqtt_client_subscribe(
+          client,
+          rpcTopic.c_str(),
+          1
+        ) >= 0
+      ) {
+
+        subscribePending++;
+      }
+
+      if (subscribePending == 0) {
+
+        Logger::warn(
+          "MQTT SUB failed — cannot pull/push attributes"
+        );
+      }
+
+      break;
+    }
+
+    // =====================================
+    // SUBSCRIBED
+    // =====================================
+
+    case MQTT_EVENT_SUBSCRIBED: {
+
+      Logger::info(
+        "MQTT SUBSCRIBED msg_id=" +
+        String(event->msg_id)
+      );
+
+      if (subscribePending > 0) {
+
+        subscribePending--;
+
+        if (subscribePending == 0) {
+
+          const String keys =
+            _config
+              ? _config->sharedAttributeKeys
+              : "";
+
+          Logger::info(
+            "MQTT pull shared attributes" +
+            (keys.length()
+              ? " keys=" + keys
+              : " (all)")
+          );
+
+          requestAttributes(keys);
+        }
+      }
 
       break;
     }
@@ -510,10 +656,14 @@ void MQTTTransport::mqttEventHandler(
     case MQTT_EVENT_DISCONNECTED: {
 
       mqttConnected = false;
+      subscribePending = 0;
 
       Logger::warn(
         "MQTT disconnected"
       );
+
+      reconnectEarliestMs =
+        millis() + 3000;
 
       reconnectRequested =
         true;
@@ -535,6 +685,10 @@ void MQTTTransport::mqttEventHandler(
         event->error_handle
       ) {
 
+        const int tlsErr =
+          event->error_handle
+            ->esp_tls_last_esp_err;
+
         Logger::warn(
           "Error type: " +
           String(
@@ -545,10 +699,7 @@ void MQTTTransport::mqttEventHandler(
 
         Logger::warn(
           "ESP TLS error: " +
-          String(
-            event->error_handle
-            ->esp_tls_last_esp_err
-          )
+          String(tlsErr)
         );
 
         Logger::warn(
@@ -566,7 +717,28 @@ void MQTTTransport::mqttEventHandler(
             ->esp_transport_sock_errno
           )
         );
+
+        // 32774 = ESP_ERR_ESP_TLS_CONNECTION_TIMEOUT — try other WiFi port
+        if (
+          tlsErr == 32774 &&
+          _config &&
+          _config->networkMode ==
+            NetworkMode::WiFi
+        ) {
+
+          wifiUseAlternateTransport =
+            !wifiUseAlternateTransport;
+
+          Logger::warn(
+            wifiUseAlternateTransport
+              ? "MQTT timeout — trying alternate transport"
+              : "MQTT timeout — trying primary transport"
+          );
+        }
       }
+
+      reconnectEarliestMs =
+        millis() + 3000;
 
       break;
     }

@@ -2,7 +2,7 @@
 
 **Status:** FROZEN (hardware reader + card type)  
 **BOM:** [`MACHINE_RUNTIME_HARDWARE_BOM.md`](MACHINE_RUNTIME_HARDWARE_BOM.md) § Rev 2.0  
-**Firmware:** [`examples/Machine_Runtime_NFC_mqtt/`](examples/Machine_Runtime_NFC_mqtt/) (machine) · [`examples/Machine_Runtime_NFC_enroll/`](examples/Machine_Runtime_NFC_enroll/) (desk enrollment)
+**Firmware (pilot, not in SDK yet):** [`tools/machine-runtime-nfc/Machine_Runtime_NFC_mqtt/`](../tools/machine-runtime-nfc/Machine_Runtime_NFC_mqtt/) (machine) · [`tools/machine-runtime-nfc/Machine_Runtime_NFC_enroll/`](../tools/machine-runtime-nfc/Machine_Runtime_NFC_enroll/) (desk enrollment)
 
 Rev 2 replaces **125 kHz EM4100** (UID-only) with **13.56 MHz NFC** so each badge carries **employee id + display name on the card**. The platform does **not** maintain a per-dashboard worker name list for production.
 
@@ -93,7 +93,7 @@ On tap IN / OUT (same session rules as Rev 1):
 | Item | Spec |
 |------|------|
 | Reader | Same **PN532** module (or USB PN532 on PC) |
-| Tool | **`Machine_Runtime_NFC_enroll`** — serial `w worker1 Rajesh Kumar` |
+| Tool | **`tools/machine-runtime-nfc/Machine_Runtime_NFC_enroll`** — serial `w worker1 Rajesh Kumar` |
 | Process | New worker → write card → hand card → **no dashboard edit** |
 | Worker leaves | Collect card; issue newly written card |
 

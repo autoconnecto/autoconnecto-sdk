@@ -6,7 +6,7 @@
 // Hardware:  sdk/MACHINE_RUNTIME_HARDWARE_BOM.md
 //
 // TELEMETRY:
-//   machine_current_a, machine_sensor_ok
+//   machine_current_a, machine_voltage_v, machine_power_w, machine_sensor_ok
 //   machine_operator_id, machine_operator_name, machine_session_active
 //
 // SHARED (platform → device, synced on boot + reconnect + every 60s):
@@ -27,6 +27,8 @@
 AutoconnectoSDK sdk;
 
 const char* KEY_CURRENT = "machine_current_a";
+const char* KEY_VOLTAGE = "machine_voltage_v";
+const char* KEY_POWER = "machine_power_w";
 const char* KEY_SENSOR_OK = "machine_sensor_ok";
 const char* KEY_OPERATOR_ID = "machine_operator_id";
 const char* KEY_OPERATOR_NAME = "machine_operator_name";
@@ -48,9 +50,16 @@ const char* ATTR_TOOL_USED = "machine_tool_cycles_used";
 #define PZEM_DEMO_FALLBACK 1
 #define RFID_ENABLED 1
 
+struct PzemReading {
+  float voltageV;
+  float currentA;
+  float powerW;
+};
+
 #define SHARED_SYNC_MS 60000UL
 #define CLIENT_PUSH_MS 30000UL
-#define TELEMETRY_MS 10000UL
+/** PZEM: read and MQTT publish every 2s */
+#define TELEMETRY_MS 2000UL
 
 HardwareSerial PzemSerial(2);
 HardwareSerial RfidSerial(1);
@@ -261,13 +270,23 @@ static bool modbusReadInputRegs(uint8_t slave, uint16_t startReg, uint16_t count
   return true;
 }
 
-static float readPZEMCurrentAmps() {
-  uint16_t regs[2] = {0, 0};
-  if (!modbusReadInputRegs(PZEM_SLAVE_ADDR, 0x0001, 2, regs)) {
-    return NAN;
+static bool readPZEM(PzemReading& out) {
+  uint16_t regs[5] = {0, 0, 0, 0, 0};
+  if (!modbusReadInputRegs(PZEM_SLAVE_ADDR, 0x0000, 5, regs)) {
+    return false;
   }
-  const uint32_t raw = ((uint32_t)regs[0] << 16) | regs[1];
-  return raw / 1000.0f;
+  out.voltageV = regs[0] / 10.0f;
+  const uint32_t currentRaw = ((uint32_t)regs[2] << 16) | regs[1];
+  out.currentA = currentRaw / 1000.0f;
+  const uint32_t powerRaw = ((uint32_t)regs[4] << 16) | regs[3];
+  out.powerW = powerRaw / 10.0f;
+  return true;
+}
+
+static bool pzemReadingValid(const PzemReading& r) {
+  return r.voltageV >= 0.0f && r.voltageV <= 320.0f &&
+         r.currentA >= 0.0f && r.currentA < 120.0f &&
+         r.powerW >= 0.0f && r.powerW < 35000.0f;
 }
 
 static float readDemoCurrentAmps() {
@@ -277,18 +296,27 @@ static float readDemoCurrentAmps() {
   return 22.0f;
 }
 
-static float readCurrentAmps(bool* sensorOk) {
-  float amps = readPZEMCurrentAmps();
-  if (!isnan(amps) && amps >= 0.0f && amps < 120.0f) {
+static float readCurrentAmps(bool* sensorOk, float* voltageV = nullptr, float* powerW = nullptr) {
+  PzemReading pzem;
+  if (readPZEM(pzem) && pzemReadingValid(pzem)) {
     *sensorOk = true;
-    return amps;
+    if (voltageV) *voltageV = pzem.voltageV;
+    if (powerW) *powerW = pzem.powerW;
+    return pzem.currentA;
   }
 
 #if PZEM_DEMO_FALLBACK
   *sensorOk = false;
+  if (voltageV) *voltageV = 230.0f;
+  if (powerW) {
+    const float demo = readDemoCurrentAmps();
+    *powerW = demo * 230.0f;
+  }
   return readDemoCurrentAmps();
 #else
   *sensorOk = false;
+  if (voltageV) *voltageV = 0.0f;
+  if (powerW) *powerW = 0.0f;
   return 0.0f;
 #endif
 }
@@ -356,10 +384,14 @@ void loop() {
     lastTelemetryMs = nowMs;
 
     bool sensorOk = true;
-    const float amps = readCurrentAmps(&sensorOk);
+    float voltageV = 0.0f;
+    float powerW = 0.0f;
+    const float amps = readCurrentAmps(&sensorOk, &voltageV, &powerW);
 
-    StaticJsonDocument<256> tel;
+    StaticJsonDocument<320> tel;
     tel[KEY_CURRENT] = amps;
+    tel[KEY_VOLTAGE] = voltageV;
+    tel[KEY_POWER] = powerW;
     tel[KEY_SENSOR_OK] = sensorOk;
     if (sessionActive) {
       tel[KEY_OPERATOR_ID] = operatorId;
@@ -368,9 +400,13 @@ void loop() {
     tel[KEY_SESSION_ACTIVE] = sessionActive;
     sdk.sendTelemetry(tel);
 
-    Serial.print("[TEL] I=");
+    Serial.print("[TEL] V=");
+    Serial.print(voltageV, 1);
+    Serial.print("V I=");
     Serial.print(amps, 2);
-    Serial.print(" session=");
+    Serial.print("A P=");
+    Serial.print(powerW, 0);
+    Serial.print("W session=");
     Serial.print(sessionActive ? "1" : "0");
     Serial.print(" allow=");
     Serial.println(allowRun ? "1" : "0");
