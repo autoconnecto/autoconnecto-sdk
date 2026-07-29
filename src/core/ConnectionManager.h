@@ -15,7 +15,8 @@ public:
 
   void configure(
     SDKConfig* config,
-    AttributeCallback attrCb
+    AttributeCallback attrCb,
+    AttributeStringCallback attrStringCb = nullptr
   );
 
   // =========================================

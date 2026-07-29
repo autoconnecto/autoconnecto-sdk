@@ -9,14 +9,16 @@
 
 void ConnectionManager::configure(
   SDKConfig* config,
-  AttributeCallback attrCb
+  AttributeCallback attrCb,
+  AttributeStringCallback attrStringCb
 ) {
 
   _config = config;
 
   mqtt.configure(
     config,
-    attrCb
+    attrCb,
+    attrStringCb
   );
 }
 

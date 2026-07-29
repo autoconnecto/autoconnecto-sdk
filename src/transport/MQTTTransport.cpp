@@ -28,12 +28,14 @@ MQTTTransport::MQTTTransport() {
 
 void MQTTTransport::configure(
   SDKConfig* config,
-  AttributeCallback attrCb
+  AttributeCallback attrCb,
+  AttributeStringCallback attrStringCb
 ) {
 
   _config = config;
 
   _attrCb = attrCb;
+  _attrStringCb = attrStringCb;
 }
 
 // =========================================
@@ -819,8 +821,30 @@ void MQTTTransport::mqttEventHandler(
           JsonPair kv : obj
         ) {
 
-          if (_attrCb) {
+          // Dashboard Attribute modal may store numbers as JSON strings ("3").
+          // as<float>() on a string is often 0 — parse explicitly.
+          if (kv.value().is<const char*>() || kv.value().is<String>()) {
+            const char* s = kv.value().as<const char*>();
+            if (_attrStringCb) {
+              _attrStringCb(kv.key().c_str(), String(s ? s : ""));
+            }
+            if (_attrCb) {
+              _attrCb(kv.key().c_str(), (float)atof(s ? s : "0"));
+            }
+            continue;
+          }
 
+          if (kv.value().is<bool>()) {
+            if (_attrCb) {
+              _attrCb(
+                kv.key().c_str(),
+                kv.value().as<bool>() ? 1.0f : 0.0f
+              );
+            }
+            continue;
+          }
+
+          if (_attrCb) {
             _attrCb(
               kv.key().c_str(),
               kv.value().as<float>()

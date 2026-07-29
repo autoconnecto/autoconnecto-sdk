@@ -59,6 +59,10 @@ public:
     AttributeCallback cb
   );
 
+  void onAttributeStringUpdate(
+    AttributeStringCallback cb
+  );
+
   void onConnect(
     ConnectionCallback cb
   );
@@ -158,6 +162,9 @@ private:
   // =====================================
 
   AttributeCallback attrCb =
+    nullptr;
+
+  AttributeStringCallback attrStringCb =
     nullptr;
 
   ConnectionCallback connectCb =

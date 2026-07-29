@@ -25,7 +25,8 @@ void AutoconnectoSDK::begin(
 
   manager.configure(
     &_config,
-    attrCb
+    attrCb,
+    attrStringCb
   );
 
   manager.onRPC(
@@ -156,6 +157,13 @@ void AutoconnectoSDK::onAttributeUpdate(
 ) {
 
   attrCb = cb;
+}
+
+void AutoconnectoSDK::onAttributeStringUpdate(
+  AttributeStringCallback cb
+) {
+
+  attrStringCb = cb;
 }
 
 void AutoconnectoSDK::onConnect(

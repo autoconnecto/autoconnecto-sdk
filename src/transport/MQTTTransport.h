@@ -29,7 +29,8 @@ public:
 
   void configure(
     SDKConfig* config,
-    AttributeCallback attrCb
+    AttributeCallback attrCb,
+    AttributeStringCallback attrStringCb = nullptr
   );
 
   // =========================================
@@ -108,6 +109,8 @@ private:
   SDKConfig* _config = nullptr;
 
   AttributeCallback _attrCb = nullptr;
+
+  AttributeStringCallback _attrStringCb = nullptr;
 
   RPCCallback _rpcCb = nullptr;
 
