@@ -1,0 +1,8 @@
+{
+  "name": "Autoconnecto SDK",
+  "install": "echo 'SDK repo — no install required'",
+  "repositoryDependencies": [
+    "github.com/autoconnecto/website",
+    "github.com/autoconnecto/autoconnecto-workspace"
+  ]
+}

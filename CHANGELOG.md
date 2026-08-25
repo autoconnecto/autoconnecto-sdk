@@ -4,9 +4,10 @@ This repository ships the **Autoconnecto Arduino SDK** (`src/`, `examples/`) and
 
 Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library. Raspberry Pi examples track the same git history.
 
-## Unreleased
+## v1.3.7
 
-- Add ThingsBoard-style OTA client (`src/ota/OtaUpdate.h`) and example `examples/OtaFirmwareUpdate_mqtt/`.
+- Vertical solution docs for docs site: Machine Fleet, Generator Monitoring, edge gateways, OTA (`docs/vitepress/`).
+- ThingsBoard-style OTA client (`src/ota/OtaUpdate.h`) and example `examples/OtaFirmwareUpdate_mqtt/`.
 - Add `OTA.md` (chunked firmware download API).
 - Add Raspberry Pi example suite under `raspberrypi/` mirroring the ESP32 example names.
 - Add systemd unit template for Raspberry Pi examples.
@@ -17,6 +18,10 @@ Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library.
 - Add transport contract docs: `contracts/`.
 - Add STM32 (Arduino core) guide and CubeIDE scaffold.
 - Add gateway integration examples: OPC‑UA, Modbus, MQTT bridge.
+
+## Unreleased
+
+- (none)
 
 ## v1.0.5
 
