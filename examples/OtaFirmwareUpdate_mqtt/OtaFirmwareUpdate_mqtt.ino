@@ -58,7 +58,11 @@ void setup() {
 
   ota.begin(otaCfg, reportFwState);
 
-  sdk.onAttributeUpdate([](const String& key, JsonVariant value) {
+  // SDK exposes float + string attribute callbacks (not JsonVariant).
+  sdk.onAttributeStringUpdate([](const String& key, const String& value) {
+    ota.onSharedAttribute(key, value);
+  });
+  sdk.onAttributeUpdate([](const String& key, float value) {
     ota.onSharedAttribute(key, value);
   });
 
