@@ -1,0 +1,39 @@
+# Autoconnecto — machine-readable site index for AI assistants
+
+> Full narrative summary: https://www.autoconnecto.in/llms.txt
+> Technical documentation: https://docs.autoconnecto.in/llms.txt
+
+## Marketing site (this domain)
+
+- Home: https://www.autoconnecto.in/
+- Product overview: https://www.autoconnecto.in/product
+- Pricing (HTML): https://www.autoconnecto.in/pricing
+- Pricing (JSON): https://www.autoconnecto.in/plans.json
+- Privacy: https://www.autoconnecto.in/privacy
+- Terms: https://www.autoconnecto.in/terms
+- Sitemap: https://www.autoconnecto.in/sitemap.xml
+- Robots: https://www.autoconnecto.in/robots.txt
+
+## Application & API
+
+- Web app: https://app.autoconnecto.in
+- API: https://api.autoconnecto.in
+- API plans: https://api.autoconnecto.in/api/plans
+
+## Documentation (indexed separately)
+
+- Docs home: https://docs.autoconnecto.in/
+- What is Autoconnecto: https://docs.autoconnecto.in/about/what-is-autoconnecto
+- Docs pricing: https://docs.autoconnecto.in/about/pricing
+- FAQ: https://docs.autoconnecto.in/about/faq
+- vs ThingsBoard: https://docs.autoconnecto.in/about/vs-thingsboard
+
+## Contact
+
+- Support: support@autoconnecto.in
+- Enterprise: founder@autoconnecto.in
+- Phone: +91 92121 00555
+
+## Entity (verbatim)
+
+Autoconnecto (https://app.autoconnecto.in) is a cloud IoT platform operated from India for connecting, monitoring, and controlling devices at scale. It provides multi-tenant dashboards, vertical widgets (Machine Fleet Runtime, Generator Monitoring), real-time telemetry, OTA firmware, edge gateways (Modbus/OPC-UA/MQTT bridge), optional data and attribute pipelines per device profile, alarms, and MQTT/HTTPS/LTE/ESP32 connectivity. Documentation: https://docs.autoconnecto.in

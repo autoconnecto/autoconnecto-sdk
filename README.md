@@ -28,6 +28,18 @@ The Autoconnecto SDK connects your ESP32 to the Autoconnecto IoT platform. Once 
 - `contracts/MQTT_TOPICS.md`
 - `contracts/PAYLOADS.md`
 
+## Documentation for docs.autoconnecto.in
+
+VitePress-ready pages for the public docs site (copy into `autoconnecto-docs`):
+
+- `docs/vitepress/` — What's new, Machine Fleet, Generator Monitoring, edge gateways, OTA
+
+Vertical solution contracts:
+
+- [`MACHINE_RUNTIME.md`](MACHINE_RUNTIME.md) — Machine Fleet widget
+- [`MACHINE_RUNTIME_HARDWARE_BOM.md`](MACHINE_RUNTIME_HARDWARE_BOM.md) — Field hardware BOM
+- [`OTA.md`](OTA.md) — Over-the-air firmware updates
+
 ## Other hardware targets
 
 ### STM32 (Arduino core)
