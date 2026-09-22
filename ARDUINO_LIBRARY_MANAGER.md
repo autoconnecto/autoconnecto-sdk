@@ -4,7 +4,7 @@ This repository (`autoconnecto-sdk`) is laid out as a **standalone Arduino libra
 
 The Autoconnecto **workspace** meta-repo lists `sdk/` as a submodule pointing here; Library Manager indexes **this** GitHub repo only, not the parent monorepo.
 
-The **`raspberrypi/`** tree (Python examples) is shipped in this repo but is **not** part of the indexed Arduino library (ESP32 `src/` + `examples/*.ino` only).
+The **`raspberrypi/`** and **`extras/stm32/`** trees are shipped in this repo but are **not** part of the indexed Arduino library (`src/` + `examples/*.ino` only). Sketches must live under `examples/` or `extras/` per the Library Specification.
 
 ## Requirements (checklist before you submit)
 
@@ -26,8 +26,10 @@ The **`raspberrypi/`** tree (Python examples) is shipped in this repo but is **n
 Install [Arduino Lint](https://github.com/arduino/arduino-lint) and run from this directory:
 
 ```bash
-arduino-lint --library-manager submit --compliance strict
+arduino-lint --library-manager update --compliance strict
 ```
+
+Use `submit` only for a brand-new Library Manager registration. This library is already indexed, so CI uses **`update`**.
 
 Or rely on the GitHub Action in `.github/workflows/arduino-lint.yml` after you push.
 

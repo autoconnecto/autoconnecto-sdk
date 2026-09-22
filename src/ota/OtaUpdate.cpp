@@ -49,23 +49,35 @@ void AutoconnectoOta::resetTarget() {
   _shaStarted = false;
 }
 
-void AutoconnectoOta::onSharedAttribute(const String& key, JsonVariant value) {
+void AutoconnectoOta::onSharedAttribute(const String& key, const String& value) {
   if (_busy) return;
 
   if (key == "fw_title") {
-    _title = value.as<String>();
+    _title = value;
   } else if (key == "fw_version") {
-    _version = value.as<String>();
+    _version = value;
   } else if (key == "fw_size") {
-    _fileSize = value.as<size_t>();
+    _fileSize = static_cast<size_t>(atol(value.c_str()));
   } else if (key == "fw_checksum") {
-    _checksum = value.as<String>();
+    _checksum = value;
   } else if (key == "fw_checksum_algorithm") {
-    _checksumAlgo = value.as<String>();
+    _checksumAlgo = value;
     _checksumAlgo.toUpperCase();
   } else {
     return;
   }
+
+  if (metadataComplete()) {
+    startDownload();
+  }
+}
+
+void AutoconnectoOta::onSharedAttribute(const String& key, float value) {
+  if (_busy) return;
+
+  if (key != "fw_size") return;
+
+  _fileSize = static_cast<size_t>(value);
 
   if (metadataComplete()) {
     startDownload();

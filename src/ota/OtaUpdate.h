@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Arduino.h>
-#include <ArduinoJson.h>
 #include <functional>
 
 // ThingsBoard-compatible OTA: shared fw_* attributes trigger HTTPS chunked download.
@@ -23,7 +22,11 @@ class AutoconnectoOta {
 public:
   void begin(const OtaConfig& config, OtaClientAttributeFn sendClientAttr);
 
-  void onSharedAttribute(const String& key, JsonVariant value);
+  /** String SHARED attrs (fw_title, fw_version, fw_checksum, …). */
+  void onSharedAttribute(const String& key, const String& value);
+
+  /** Numeric SHARED attrs (fw_size when sent as JSON number). */
+  void onSharedAttribute(const String& key, float value);
 
   void loop();
 
