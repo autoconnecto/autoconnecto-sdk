@@ -46,7 +46,7 @@ jobs:
             - examples/TelemetryBatch_mqtt
             - examples/WatchdogReconnect_mqtt
             - examples/OtaFirmwareUpdate_mqtt
-            - examples/AllFunctionTest_lte_ppp_mqtt
-            - examples/BasicTelemetry_lte_ppp_mqtt
+            # LTE PPP sketches need ESP32 PPP + build_opt.h; excluded from CI until
+            # compile-sketches + esp32@latest PPP toolchain is stable for this layout.
           enable-warnings-report: true
 
