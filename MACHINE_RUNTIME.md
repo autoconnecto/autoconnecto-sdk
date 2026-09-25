@@ -39,6 +39,8 @@ Pushed on tool-life save/reset and fetched by the device on **boot**, **MQTT rec
 | `machine_tool_remaining` | Jobs left on current tool |
 | `machine_tool_limit` | Max jobs configured |
 | `machine_tool_cycles_used` | Jobs consumed on current tool |
+| `machine_reset_counters` | One-shot unix-seconds pulse from Factory Floor Setup — ESP clears NVS `cycles_count` + session job baselines and republishes CLIENT zeros |
+| `fw_title` / `fw_version` / `fw_size` / `fw_checksum` / `fw_checksum_algorithm` | Platform OTA assignment (HTTPS chunk download via `AutoconnectoOta`) |
 
 Device mirrors session + tool fields to **CLIENT** attributes every **30 s** (and after RFID tap) so the platform survives power cycles.
 
