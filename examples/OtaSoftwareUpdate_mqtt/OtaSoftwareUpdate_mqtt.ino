@@ -1,19 +1,21 @@
 // =============================================================
-// OtaFirmwareUpdate_mqtt — Autoconnecto SDK example (FOTA)
+// OtaSoftwareUpdate_mqtt — Autoconnecto SDK example (SOTA)
 //
 // PURPOSE
-//   Download firmware when the platform assigns a FIRMWARE package
-//   (shared fw_* attributes) and flash via esp_ota.
+//   Download a SOFTWARE package when the platform assigns one
+//   (shared sw_* attributes) to LittleFS, then notify your sketch.
+//   Does not flash firmware and does not reboot.
 //
 // SETUP
 //   1. Flash this sketch with your WiFi + device token.
-//   2. In the app: OTA → Firmware → Upload .bin → Assign to this device.
-//   3. Watch Serial for [OTA] lines and fw_state on the device.
+//   2. In the app: OTA → Software → Upload package → Assign.
+//   3. Serial prints the LittleFS path when the file is ready.
 // =============================================================
 
 #include <AutoconnectoSDK.h>
 #include <OtaUpdate.h>
 #include <ArduinoJson.h>
+#include <LittleFS.h>
 
 AutoconnectoSDK sdk;
 AutoconnectoOta ota;
@@ -32,7 +34,7 @@ void setup() {
   config.allowInsecureTLS = false;
   config.rootCA = AUTOCONNECTO_ROOT_CA;
   config.sharedAttributeKeys =
-    "fw_title,fw_version,fw_size,fw_checksum,fw_checksum_algorithm";
+    "sw_title,sw_version,sw_size,sw_checksum,sw_checksum_algorithm";
   config.enableSerialLogs = true;
 
   sdk.begin(config);
@@ -41,13 +43,32 @@ void setup() {
   otaCfg.apiHost = "api.autoconnecto.in";
   otaCfg.deviceToken = config.deviceToken;
   otaCfg.rootCA = AUTOCONNECTO_ROOT_CA;
-  otaCfg.autoReboot = true;
+  otaCfg.softwarePath = "/ota/package.bin";
+  otaCfg.autoReboot = false;
 
   ota.begin(otaCfg, [](const char* key, const char* value) {
     JsonDocument doc;
     doc[key] = value;
     return sdk.sendClientAttributes(doc);
   });
+
+  ota.onSoftwareReady(
+    [](const String& path, const String& title, const String& version) {
+      Serial.printf(
+        "[SOTA] ready path=%s title=%s version=%s\n",
+        path.c_str(),
+        title.c_str(),
+        version.c_str()
+      );
+      if (LittleFS.begin(true)) {
+        File f = LittleFS.open(path, "r");
+        if (f) {
+          Serial.printf("[SOTA] file size on disk=%u\n", (unsigned)f.size());
+          f.close();
+        }
+      }
+    }
+  );
 
   sdk.onAttributeStringUpdate([](const String& key, const String& value) {
     ota.onSharedAttribute(key, value);
@@ -59,7 +80,7 @@ void setup() {
   sdk.onConnect([](bool ok) {
     if (ok) {
       sdk.requestSharedAttributes(
-        "fw_title,fw_version,fw_size,fw_checksum,fw_checksum_algorithm"
+        "sw_title,sw_version,sw_size,sw_checksum,sw_checksum_algorithm"
       );
     }
   });

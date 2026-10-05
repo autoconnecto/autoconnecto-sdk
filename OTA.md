@@ -1,39 +1,71 @@
-# OTA (over-the-air firmware)
+# OTA (firmware and software)
 
 Autoconnecto OTA follows the [ThingsBoard OTA model](https://thingsboard.io/docs/user-guide/ota-updates/):
 
-1. Upload a package in the web UI (**OTA** menu).
+1. Upload a package in the web UI (**OTA** menu) — **Firmware (FOTA)** or **Software (SOTA)**.
 2. Assign to a device, profile, or device type.
-3. Platform writes shared attributes: `fw_title`, `fw_version`, `fw_size`, `fw_checksum`, `fw_checksum_algorithm`.
-4. Device downloads firmware and reports client attribute `fw_state`.
+3. Platform writes shared attributes:
+   - FOTA: `fw_title`, `fw_version`, `fw_size`, `fw_checksum`, `fw_checksum_algorithm`
+   - SOTA: `sw_title`, `sw_version`, `sw_size`, `sw_checksum`, `sw_checksum_algorithm`
+4. Device downloads the package and reports client attribute `fw_state` or `sw_state`.
 
-## ESP32 Arduino example
+## ESP32 helpers (`AutoconnectoOta`)
 
-`examples/OtaFirmwareUpdate_mqtt/OtaFirmwareUpdate_mqtt.ino`
+Header: `OtaUpdate.h` (`#include <OtaUpdate.h>`).
 
-Uses `AutoconnectoSDK` for MQTT + `AutoconnectoOta` for HTTPS chunked download and `esp_ota` flash.
+| Kind | Shared attrs | Download API | Progress attr | Device action |
+|------|--------------|--------------|---------------|---------------|
+| **Firmware** | `fw_*` | `/api/v1/{token}/firmware` | `fw_state` | `esp_ota` flash + optional reboot |
+| **Software** | `sw_*` | `/api/v1/{token}/software` | `sw_state` | Write file on **LittleFS** (default `/ota/package.bin`); optional `onSoftwareReady` callback; **no** reboot |
+
+Both paths use SHA256 verification when `*_checksum_algorithm` is `SHA256`.
+
+### Examples
+
+- `examples/OtaFirmwareUpdate_mqtt/` — FOTA only
+- `examples/OtaSoftwareUpdate_mqtt/` — SOTA only (prints path when ready)
+
+Wire shared attributes into the helper:
+
+```cpp
+sdk.onAttributeStringUpdate([](const String& key, const String& value) {
+  ota.onSharedAttribute(key, value);
+});
+sdk.onAttributeUpdate([](const String& key, float value) {
+  ota.onSharedAttribute(key, value); // fw_size / sw_size as number
+});
+```
+
+Report state with a JSON client-attributes document (string values):
+
+```cpp
+ota.begin(cfg, [](const char* key, const char* value) {
+  JsonDocument doc;
+  doc[key] = value;
+  return sdk.sendClientAttributes(doc);
+});
+```
+
+Call `ota.loop()` from `loop()` while the SDK runs.
 
 ## Device download API (any platform)
 
 ```
 GET https://{apiHost}/api/v1/{deviceToken}/firmware
-  ?title={title}
-  &version={version}
-  &size={chunkBytes}
-  &chunk={zeroBasedIndex}
+  ?title={title}&version={version}&size={chunkBytes}&chunk={zeroBasedIndex}
+
+GET https://{apiHost}/api/v1/{deviceToken}/software
+  ?title={title}&version={version}&size={chunkBytes}&chunk={zeroBasedIndex}
 ```
 
-Response body: raw binary slice. Repeat until all bytes received.
-
-Software (SOTA) packages use `/software` instead of `/firmware`.
+Response body: raw binary slice. Repeat until all bytes received. The platform only serves chunks for an **active assignment** for that device.
 
 ## Client attribute progress
 
-Post JSON to:
-
 ```
-POST https://{apiHost}/api/v1/{deviceToken}/attributes
-{ "fw_state": "DOWNLOADING" }
+POST / attributes (or MQTT client attributes)
+{ "fw_state": "DOWNLOADING" }   // FOTA
+{ "sw_state": "DOWNLOADING" }   // SOTA
 ```
 
 States: `DOWNLOADING`, `DOWNLOADED`, `VERIFIED`, `UPDATING`, `UPDATED`, `FAILED`.
