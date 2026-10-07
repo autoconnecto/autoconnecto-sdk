@@ -72,7 +72,7 @@ Dashboard reads client attribute — confirms hardware state
 
 **On power cycle:** the device calls `sdk.requestSharedAttributes()` at startup. The platform sends back all stored shared attributes. `onAttributeUpdate()` fires for each one — the device applies them and sends confirmations. The dashboard stays in sync without any user action.
 
-This solves the stale-state problem that exists in ThingsBoard and other platforms.
+This solves the common stale-state problem after device reboot on many IoT platforms.
 
 ---
 
@@ -408,7 +408,7 @@ Posts multiple samples in one request to `POST /api/v1/{token}/telemetry/batch` 
 ### `WatchdogReconnect_mqtt`
 - `examples/WatchdogReconnect_mqtt/WatchdogReconnect_mqtt.ino`
 
-### OTA firmware update (ThingsBoard-style)
+### OTA firmware update
 
 - MQTT: `examples/OtaFirmwareUpdate_mqtt/OtaFirmwareUpdate_mqtt.ino`
 - Docs: **[OTA.md](OTA.md)** (chunked HTTPS API for non-ESP32 devices)

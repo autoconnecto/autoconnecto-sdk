@@ -1,6 +1,6 @@
 # OTA (firmware and software)
 
-Autoconnecto OTA follows the [ThingsBoard OTA model](https://thingsboard.io/docs/user-guide/ota-updates/):
+Autoconnecto OTA uses shared-attribute notification + HTTPS package download:
 
 1. Upload a package in the web UI (**OTA** menu) — **Firmware (FOTA)** or **Software (SOTA)**.
 2. Assign to a device, profile, or device type.

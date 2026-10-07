@@ -6,7 +6,7 @@ Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library.
 
 ## Unreleased
 
-- Add ThingsBoard-style OTA client (`src/ota/OtaUpdate.h`) and example `examples/OtaFirmwareUpdate_mqtt/`.
+- Add OTA client (`src/ota/OtaUpdate.h`) and example `examples/OtaFirmwareUpdate_mqtt/`.
 - Add `OTA.md` (chunked firmware download API).
 - Add Raspberry Pi example suite under `raspberrypi/` mirroring the ESP32 example names.
 - Add systemd unit template for Raspberry Pi examples.

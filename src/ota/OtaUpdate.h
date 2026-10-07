@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include <functional>
 
-// ThingsBoard-compatible OTA:
+// Autoconnecto OTA (shared attrs + HTTPS download):
 //   FOTA — shared fw_* attributes → HTTPS /firmware chunks → esp_ota flash → fw_state
 //   SOTA — shared sw_* attributes → HTTPS /software chunks → LittleFS file → sw_state
 

@@ -45,7 +45,7 @@ Publish JSON to:
 devices/{deviceToken}/telemetry
 ```
 
-ThingsBoard-compatible topic (token in path):
+Alternate topic with token in path:
 
 ```text
 v1/devices/{deviceToken}/telemetry
