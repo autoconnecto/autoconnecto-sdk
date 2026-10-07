@@ -1,11 +1,19 @@
 # Integration webhook examples
 
-These samples are for **servers, scripts, and LoRa network configuration** — not Arduino sketches.
+These samples are for **servers, scripts, LoRa network servers, and Linux gateways** — not Arduino sketches.
 
-Copy `env.example` to `.env` and fill in values from:
+Arduino companion sketches:
 
-- **Tenant Settings → LoRa & integration webhooks** (URLs + generate secret)
-- **Device Details → Check connectivity** (device token, device id)
+- `../GatewayRelay_http` — ESP32 gateway hub → child telemetry
+- `../TelemetryBatch_http` — buffered HTTP batch upload
+- `../BasicTelemetry_http` — single-device HTTPS telemetry
+
+Copy `env.example` values from:
+
+- **Integrations** (`/integrations`) — create/start an integration, copy HTTP endpoint + generate webhook secret
+- **Device Details → Check connectivity** — device token, device id, DevEUI
+
+Legacy type URLs (`/api/v1/integrations/{chirpstack|ttn|generic}/telemetry`) still work and resolve the tenant’s default active integration of that type when one exists. Named Hub URLs use `/api/v1/integrations/i/{integrationId}/telemetry`.
 
 ## Generic webhook
 
@@ -30,55 +38,55 @@ export DEVICE_TOKEN=your-device-token
 
 ## ChirpStack
 
-1. Create device in Autoconnecto; set **DevEUI** on create or in Check connectivity → LoRa.
-2. In ChirpStack: **Applications → Integrations → HTTP** → paste tenant ChirpStack URL from Tenant Settings.
-3. Header: `X-Webhook-Secret: {secret}`
+1. Create a **ChirpStack** integration in Autoconnecto and start it.
+2. Set DevEUI on the device (`lorawan.dev_eui` / `integration.lorawan.dev_eui`).
+3. In ChirpStack: **Applications → Integrations → HTTP** → paste the integration endpoint.
+4. Header: `X-Webhook-Secret: {secret}`
 
-Test locally with the sample uplink body:
+Test locally:
 
 ```bash
 ./chirpstack-webhook.sh
 ```
 
-Payload shape: `chirpstack-uplink.sample.json` (maps `deviceInfo.devEui` → your device).
+Payload shape: `chirpstack-uplink.sample.json`.
 
 ## TTN / The Things Stack v3
 
-1. Set DevEUI on the Autoconnecto device (same as ChirpStack).
-2. TTN webhook URL from Tenant Settings; secret header as above.
-3. Test: `./ttn-webhook.sh` using `ttn-uplink.sample.json`
+Same DevEUI attribute as ChirpStack. Create a **TTN** integration, paste the webhook URL into Things Stack, then:
 
-## Gateway relay via generic webhook
-
-If your middleware already posts to the generic endpoint using a **gateway** device token:
-
-```json
-{
-  "deviceToken": "gateway-access-token",
-  "childDeviceId": "child-device-uuid",
-  "telemetry": { "temperature": 24.1 }
-}
+```bash
+./ttn-webhook.sh
 ```
 
-## OPC‑UA gateway (Linux SBC)
+## Gateway relay
 
-Read values from an OPC‑UA server and forward to Autoconnecto as telemetry over MQTTS:
+Two supported paths:
 
-- `opcua-gateway/README.md`
+1. **Device-token HTTP** (preferred for edge gateways) — matches `GatewayRelay_http.ino`:
 
-## Modbus gateway (Linux SBC)
+```bash
+export GATEWAY_TOKEN=your-gateway-device-token
+export CHILD_DEVICE_ID=your-child-device-uuid
+./gateway-relay-webhook.sh
+```
 
-Poll Modbus (TCP/RTU) registers and forward to Autoconnecto over MQTTS:
+2. **Generic integration webhook** — set `MODE=webhook` plus `TENANT_ID` / `WEBHOOK_SECRET`.
 
-- `modbus-gateway/README.md`
+PowerShell: `gateway-relay-webhook.ps1`.
 
-## MQTT bridge (Linux SBC)
+For Modbus/DTU **Solutions** stacks (EnergyFleet / ClimateFleet P1), see platform **Solutions** and docs `solutions/connectivity-profiles`, `solutions/energy-fleet`, `solutions/climate-fleet`.
 
-Subscribe to an existing MQTT broker/topic and republish to Autoconnecto token telemetry topics:
+## OPC‑UA / Modbus / MQTT bridge (Linux SBC)
 
-- `mqtt-bridge/README.md`
+| Folder | Role |
+|--------|------|
+| `opcua-gateway/` | OPC‑UA → Autoconnecto MQTTS |
+| `modbus-gateway/` | Modbus TCP/RTU → Autoconnecto MQTTS |
+| `mqtt-bridge/` | External broker → Autoconnecto token topics |
 
 ## See also
 
-- `../../CONNECTIVITY.md` — full connectivity guide
-- `../../../backend/docs/CONNECTIVITY.md` — backend reference
+- [`../../CONNECTIVITY.md`](../../CONNECTIVITY.md) — SDK connectivity guide
+- Public docs: [Integrations overview](https://docs.autoconnecto.in/integrations/integrations-overview)
+- Backend reference: `backend/docs/CONNECTIVITY.md` (in the Autoconnecto workspace)
