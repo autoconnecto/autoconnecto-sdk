@@ -2,6 +2,10 @@
 
 This document describes the device SDK transport implementation under `sdk/src`.
 
+## CoAP and AMQP
+
+The Arduino SDK stays on MQTT. CoAP and AMQP are additional ingest paths on the API. They accept the same telemetry JSON object and the same device token. They do not replace `MQTTTransport`.
+
 ## Confirmed transport selection
 
 `src/core/ConnectionManager.h`:
