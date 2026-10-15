@@ -72,4 +72,4 @@ States: `DOWNLOADING`, `DOWNLOADED`, `VERIFIED`, `UPDATING`, `UPDATED`, `FAILED`
 
 ## Local platform dev
 
-Backend may store packages on disk under `backend/.ota-firmware/` when `OTA_S3_BUCKET` is unset (non-production). Production requires S3 — see `backend/ENVIRONMENT.md`.
+The server stores packages on its own disk at `/var/lib/autoconnecto/ota`. That folder is kept when the software is updated. S3 is optional. See `backend/ENVIRONMENT.md`.
