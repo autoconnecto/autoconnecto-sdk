@@ -47,19 +47,16 @@ It also performs an initial shared attribute request.
 
 SDK publishes RPC responses to:
 
-- `v1/devices/me/rpc/response/{requestId}`
+- `devices/{deviceToken}/rpc/response/{requestId}`
 
-This must be reconciled with backend subscriptions (see next section).
+## Backend alignment (confirmed)
 
-## Backend alignment risks (confirmed)
+The API reads command replies on:
 
-The backend includes an MQTT consumer subscribing to:
 - `devices/+/rpc/response/+`
+- `v1/devices/+/rpc/response/+`
 
-If devices publish RPC responses only to `v1/devices/me/rpc/response/+`, the backend will not observe those messages unless:
-- the backend also subscribes to `v1/devices/me/rpc/response/+`, or
-- the SDK publishes to `devices/{token}/rpc/response/{id}`, or
-- there is broker-side bridging.
+`v1/devices/me/rpc/response/+` is ignored. That topic does not carry the device token.
 
 ## Global singleton constraint (confirmed)
 
