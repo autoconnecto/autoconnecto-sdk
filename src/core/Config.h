@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "../AutoconnectoIsrgRoots.h"
 #include "NetworkTypes.h"
 
 struct SDKConfig {
@@ -57,7 +58,7 @@ struct SDKConfig {
 
   uint16_t mqttPort = 8883;
 
-  uint16_t wssPort = 443;
+  uint16_t wssPort = 8084;
 
   // =========================================
   // DEVICE
@@ -83,9 +84,9 @@ struct SDKConfig {
   // TLS
   // =========================================
 
-  bool allowInsecureTLS = true;
+  bool allowInsecureTLS = false;
 
-  const char* rootCA = nullptr;
+  const char* rootCA = AUTOCONNECTO_ROOT_CA;
 
   // =========================================
   // TELEMETRY

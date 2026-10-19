@@ -2,6 +2,9 @@
 // MQTTTransport.cpp
 // =========================================
 
+#include "../core/Esp32Only.h"
+#if defined(AUTOCONNECTO_ESP32_CLIENT)
+
 #include "MQTTTransport.h"
 
 // =========================================
@@ -784,7 +787,11 @@ void MQTTTransport::mqttEventHandler(
         payload
       );
 
-      StaticJsonDocument<512> doc;
+#if ARDUINOJSON_VERSION_MAJOR >= 7
+      JsonDocument doc;
+#else
+      DynamicJsonDocument doc(8192);
+#endif
 
       if (
         deserializeJson(
@@ -825,11 +832,16 @@ void MQTTTransport::mqttEventHandler(
           // as<float>() on a string is often 0 — parse explicitly.
           if (kv.value().is<const char*>() || kv.value().is<String>()) {
             const char* s = kv.value().as<const char*>();
+            if (!s) s = "";
             if (_attrStringCb) {
-              _attrStringCb(kv.key().c_str(), String(s ? s : ""));
+              _attrStringCb(kv.key().c_str(), String(s));
             }
             if (_attrCb) {
-              _attrCb(kv.key().c_str(), (float)atof(s ? s : "0"));
+              char* end = nullptr;
+              const float n = strtof(s, &end);
+              if (end != s && end && *end == '\0') {
+                _attrCb(kv.key().c_str(), n);
+              }
             }
             continue;
           }
@@ -893,3 +905,5 @@ void MQTTTransport::mqttEventHandler(
       break;
   }
 }
+
+#endif

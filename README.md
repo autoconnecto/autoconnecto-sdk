@@ -201,7 +201,7 @@ void loop() {
 | `wifiPassword` | `String` | Yes | WiFi password |
 | `mqttHost` | `String` | Yes | Broker hostname e.g. `mqtt.autoconnecto.in` |
 | `mqttPort` | `int` | Yes | MQTTS port, usually `8883` |
-| `wssPort` | `int` | Yes | MQTT-over-WSS port, usually `8084` |
+| `wssPort` | `int` | Yes | MQTT-over-WSS port. Default `8084` |
 | `deviceToken` | `String` | Yes | Device token from Autoconnecto platform |
 | `enableWS` | `bool` | No | Use WSS as primary transport (default `true`) |
 | `enableMQTT` | `bool` | No | Use MQTTS as fallback (default `true`) |

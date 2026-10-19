@@ -12,6 +12,8 @@ This guide covers **confirmed** ingress paths for Autoconnecto v1.2.6+. Arduino 
 | Raspberry Pi generator demo | `raspberrypi/examples/Generator_Monitoring_mqtt` | Same as ESP32 (`AUTOCONNECTO_DEVICE_TOKEN`) |
 | ESP32 machine current demo | `Machine_Runtime_mqtt` | Device token; publishes `machine_current_a` for **Machine Fleet** widget — see [`MACHINE_RUNTIME.md`](MACHINE_RUNTIME.md) |
 | ESP32 over HTTPS only | `BasicTelemetry_http` | Device token in URL |
+| ESP8266 over HTTPS | `BasicTelemetry_esp8266` | Device token in URL. No MQTT-over-WSS |
+| Raspberry Pi Pico W over HTTPS | `BasicTelemetry_pico_w_http` | Device token in URL. Earle Philhower core |
 | Edge gateway relaying children | `GatewayRelay_http` | Gateway device token |
 | Buffered / bulk HTTP upload | `TelemetryBatch_http` | Device token in URL |
 | Buffered flush over MQTT | `TelemetryBatch_mqtt` | Device token (MQTT username) |
@@ -35,9 +37,17 @@ Content-Type: application/json
 
 Arduino: `examples/BasicTelemetry_http/BasicTelemetry_http.ino`
 
-Optional CBOR: `Content-Type: application/cbor` with a CBOR-encoded object (same keys as JSON).
+ESP8266: `examples/BasicTelemetry_esp8266/BasicTelemetry_esp8266.ino`
+
+Pico W: `examples/BasicTelemetry_pico_w_http/BasicTelemetry_pico_w_http.ino`
+
+Send JSON. CBOR is not accepted.
+
+A top-level numeric `ts` is the reading time on MQTT and on a single HTTP post. It is not stored as a key. On a batch item, `ts` sits next to `telemetry` and is the same kind of time.
 
 ## Direct device (MQTT)
+
+ESP32 MQTT-over-WSS uses host `mqtt.autoconnecto.in`, port **8084**, path `/mqtt`. Port 8883 is MQTTS. The SDK default for the WebSocket port is 8084. TLS checks the ISRG root bundle unless `allowInsecureTLS` is set.
 
 Publish JSON to:
 

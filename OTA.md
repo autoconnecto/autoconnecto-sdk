@@ -36,12 +36,16 @@ sdk.onAttributeUpdate([](const String& key, float value) {
 });
 ```
 
-Report state with a JSON client-attributes document (string values):
+A new title or version clears the previous size and checksum. The download starts from `ota.loop()`, not from the attribute callback. After `UPDATED` or `FAILED` those fields are cleared. A version already installed on that device is not downloaded again.
+
+Report state, title, and version in one client-attribute write:
 
 ```cpp
-ota.begin(cfg, [](const char* key, const char* value) {
+ota.onProgressReport([](const char* stateKey, const char* state, const char* title, const char* version) {
   JsonDocument doc;
-  doc[key] = value;
+  doc[stateKey] = state;
+  doc["fw_title"] = title;
+  doc["fw_version"] = version;
   return sdk.sendClientAttributes(doc);
 });
 ```
@@ -64,8 +68,8 @@ Response body: raw binary slice. Repeat until all bytes received. The platform o
 
 ```
 POST / attributes (or MQTT client attributes)
-{ "fw_state": "DOWNLOADING" }   // FOTA
-{ "sw_state": "DOWNLOADING" }   // SOTA
+{ "fw_state": "DOWNLOADING", "fw_title": "pump", "fw_version": "1.2.0" }
+{ "sw_state": "DOWNLOADING", "sw_title": "pump", "sw_version": "1.2.0" }
 ```
 
 States: `DOWNLOADING`, `DOWNLOADED`, `VERIFIED`, `UPDATING`, `UPDATED`, `FAILED`.

@@ -1,3 +1,6 @@
+#include "../core/Esp32Only.h"
+#if defined(AUTOCONNECTO_ESP32_CLIENT)
+
 #include "OtaUpdate.h"
 
 #include <WiFi.h>
@@ -5,6 +8,9 @@
 #include <HTTPClient.h>
 #include <Update.h>
 #include <LittleFS.h>
+#if defined(ESP32)
+#include <Preferences.h>
+#endif
 
 #include <mbedtls/sha256.h>
 
@@ -40,6 +46,10 @@ void AutoconnectoOta::begin(
   resetTarget();
 }
 
+void AutoconnectoOta::onProgressReport(OtaProgressFn fn) {
+  _progress = fn;
+}
+
 void AutoconnectoOta::onSoftwareReady(OtaSoftwareReadyFn fn) {
   _onSoftwareReady = fn;
 }
@@ -47,6 +57,7 @@ void AutoconnectoOta::onSoftwareReady(OtaSoftwareReadyFn fn) {
 void AutoconnectoOta::resetTarget() {
   _phase = Phase::Idle;
   _busy = false;
+  _startRequested = false;
   _kind = OtaPackageKind::Firmware;
   _title = "";
   _version = "";
@@ -56,6 +67,40 @@ void AutoconnectoOta::resetTarget() {
   _chunkIndex = 0;
   _bytesWritten = 0;
   _shaStarted = false;
+}
+
+void AutoconnectoOta::clearPackageBytes() {
+  _fileSize = 0;
+  _checksum = "";
+  _startRequested = false;
+}
+
+void AutoconnectoOta::rememberInstalled() {
+#if defined(ESP32)
+  Preferences prefs;
+  if (!prefs.begin("ac_ota", false)) return;
+  prefs.putString("title", _title);
+  prefs.putString("ver", _version);
+  prefs.putString("kind", _kind == OtaPackageKind::Software ? "sw" : "fw");
+  prefs.end();
+#else
+  (void)0;
+#endif
+}
+
+bool AutoconnectoOta::alreadyInstalled() {
+#if defined(ESP32)
+  Preferences prefs;
+  if (!prefs.begin("ac_ota", true)) return false;
+  const String title = prefs.getString("title", "");
+  const String version = prefs.getString("ver", "");
+  const String kind = prefs.getString("kind", "");
+  prefs.end();
+  const char* want = _kind == OtaPackageKind::Software ? "sw" : "fw";
+  return title == _title && version == _version && kind == want;
+#else
+  return false;
+#endif
 }
 
 bool AutoconnectoOta::acceptAttrKey(
@@ -83,7 +128,6 @@ void AutoconnectoOta::onSharedAttribute(const String& key, const String& value) 
   const char* field = nullptr;
   if (!acceptAttrKey(key, &kind, &field)) return;
 
-  // Starting a new package kind clears prior partial metadata.
   if (_title.length() || _version.length() || _fileSize || _checksum.length()) {
     if (kind != _kind) {
       resetTarget();
@@ -92,11 +136,13 @@ void AutoconnectoOta::onSharedAttribute(const String& key, const String& value) 
   _kind = kind;
 
   if (strcmp(field, "title") == 0) {
+    if (_title.length() && value != _title) clearPackageBytes();
     _title = value;
   } else if (strcmp(field, "version") == 0) {
+    if (_version.length() && value != _version) clearPackageBytes();
     _version = value;
   } else if (strcmp(field, "size") == 0) {
-    _fileSize = static_cast<size_t>(atol(value.c_str()));
+    _fileSize = static_cast<size_t>(strtoul(value.c_str(), nullptr, 10));
   } else if (strcmp(field, "checksum") == 0) {
     _checksum = value;
   } else if (strcmp(field, "checksum_algorithm") == 0) {
@@ -107,7 +153,7 @@ void AutoconnectoOta::onSharedAttribute(const String& key, const String& value) 
   }
 
   if (metadataComplete()) {
-    startDownload();
+    _startRequested = true;
   }
 }
 
@@ -128,7 +174,7 @@ void AutoconnectoOta::onSharedAttribute(const String& key, float value) {
   _fileSize = static_cast<size_t>(value);
 
   if (metadataComplete()) {
-    startDownload();
+    _startRequested = true;
   }
 }
 
@@ -189,8 +235,17 @@ void AutoconnectoOta::startDownload() {
 }
 
 bool AutoconnectoOta::reportState(const char* state) {
+  Serial.printf(
+    "[OTA] %s=%s title=%s version=%s\n",
+    stateKey(),
+    state,
+    _title.c_str(),
+    _version.c_str()
+  );
+  if (_progress) {
+    return _progress(stateKey(), state, _title.c_str(), _version.c_str());
+  }
   if (!_sendAttr) return false;
-  Serial.printf("[OTA] %s=%s\n", stateKey(), state);
   return _sendAttr(stateKey(), state);
 }
 
@@ -336,10 +391,11 @@ bool AutoconnectoOta::finishApply() {
   }
 
   reportState("UPDATED");
-  _phase = Phase::Done;
-  _busy = false;
+  const bool reboot = _kind == OtaPackageKind::Firmware && _cfg.autoReboot;
+  rememberInstalled();
+  resetTarget();
 
-  if (_kind == OtaPackageKind::Firmware && _cfg.autoReboot) {
+  if (reboot) {
     delay(500);
     ESP.restart();
   }
@@ -348,16 +404,30 @@ bool AutoconnectoOta::finishApply() {
 }
 
 void AutoconnectoOta::fail(const char* reason) {
-  _phase = Phase::Failed;
-  _busy = false;
   reportState("FAILED");
   if (_kind == OtaPackageKind::Firmware) {
     Update.abort();
   }
   Serial.printf("[OTA] failed: %s\n", reason);
+  resetTarget();
 }
 
 void AutoconnectoOta::loop() {
+  if (!_busy && _startRequested) {
+    _startRequested = false;
+    if (!metadataComplete()) return;
+    if (alreadyInstalled()) {
+      Serial.printf(
+        "[OTA] skip installed title=%s version=%s\n",
+        _title.c_str(),
+        _version.c_str()
+      );
+      resetTarget();
+      return;
+    }
+    startDownload();
+  }
+
   if (!_busy) return;
 
   if (_phase == Phase::Downloading) {
@@ -369,3 +439,5 @@ void AutoconnectoOta::loop() {
     }
   }
 }
+
+#endif

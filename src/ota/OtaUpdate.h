@@ -27,6 +27,18 @@ struct OtaConfig {
 using OtaClientAttributeFn =
   std::function<bool(const char* key, const char* value)>;
 
+/**
+ * One client-attribute write for a progress report.
+ * Title and version travel with the state so a FAILED or UPDATED
+ * lands on that package, not on a different open assignment.
+ */
+using OtaProgressFn = std::function<bool(
+  const char* stateKey,
+  const char* state,
+  const char* title,
+  const char* version
+)>;
+
 /** Called after SOTA file is verified on LittleFS (before sw_state=UPDATED). */
 using OtaSoftwareReadyFn = std::function<void(
   const String& path,
@@ -37,6 +49,9 @@ using OtaSoftwareReadyFn = std::function<void(
 class AutoconnectoOta {
 public:
   void begin(const OtaConfig& config, OtaClientAttributeFn sendClientAttr);
+
+  /** Prefer this over the single-key callback so title and version are in the same write. */
+  void onProgressReport(OtaProgressFn fn);
 
   /** Optional: handle a verified software package (config, script, asset). */
   void onSoftwareReady(OtaSoftwareReadyFn fn);
@@ -64,10 +79,12 @@ private:
 
   OtaConfig _cfg;
   OtaClientAttributeFn _sendAttr;
+  OtaProgressFn _progress;
   OtaSoftwareReadyFn _onSoftwareReady;
 
   Phase _phase = Phase::Idle;
   bool _busy = false;
+  bool _startRequested = false;
   OtaPackageKind _kind = OtaPackageKind::Firmware;
 
   String _title;
@@ -81,6 +98,9 @@ private:
   bool _shaStarted = false;
 
   void resetTarget();
+  void clearPackageBytes();
+  void rememberInstalled();
+  bool alreadyInstalled();
   bool metadataComplete() const;
   bool acceptAttrKey(const String& key, OtaPackageKind* outKind, const char** outField) const;
   void startDownload();

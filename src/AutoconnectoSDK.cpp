@@ -2,6 +2,9 @@
 // AutoconnectoSDK.cpp
 // =========================================
 
+#include "core/Esp32Only.h"
+#if defined(AUTOCONNECTO_ESP32_CLIENT)
+
 #include "AutoconnectoSDK.h"
 
 #include "network/NetworkConnect.h"
@@ -416,3 +419,5 @@ bool AutoconnectoSDK::replyRPC(
 
   return replyRPC(doc);
 }
+
+#endif

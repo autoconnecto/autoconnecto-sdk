@@ -9,7 +9,12 @@
 // NOTE
 //   MQTT ingress is per-message JSON object (no single "batch"
 //   payload contract). This example flushes a batch by sending
-//   N individual telemetry publishes quickly.
+//   N individual telemetry publishes.
+//
+//   Growth and Enterprise store one reading per second. A closer
+//   gap is not stored. MQTT does not return that refusal, so this
+//   flush waits 1100 ms between publishes. A top-level "ts" is the
+//   reading time and is not stored as a key.
 // =============================================================
 
 #include <AutoconnectoSDK.h>
@@ -58,8 +63,12 @@ void flushSamples() {
     tel["voltage1"]    = buf[i].voltage1;
     tel["voltage2"]    = buf[i].voltage2;
     tel["voltage3"]    = buf[i].voltage3;
-    sdk.sendTelemetry(tel);
-    delay(120);
+    if (!sdk.sendTelemetry(tel)) {
+      Serial.printf("[BATCH] publish refused sample %d\n", i);
+    } else {
+      Serial.printf("[BATCH] sent sample %d/%d\n", i + 1, nBuf);
+    }
+    delay(1100);
   }
 
   nBuf = 0;

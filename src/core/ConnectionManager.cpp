@@ -1,3 +1,6 @@
+#include "Esp32Only.h"
+#if defined(AUTOCONNECTO_ESP32_CLIENT)
+
 #include "ConnectionManager.h"
 
 #include "AutoconnectoSDK.h"
@@ -102,3 +105,5 @@ void ConnectionManager::onRPC(
 
   mqtt.onRPC(cb);
 }
+
+#endif

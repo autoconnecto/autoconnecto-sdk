@@ -1,3 +1,6 @@
+#include "../core/Esp32Only.h"
+#if defined(AUTOCONNECTO_ESP32_CLIENT)
+
 #include "NetworkConnect.h"
 
 #include "LtePppNetwork.h"
@@ -86,3 +89,5 @@ int networkSignalRssi(const SDKConfig& config) {
 
   return 0;
 }
+
+#endif

@@ -22,6 +22,8 @@ This implies the SDK is currently designed around a single active transport inst
 
 - `buildBrokerURI()` sets `usingWSS = true` and returns:
   - `wss://{mqttHost}:{wssPort}/mqtt`
+- `SDKConfig.wssPort` defaults to **8084**. `allowInsecureTLS` defaults to false. `rootCA` defaults to `AUTOCONNECTO_ROOT_CA`.
+- A top-level numeric `ts` on telemetry is the reading time. The API does not store it as a key.
 
 ### Authentication
 

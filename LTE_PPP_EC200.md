@@ -5,7 +5,7 @@ WiFi examples and the default library build are **unchanged**. LTE is **opt-in**
 ## Requirements
 
 - **ESP32 Arduino core 3.x** (built-in `PPP` library — no TinyGSM)
-- Sketch folder **`build_opt.h`** with `-DAUTOCONNECTO_ENABLE_LTE_PPP=1`
+- Sketch folder **`build_opt.h`** with one line: `-DAUTOCONNECTO_ENABLE_LTE_PPP=1`. A `//` comment in that file is passed to the compiler as a flag and the build fails.
 - Quectel **EC200** (or compatible) on UART, SIM with known **APN**
 
 ## Wiring (default in `SDKConfig`)
@@ -37,4 +37,4 @@ MQTT uses **MQTTS :8883** (not WSS) on LTE.
 
 ## Adding other modems later
 
-Change `PPP_MODEM_EC200` in `src/network/LtePppNetwork.cpp` (or add a `SDKConfig` modem profile) and re-test attach + PPP + MQTTS. WiFi builds are unaffected.
+ESP32 core 3.3 has no EC200 model id. The sketch uses `PPP_MODEM_GENERIC`, which speaks the standard AT set the EC200 uses for attach and PPP. A modem on the bench is what proves the link. Compiling is the check that the names exist.

@@ -12,18 +12,63 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        core:
-          - "3.0.0"
-          - "latest"
+        include:
+          - fqbn: esp32:esp32:esp32
+            core: "3.0.0"
+            sketches: |
+              - examples/BasicTelemetry_mqtt
+              - examples/BasicTelemetry_http
+              - examples/SwitchControl_mqtt
+              - examples/SwitchControl_http
+              - examples/RPCCommands_mqtt
+              - examples/RPCCommands_http
+              - examples/AllFunctionTest_mqtt
+              - examples/AllFunctionTest_http
+              - examples/Generator_Monitoring_mqtt
+              - examples/Machine_Runtime_mqtt
+              - examples/TelemetryBatch_http
+              - examples/TelemetryBatch_mqtt
+              - examples/WatchdogReconnect_mqtt
+              - examples/OtaFirmwareUpdate_mqtt
+          - fqbn: esp32:esp32:esp32
+            core: latest
+            sketches: |
+              - examples/BasicTelemetry_mqtt
+              - examples/BasicTelemetry_http
+              - examples/SwitchControl_mqtt
+              - examples/SwitchControl_http
+              - examples/RPCCommands_mqtt
+              - examples/RPCCommands_http
+              - examples/AllFunctionTest_mqtt
+              - examples/AllFunctionTest_http
+              - examples/Generator_Monitoring_mqtt
+              - examples/Machine_Runtime_mqtt
+              - examples/TelemetryBatch_http
+              - examples/TelemetryBatch_mqtt
+              - examples/WatchdogReconnect_mqtt
+              - examples/OtaFirmwareUpdate_mqtt
+              - examples/OtaSoftwareUpdate_mqtt
+              - examples/BasicTelemetry_lte_ppp_mqtt
+              - examples/AllFunctionTest_lte_ppp_mqtt
+          - fqbn: esp32:esp32:esp32c3
+            core: latest
+            sketches: |
+              - examples/BasicTelemetry_mqtt
+              - examples/OtaFirmwareUpdate_mqtt
+          - fqbn: esp32:esp32:esp32s3
+            core: latest
+            sketches: |
+              - examples/BasicTelemetry_mqtt
+              - examples/OtaFirmwareUpdate_mqtt
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Compile representative sketches (ESP32 core ${{ matrix.core }})
+      - name: Compile sketches (${{ matrix.fqbn }} core ${{ matrix.core }})
         uses: arduino/compile-sketches@v1
         with:
-          fqbn: "esp32:esp32:esp32"
+          fqbn: ${{ matrix.fqbn }}
           platforms: |
             - name: esp32:esp32
               source-url: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
@@ -31,22 +76,44 @@ jobs:
           libraries: |
             - source-path: ./
             - name: ArduinoJson
-          sketch-paths: |
-            - examples/BasicTelemetry_mqtt
-            - examples/BasicTelemetry_http
-            - examples/SwitchControl_mqtt
-            - examples/SwitchControl_http
-            - examples/RPCCommands_mqtt
-            - examples/RPCCommands_http
-            - examples/AllFunctionTest_mqtt
-            - examples/AllFunctionTest_http
-            - examples/Generator_Monitoring_mqtt
-            - examples/Machine_Runtime_mqtt
-            - examples/TelemetryBatch_http
-            - examples/TelemetryBatch_mqtt
-            - examples/WatchdogReconnect_mqtt
-            - examples/OtaFirmwareUpdate_mqtt
-            # LTE PPP sketches need ESP32 PPP + build_opt.h; excluded from CI until
-            # compile-sketches + esp32@latest PPP toolchain is stable for this layout.
+          sketch-paths: ${{ matrix.sketches }}
           enable-warnings-report: true
 
+  esp8266:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile ESP8266 HTTPS sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: esp8266:esp8266:generic
+          platforms: |
+            - name: esp8266:esp8266
+          libraries: |
+            - source-path: ./
+            - name: ArduinoJson
+          sketch-paths: |
+            - examples/BasicTelemetry_esp8266
+          enable-warnings-report: true
+
+  pico-w:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compile Pico W HTTPS sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: rp2040:rp2040:rpipicow
+          platforms: |
+            - name: rp2040:rp2040
+              source-url: https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+          libraries: |
+            - source-path: ./
+            - name: ArduinoJson
+          sketch-paths: |
+            - examples/BasicTelemetry_pico_w_http
+          enable-warnings-report: true

@@ -51,6 +51,13 @@ void setup() {
     doc[key] = value;
     return sdk.sendClientAttributes(doc);
   });
+  ota.onProgressReport([](const char* stateKey, const char* state, const char* title, const char* version) {
+    JsonDocument doc;
+    doc[stateKey] = state;
+    doc["sw_title"] = title;
+    doc["sw_version"] = version;
+    return sdk.sendClientAttributes(doc);
+  });
 
   ota.onSoftwareReady(
     [](const String& path, const String& title, const String& version) {
@@ -88,5 +95,11 @@ void setup() {
 
 void loop() {
   sdk.loop();
+  const bool wasBusy = ota.isBusy();
   ota.loop();
+  if (wasBusy && !ota.isBusy()) {
+    sdk.requestSharedAttributes(
+      "sw_title,sw_version,sw_size,sw_checksum,sw_checksum_algorithm"
+    );
+  }
 }

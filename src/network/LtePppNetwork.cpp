@@ -53,7 +53,7 @@ bool ltePppConnect(SDKConfig& config) {
     );
   }
 
-  esp_modem_flow_control_t flow =
+  esp_modem_flow_ctrl_t flow =
     ESP_MODEM_FLOW_CONTROL_NONE;
 
   if (
@@ -71,7 +71,8 @@ bool ltePppConnect(SDKConfig& config) {
     flow
   );
 
-  if (!PPP.begin(PPP_MODEM_EC200)) {
+  // Core 3.3 has no EC200 model id. GENERIC speaks the standard AT set EC200 uses.
+  if (!PPP.begin(PPP_MODEM_GENERIC)) {
 
     Logger::warn("PPP.begin failed");
 

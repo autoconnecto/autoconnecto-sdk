@@ -4,7 +4,7 @@
 // Autoconnecto — Let's Encrypt ISRG Root X1 + ISRG Root X2 (PEM bundle)
 //
 // Use:   #include <AutoconnectoIsrgRoots.h>
-//        config.rootCA = AUTOCONNECTO_ROOT_CA;
+//        SDKConfig.rootCA defaults to AUTOCONNECTO_ROOT_CA.
 //        tlsClient.setCACert(AUTOCONNECTO_ROOT_CA);
 //
 // mbedtls / esp_tls accept concatenated PEM roots; the server chain is valid
