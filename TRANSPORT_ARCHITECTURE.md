@@ -25,7 +25,7 @@ This implies the SDK is currently designed around a single active transport inst
 
 ### Authentication
 
-- MQTT username and client_id are both set to the device token.
+- MQTT username and client_id are both set to the device token. A rotated token is refused at connect. The payload is JSON.
 
 ### Subscribe topics (on connect)
 
