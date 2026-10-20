@@ -67,14 +67,28 @@ SDK requests shared attributes by publishing to:
 Backend listens to shared attribute requests and publishes response to:
 - `devices/{token}/attributes/shared/response`
 
-## RPC / ACK (confirmed behavior, but contract alignment required)
+## RPC / ACK (two-way)
 
 SDK subscribes to:
 - `devices/{deviceToken}/rpc/request/+`
 
 SDK replies by publishing to:
-- `v1/devices/me/rpc/response/{requestId}`
+- `devices/{deviceToken}/rpc/response/{requestId}`
+
+(use the same `requestId` from the request topic suffix)
 
 Backend consumes RPC responses from:
 - `devices/+/rpc/response/+`
+(and legacy `v1/devices/+/rpc/response/+`)
+
+Dashboard Toggle / GPIO / RPC widgets wait on Socket.IO `device_rpc_response` matching that `requestId` before showing Confirmed.
+
+## Shared-attribute control loop (preferred for setpoints)
+
+1. Platform writes SHARED (desired).
+2. Device receives retained SHARED (or pulls on connect).
+3. Device applies hardware, then publishes CLIENT with the same keys.
+4. Dashboard shows Desired (SHARED) vs Device (CLIENT).
+
+See `examples/SwitchControl_mqtt` for the apply + `sendClientAttribute` pattern.
 
