@@ -44,6 +44,7 @@ AutoconnectoSDK sdk;
 // ============================================================
 
 bool  channelState[5] = {false, false, false, false, false}; // index 0 unused
+int   burstRemaining  = 0; // telemetry_burst — drain in loop(), never delay in onRPC
 
 float volume        = 0.0f;
 
@@ -272,7 +273,7 @@ void onRPC(const String& method, JsonObject payload) {
   // RELAY SET — directly drive a channel
   // params: { channel: 1, state: 1 }
   // ----------------------------------------------------------
-  if (method == "relay_set") {
+  if (method == "set_channel_state" || method == "relay_set") {
     int  ch    = params["channel"] | 1;
     bool state = (int)(params["state"] | 0) > 0;
 
@@ -339,15 +340,13 @@ void onRPC(const String& method, JsonObject payload) {
     int count = params["count"] | 5;
     if (count < 1)  count = 1;
     if (count > 20) count = 20;
+    burstRemaining = count;
 
-    for (int i = 0; i < count; i++) {
-      sdk.sendTelemetry("burstValue", (float)random(1, 100));
-      delay(35000); // Free plan min interval 30s — faster samples are dropped
-    }
-
-    StaticJsonDocument<64> reply;
+    StaticJsonDocument<128> reply;
     reply["success"] = true;
-    reply["sent"]    = count;
+    reply["armed"]   = count;
+    reply["message"] =
+      "Burst armed; samples send on the normal 35s interval (no RPC stall)";
     sdk.replyRPC(reply);
     return;
   }
@@ -461,6 +460,10 @@ void loop() {
     reading["voltage1"] = (float)random(220, 280);
     reading["voltage2"] = (float)random(220, 280);
     reading["voltage3"] = (float)random(220, 280);
+    if (burstRemaining > 0) {
+      reading["burstValue"] = (float)random(1, 100);
+      burstRemaining--;
+    }
     sdk.sendTelemetry(reading);
 
     StaticJsonDocument<256> attrs;

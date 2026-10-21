@@ -64,6 +64,7 @@ AutoconnectoSDK sdk;
 // ============================================================
 
 bool  channelState[5] = {false, false, false, false, false};
+int   burstRemaining  = 0;
 float volume          = 0.0f;
 float setVoltage1     = 245.0f;
 float setVoltage2     = 245.0f;
@@ -86,6 +87,38 @@ void applyChannel(int ch, float raw) {
   }
   if (pin >= 0) digitalWrite(pin, state ? HIGH : LOW);
   sdk.sendClientAttribute("channel" + String(ch), state ? 1.0f : 0.0f);
+}
+
+// ============================================================
+// ATTRIBUTE CALLBACK — Switch / Slider (shared attrs)
+// ============================================================
+
+void onAttributeUpdate(const String& key, float value) {
+  Serial.printf("[ATTR] %s = %.2f\n", key.c_str(), value);
+  if (key == "channel1") { applyChannel(1, value); return; }
+  if (key == "channel2") { applyChannel(2, value); return; }
+  if (key == "channel3") { applyChannel(3, value); return; }
+  if (key == "channel4") { applyChannel(4, value); return; }
+  if (key == "volume") {
+    volume = value;
+    sdk.sendClientAttribute("volume", volume);
+    return;
+  }
+  if (key == "limitVoltage1") {
+    setVoltage1 = value;
+    sdk.sendClientAttribute("setVoltage1", setVoltage1);
+    return;
+  }
+  if (key == "limitVoltage2") {
+    setVoltage2 = value;
+    sdk.sendClientAttribute("setVoltage2", setVoltage2);
+    return;
+  }
+  if (key == "limitVoltage3") {
+    setVoltage3 = value;
+    sdk.sendClientAttribute("setVoltage3", setVoltage3);
+    return;
+  }
 }
 
 // ============================================================
@@ -149,7 +182,7 @@ void onRPC(const String& method, JsonObject payload) {
   // RELAY SET — drive a specific channel
   // params: { channel: 1, state: 1 }
   // ----------------------------------------------------------
-  if (method == "relay_set") {
+  if (method == "set_channel_state" || method == "relay_set") {
     int  ch    = params["channel"] | 1;
     bool state = (int)(params["state"] | 0) > 0;
 
@@ -224,16 +257,13 @@ void onRPC(const String& method, JsonObject payload) {
     int count = params["count"] | 5;
     if (count < 1)  count = 1;
     if (count > 20) count = 20;
+    burstRemaining = count;
 
-    // Space samples by plan min interval (Free = 30s). Faster bursts are dropped.
-    for (int i = 0; i < count; i++) {
-      sdk.sendTelemetry("burstValue", (float)random(1, 100));
-      if (i + 1 < count) delay(35000);
-    }
-
-    StaticJsonDocument<64> reply;
+    StaticJsonDocument<128> reply;
     reply["success"] = true;
-    reply["sent"]    = count;
+    reply["armed"]   = count;
+    reply["message"] =
+      "Burst armed; samples send on the normal 35s interval (no RPC stall)";
     sdk.replyRPC(reply);
     return;
   }
@@ -300,6 +330,7 @@ void setup() {
   config.rootCA           = AUTOCONNECTO_ROOT_CA;
   config.enableSerialLogs = true;
 
+  sdk.onAttributeUpdate(onAttributeUpdate);
   sdk.onRPC(onRPC);
   sdk.onConnect(onConnect);
   sdk.onDisconnect(onDisconnect);
@@ -332,6 +363,10 @@ void loop() {
     reading["voltage1"] = (float)random(220, 280);
     reading["voltage2"] = (float)random(220, 280);
     reading["voltage3"] = (float)random(220, 280);
+    if (burstRemaining > 0) {
+      reading["burstValue"] = (float)random(1, 100);
+      burstRemaining--;
+    }
     sdk.sendTelemetry(reading);
   }
 

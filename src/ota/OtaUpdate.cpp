@@ -279,6 +279,14 @@ bool AutoconnectoOta::downloadNextChunk() {
     return false;
   }
 
+  // One HTTP response is one chunk (Content-Length = this slice), not the
+  // whole package. Waiting for _fileSize on a keep-alive connection hangs forever.
+  const int contentLen = http.getSize();
+  const size_t chunkExpect =
+    contentLen > 0
+      ? static_cast<size_t>(contentLen)
+      : static_cast<size_t>(_cfg.chunkSize);
+
   WiFiClient* stream = http.getStreamPtr();
   File softFile;
   if (_kind == OtaPackageKind::Software) {
@@ -291,16 +299,36 @@ bool AutoconnectoOta::downloadNextChunk() {
     }
   }
 
-  while (http.connected() && _bytesWritten < _fileSize) {
+  size_t chunkGot = 0;
+  unsigned long idleSince = millis();
+  const unsigned long idleTimeoutMs = 8000;
+
+  while (_bytesWritten < _fileSize && chunkGot < chunkExpect) {
+    if (!http.connected() && stream->available() == 0) break;
+
     const size_t avail = stream->available();
     if (!avail) {
-      if (!stream->connected()) break;
+      if (!stream->connected() && stream->available() == 0) break;
+      if (millis() - idleSince > idleTimeoutMs) {
+        Serial.printf(
+          "[OTA] chunk idle timeout idx=%u got=%u expect=%u total=%u/%u\n",
+          static_cast<unsigned>(_chunkIndex),
+          static_cast<unsigned>(chunkGot),
+          static_cast<unsigned>(chunkExpect),
+          static_cast<unsigned>(_bytesWritten),
+          static_cast<unsigned>(_fileSize)
+        );
+        break;
+      }
       delay(1);
+      yield();
       continue;
     }
+    idleSince = millis();
 
     uint8_t buf[512];
-    const size_t n = stream->readBytes(buf, min(avail, sizeof(buf)));
+    const size_t want = min(avail, min(sizeof(buf), chunkExpect - chunkGot));
+    const size_t n = stream->readBytes(buf, want);
     if (!n) break;
 
     if (!_shaStarted) {
@@ -325,6 +353,7 @@ bool AutoconnectoOta::downloadNextChunk() {
       }
     }
 
+    chunkGot += n;
     _bytesWritten += n;
   }
 
@@ -332,6 +361,26 @@ bool AutoconnectoOta::downloadNextChunk() {
     softFile.close();
   }
   http.end();
+
+  // Empty body at past-EOF means the server has no more bytes.
+  if (chunkGot == 0 && _bytesWritten >= _fileSize) {
+    reportState("DOWNLOADED");
+    _phase = Phase::Verifying;
+    return true;
+  }
+
+  if (chunkGot == 0) {
+    fail("chunk_empty");
+    return false;
+  }
+
+  Serial.printf(
+    "[OTA] chunk %u ok bytes=%u total=%u/%u\n",
+    static_cast<unsigned>(_chunkIndex),
+    static_cast<unsigned>(chunkGot),
+    static_cast<unsigned>(_bytesWritten),
+    static_cast<unsigned>(_fileSize)
+  );
 
   if (_bytesWritten >= _fileSize) {
     reportState("DOWNLOADED");

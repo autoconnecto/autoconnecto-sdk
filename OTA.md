@@ -62,7 +62,7 @@ GET https://{apiHost}/api/v1/{deviceToken}/software
   ?title={title}&version={version}&size={chunkBytes}&chunk={zeroBasedIndex}
 ```
 
-Response body: raw binary slice. Repeat until all bytes received. The platform only serves chunks for an **active assignment** for that device.
+Response body: raw binary slice for **that chunk only** (`Content-Length` is the slice size, not the whole package). The device must finish reading the slice, then request `chunk+1`, until bytes written ≥ `fw_size` / `sw_size`. Do not wait on one HTTP connection for the entire file — that hangs. The platform only serves chunks for an **active assignment** for that device.
 
 ## Client attribute progress
 

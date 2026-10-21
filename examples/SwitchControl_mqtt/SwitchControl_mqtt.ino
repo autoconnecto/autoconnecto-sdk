@@ -151,6 +151,27 @@ void onDisconnect(bool connected) {
   Serial.println("[NET] Disconnected");
 }
 
+// Switch widget controlTransport=rpc uses this method (not only shared attrs).
+void onRPC(const String& method, JsonObject payload) {
+  JsonObject params = payload["params"].as<JsonObject>();
+  if (method == "set_channel_state" || method == "relay_set") {
+    int ch = params["channel"] | 1;
+    bool state = (int)(params["state"] | 0) > 0;
+    applyChannel(ch, state ? 1.0f : 0.0f);
+    StaticJsonDocument<96> reply;
+    reply["success"] = true;
+    reply["channel"] = ch;
+    reply["state"] = state ? 1 : 0;
+    sdk.replyRPC(reply);
+    return;
+  }
+  StaticJsonDocument<96> unknown;
+  unknown["success"] = false;
+  unknown["message"] = "Unknown method";
+  unknown["method"] = method;
+  sdk.replyRPC(unknown);
+}
+
 // ============================================================
 // SETUP
 // ============================================================
@@ -178,6 +199,7 @@ void setup() {
   config.enableSerialLogs = true;
 
   sdk.onAttributeUpdate(onAttributeUpdate);
+  sdk.onRPC(onRPC);
   sdk.onConnect(onConnect);
   sdk.onDisconnect(onDisconnect);
 

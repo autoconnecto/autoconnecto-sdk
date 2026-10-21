@@ -812,17 +812,19 @@ void MQTTTransport::mqttEventHandler(
       // ===================================
 
       if (
-        topicStr.endsWith(
+        topicStr.indexOf(
           "/attributes/shared"
-        ) ||
-
-        topicStr.endsWith(
-          "/attributes/shared/response"
-        )
+        ) >= 0
       ) {
 
-        JsonObject obj =
-          doc.as<JsonObject>();
+        // Flat snapshot from platform. If a nested "shared" object exists, use it.
+        JsonObject obj = doc.as<JsonObject>();
+        if (
+          !obj["shared"].isNull() &&
+          obj["shared"].is<JsonObject>()
+        ) {
+          obj = obj["shared"].as<JsonObject>();
+        }
 
         for (
           JsonPair kv : obj

@@ -38,8 +38,8 @@
 
 // ---- Network & API -------------------------------------------------------
 
-static const char* WIFI_SSID     = "71";
-static const char* WIFI_PASSWORD = "90946062";
+static const char* WIFI_SSID     = "YOUR_WIFI_SSID";
+static const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
 
 // Production:
 //static const char* API_HOST = "api.autoconnecto.in";
