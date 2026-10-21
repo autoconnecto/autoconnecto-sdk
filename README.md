@@ -356,6 +356,8 @@ See **[CONNECTIVITY.md](CONNECTIVITY.md)** for HTTP batch, gateway relay, generi
 
 ## Examples
 
+**Matching dashboards in the platform:** every sketch below has a ready Solution in the Autoconnecto app under **Solutions** (sidebar). Titles are **`SDK · <example folder>`** — for example flash `BasicTelemetry_mqtt`, then open **Solutions → SDK · BasicTelemetry_mqtt**, turn **Sample data** On to preview, or **Use** to copy the dashboard into your tenant. Search Solutions for `SDK` to list them all.
+
 Naming: each example has an **MQTT** variant (`*_mqtt`, uses `AutoconnectoSDK`) and, where applicable, an **HTTPS** variant (`*_http`, device-token REST only — no SDK calls). HTTPS sketches still **install the AutoconnectoSDK library** so they can `#include <AutoconnectoIsrgRoots.h>` for the shared TLS bundle. The sketch folder name matches the `.ino` basename (Arduino IDE rule). Pairs share the **same telemetry and attribute keys** so one dashboard layout can be used for either transport.
 
 ### `BasicTelemetry_mqtt` / `BasicTelemetry_http`

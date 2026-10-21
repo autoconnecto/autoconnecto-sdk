@@ -2,6 +2,8 @@
 
 Python examples that mirror the ESP32 sketches under `examples/*.ino`. They use the **same telemetry keys, attributes, and RPC methods** so one dashboard works for both platforms.
 
+**Matching dashboards:** in the Autoconnecto app, open **Solutions** and search `SDK`. Each example has a template titled **`SDK · <Arduino example folder>`** (same keys as these Python scripts).
+
 This folder is **not** part of the Arduino Library Manager install (ESP32 only). It ships in the same Git repo as a sibling of `src/` and `examples/`.
 
 ## Requirements
