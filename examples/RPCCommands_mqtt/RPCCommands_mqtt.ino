@@ -225,9 +225,10 @@ void onRPC(const String& method, JsonObject payload) {
     if (count < 1)  count = 1;
     if (count > 20) count = 20;
 
+    // Space samples by plan min interval (Free = 30s). Faster bursts are dropped.
     for (int i = 0; i < count; i++) {
       sdk.sendTelemetry("burstValue", (float)random(1, 100));
-      delay(300);
+      if (i + 1 < count) delay(35000);
     }
 
     StaticJsonDocument<64> reply;
@@ -321,19 +322,17 @@ void loop() {
 
   unsigned long now = millis();
 
-  if (now - lastTelemetry > 10000) {
+  if (now - lastTelemetry > 35000) {
     lastTelemetry = now;
-    sdk.sendTelemetry("temperature", (float)random(20, 35));
-    sdk.sendTelemetry(
-      "humidity", (float)random(40, 80),
-      "current",  (float)random(1, 10),
-      "power",    (float)random(100, 500)
-    );
-    StaticJsonDocument<128> voltages;
-    voltages["voltage1"] = (float)random(220, 280);
-    voltages["voltage2"] = (float)random(220, 280);
-    voltages["voltage3"] = (float)random(220, 280);
-    sdk.sendTelemetry(voltages);
+    StaticJsonDocument<256> reading;
+    reading["temperature"] = (float)random(20, 35);
+    reading["humidity"] = (float)random(40, 80);
+    reading["current"] = (float)random(1, 10);
+    reading["power"] = (float)random(100, 500);
+    reading["voltage1"] = (float)random(220, 280);
+    reading["voltage2"] = (float)random(220, 280);
+    reading["voltage3"] = (float)random(220, 280);
+    sdk.sendTelemetry(reading);
   }
 
   if (now - lastAttrReport > 30000) {

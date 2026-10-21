@@ -1,6 +1,6 @@
 # Autoconnecto Arduino SDK
 
-**Version:** 1.0.1  
+**Version:** 1.7.57  
 **Platform:** Autoconnecto IoT  
 **Target:** ESP32 (all variants)  
 **Transport:** MQTT over WSS (primary) / MQTTS (fallback)
@@ -223,22 +223,18 @@ bool ok = sdk.connected(); // true if transport is active
 
 ### Telemetry
 
+Plan `min_telemetry_interval_sec` applies per device (Free **30s**, Hobby 10s, Starter 5s, Growth/Enterprise 1s). Each `sendTelemetry` call is one reading. Prefer **one JsonDocument** with all keys per interval — back-to-back calls in the same second drop every key after the first.
+
 ```cpp
-// Single key
-sdk.sendTelemetry("temperature", 25.4f);
-
-// Two keys in one publish
-sdk.sendTelemetry("humidity", 65.0f, "voltage", 230.0f);
-
-// Three keys in one publish
-sdk.sendTelemetry("current", 2.1f, "power", 480.0f, "frequency", 50.0f);
-
-// Four or more keys — use JsonDocument
+// Preferred: one message, all keys
 StaticJsonDocument<256> doc;
+doc["temperature"] = 25.4f;
+doc["humidity"] = 65.0f;
 doc["voltage1"] = 230.0f;
-doc["voltage2"] = 231.0f;
-doc["voltage3"] = 229.0f;
 sdk.sendTelemetry(doc);
+
+// Also valid: one key (still counts as one reading against the interval)
+sdk.sendTelemetry("temperature", 25.4f);
 ```
 
 ### Client Attributes (device → platform)

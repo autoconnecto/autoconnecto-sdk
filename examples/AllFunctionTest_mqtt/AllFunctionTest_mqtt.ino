@@ -340,7 +340,7 @@ void onRPC(const String& method, JsonObject payload) {
 
     for (int i = 0; i < count; i++) {
       sdk.sendTelemetry("burstValue", (float)random(1, 100));
-      delay(300);
+      delay(35000); // Free plan min interval 30s — faster samples are dropped
     }
 
     StaticJsonDocument<64> reply;
@@ -446,28 +446,22 @@ void loop() {
     );
   }
 
-  // ---- Periodic telemetry (every 10s) ----
-  if (now - lastTelemetry > 10000) {
+  // ---- One MQTT telemetry message every 35s (Free-plan safe) ----
+  // Free = 30s min interval; multiple sendTelemetry() in the same second
+  // drops all but the first. Put every key in one JsonDocument.
+  if (now - lastTelemetry > 35000) {
     lastTelemetry = now;
 
-    // Single key
-    sdk.sendTelemetry("temperature", (float)random(20, 35));
+    StaticJsonDocument<256> reading;
+    reading["temperature"] = (float)random(20, 35);
+    reading["humidity"] = (float)random(40, 80);
+    reading["current"] = (float)random(1, 10);
+    reading["power"] = (float)random(100, 500);
+    reading["voltage1"] = (float)random(220, 280);
+    reading["voltage2"] = (float)random(220, 280);
+    reading["voltage3"] = (float)random(220, 280);
+    sdk.sendTelemetry(reading);
 
-    // Up to 3 keys in one call (SDK limit for variadic overload)
-    sdk.sendTelemetry(
-      "humidity", (float)random(40, 80),
-      "current",  (float)random(1, 10),
-      "power",    (float)random(100, 500)
-    );
-
-    // 4+ keys must use JsonDocument
-    StaticJsonDocument<256> voltages;
-    voltages["voltage1"] = (float)random(220, 280);
-    voltages["voltage2"] = (float)random(220, 280);
-    voltages["voltage3"] = (float)random(220, 280);
-    sdk.sendTelemetry(voltages);
-
-    // Device health client attributes
     StaticJsonDocument<256> attrs;
     attrs["freeHeap"]   = ESP.getFreeHeap();
     attrs["wifiRSSI"]   = WiFi.RSSI();

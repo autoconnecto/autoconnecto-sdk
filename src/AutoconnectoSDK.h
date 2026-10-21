@@ -183,6 +183,9 @@ private:
   bool lastConnectionState =
     false;
 
+  bool _begun =
+    false;
+
   String lastRPCRequestTopic =
     "";
 };

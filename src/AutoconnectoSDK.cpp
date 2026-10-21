@@ -37,6 +37,7 @@ void AutoconnectoSDK::begin(
   );
 
   manager.begin();
+  _begun = true;
 }
 
 // =========================================
@@ -160,6 +161,11 @@ void AutoconnectoSDK::onAttributeUpdate(
 ) {
 
   attrCb = cb;
+  // begin() copies callbacks into the transport once. Re-apply if already started
+  // so sketches that register handlers after begin() still receive updates (OTA).
+  if (_begun) {
+    manager.configure(&_config, attrCb, attrStringCb);
+  }
 }
 
 void AutoconnectoSDK::onAttributeStringUpdate(
@@ -167,6 +173,9 @@ void AutoconnectoSDK::onAttributeStringUpdate(
 ) {
 
   attrStringCb = cb;
+  if (_begun) {
+    manager.configure(&_config, attrCb, attrStringCb);
+  }
 }
 
 void AutoconnectoSDK::onConnect(
@@ -188,6 +197,9 @@ void AutoconnectoSDK::onRPC(
 ) {
 
   rpcCb = cb;
+  if (_begun) {
+    manager.onRPC(rpcCb);
+  }
 }
 
 // =========================================

@@ -169,7 +169,8 @@ void loop() {
 
   const unsigned long now = millis();
 
-  if (now - lastTelemetry > 10000) {
+  // Free plan min interval 30s — one reading per message already
+  if (now - lastTelemetry > 35000) {
     lastTelemetry = now;
     sendGeneratorTelemetry();
   }

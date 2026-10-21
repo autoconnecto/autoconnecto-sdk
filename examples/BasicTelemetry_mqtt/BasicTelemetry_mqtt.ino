@@ -6,8 +6,13 @@
 //
 // PURPOSE
 //   Simplest possible sketch. Connect to the platform and send
-//   sensor readings every 10 seconds. No attributes, no RPC.
+//   sensor readings on a plan-safe interval. No attributes, no RPC.
 //   Use this first to verify your device token and connection.
+//
+// PLAN INTERVAL
+//   Free plan stores at most one reading every 30 seconds. Hobby 10s,
+//   Starter 5s, Growth/Enterprise 1s. This sketch defaults to 35s and
+//   sends ALL keys in ONE MQTT message so none are dropped.
 //
 // NOTE
 //   Raspberry Pi mirrors of these examples live under `raspberrypi/`.
@@ -82,26 +87,21 @@ void loop() {
 
   unsigned long now = millis();
 
-  // ---- Send telemetry every 10 seconds ----
-  if (now - lastTelemetry > 10000) {
+  // ---- One MQTT telemetry message every 35s (Free-plan safe) ----
+  if (now - lastTelemetry > 35000) {
     lastTelemetry = now;
 
-    // Single-key calls (up to 3 keys per variadic call)
-    sdk.sendTelemetry("temperature", (float)random(20, 35));
-    sdk.sendTelemetry(
-      "humidity", (float)random(40, 80),
-      "current",  (float)random(1, 10),
-      "power",    (float)random(100, 500)
-    );
+    StaticJsonDocument<256> reading;
+    reading["temperature"] = (float)random(20, 35);
+    reading["humidity"] = (float)random(40, 80);
+    reading["current"] = (float)random(1, 10);
+    reading["power"] = (float)random(100, 500);
+    reading["voltage1"] = (float)random(220, 280);
+    reading["voltage2"] = (float)random(220, 280);
+    reading["voltage3"] = (float)random(220, 280);
+    sdk.sendTelemetry(reading);
 
-    // 4+ keys require a JsonDocument
-    StaticJsonDocument<128> voltages;
-    voltages["voltage1"] = (float)random(220, 280);
-    voltages["voltage2"] = (float)random(220, 280);
-    voltages["voltage3"] = (float)random(220, 280);
-    sdk.sendTelemetry(voltages);
-
-    Serial.println("[TEL] Sent telemetry");
+    Serial.println("[TEL] Sent telemetry (one message)");
   }
 
   // ---- Report device health as client attributes every 30 seconds ----

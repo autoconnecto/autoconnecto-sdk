@@ -10,6 +10,9 @@
 //   1. Flash this sketch with your WiFi + device token.
 //   2. In the app: OTA → Software → Upload package → Assign.
 //   3. Serial prints the LittleFS path when the file is ready.
+//
+// IMPORTANT
+//   Register onAttribute* / onConnect callbacks BEFORE sdk.begin().
 // =============================================================
 
 #include <AutoconnectoSDK.h>
@@ -36,8 +39,6 @@ void setup() {
   config.sharedAttributeKeys =
     "sw_title,sw_version,sw_size,sw_checksum,sw_checksum_algorithm";
   config.enableSerialLogs = true;
-
-  sdk.begin(config);
 
   OtaConfig otaCfg;
   otaCfg.apiHost = "api.autoconnecto.in";
@@ -83,7 +84,6 @@ void setup() {
   sdk.onAttributeUpdate([](const String& key, float value) {
     ota.onSharedAttribute(key, value);
   });
-
   sdk.onConnect([](bool ok) {
     if (ok) {
       sdk.requestSharedAttributes(
@@ -91,6 +91,8 @@ void setup() {
       );
     }
   });
+
+  sdk.begin(config);
 }
 
 void loop() {

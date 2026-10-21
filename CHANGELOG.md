@@ -15,7 +15,17 @@ Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library.
 
 ## Unreleased
 
-- Add OTA client (`src/ota/OtaUpdate.h`) and example `examples/OtaFirmwareUpdate_mqtt/`.
+## v1.7.57
+
+- Same as 1.7.56 ship notes for examples/OTA callback order and plan-safe telemetry interval (release tag alignment).
+
+## v1.7.56
+
+- README version aligned with `library.properties`.
+- MQTT examples send **one** telemetry JSON per interval (default **35s**, Free-plan safe). Multiple `sendTelemetry` calls in the same second are dropped by plan `min_telemetry_interval_sec`.
+- OTA examples register attribute/connect callbacks **before** `sdk.begin()`.
+- `onAttributeUpdate` / `onAttributeStringUpdate` / `onRPC` re-apply into the transport if registered after `begin()`.
+- Add OTA client (`src/ota/OtaUpdate.h`) and examples `OtaFirmwareUpdate_mqtt` / `OtaSoftwareUpdate_mqtt`.
 - Add `OTA.md` (chunked firmware download API).
 - Add Raspberry Pi example suite under `raspberrypi/` mirroring the ESP32 example names.
 - Add systemd unit template for Raspberry Pi examples.

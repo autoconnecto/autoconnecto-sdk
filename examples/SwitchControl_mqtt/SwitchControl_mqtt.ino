@@ -202,22 +202,19 @@ void loop() {
 
   unsigned long now = millis();
 
-  // Telemetry every 10 seconds
-  if (now - lastTelemetry > 10000) {
+  // One MQTT message every 35s (Free plan min interval is 30s)
+  if (now - lastTelemetry > 35000) {
     lastTelemetry = now;
 
-    sdk.sendTelemetry("temperature", (float)random(20, 35));
-    sdk.sendTelemetry(
-      "humidity", (float)random(40, 80),
-      "current",  (float)random(1, 10),
-      "power",    (float)random(100, 500)
-    );
-
-    StaticJsonDocument<128> voltages;
-    voltages["voltage1"] = (float)random(220, 280);
-    voltages["voltage2"] = (float)random(220, 280);
-    voltages["voltage3"] = (float)random(220, 280);
-    sdk.sendTelemetry(voltages);
+    StaticJsonDocument<256> reading;
+    reading["temperature"] = (float)random(20, 35);
+    reading["humidity"] = (float)random(40, 80);
+    reading["current"] = (float)random(1, 10);
+    reading["power"] = (float)random(100, 500);
+    reading["voltage1"] = (float)random(220, 280);
+    reading["voltage2"] = (float)random(220, 280);
+    reading["voltage3"] = (float)random(220, 280);
+    sdk.sendTelemetry(reading);
   }
 
   // Device health every 30 seconds
