@@ -6,6 +6,10 @@ Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library.
 
 ## Unreleased
 
+## v1.7.68
+
+- Example `examples/esp32-claim`: the sketch sends a claim code and receives a device token once. The QR holds the code, not the token. Not board-verified.
+
 ## v1.7.58
 
 - **OTA:** firmware/software download no longer waits forever for the whole file in one HTTP request. Each response is one chunk (`Content-Length` / idle timeout); then the next `chunk=` index is fetched until size is met.
