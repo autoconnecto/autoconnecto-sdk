@@ -1,6 +1,6 @@
 # Autoconnecto Arduino SDK
 
-**Version:** 1.7.57  
+**Version:** 1.7.72  
 **Platform:** Autoconnecto IoT  
 **Target:** ESP32 (all variants)  
 **Transport:** MQTT over WSS (primary) / MQTTS (fallback)
@@ -172,7 +172,7 @@ void setup() {
   config.mqttHost        = "mqtt.autoconnecto.in";
   config.mqttPort        = 8883;
   config.wssPort         = 8084;
-  config.deviceToken     = "YOUR_DEVICE_TOKEN";
+  config.deviceToken     = DEVICE_TOKEN; // from secrets.h (see secrets.h.example)
   config.enableWS        = true;
   config.enableMQTT      = true;
   config.allowInsecureTLS = false;
@@ -360,6 +360,8 @@ See **[CONNECTIVITY.md](CONNECTIVITY.md)** for HTTP batch, gateway relay, generi
 
 Naming: each example has an **MQTT** variant (`*_mqtt`, uses `AutoconnectoSDK`) and, where applicable, an **HTTPS** variant (`*_http`, device-token REST only — no SDK calls). HTTPS sketches still **install the AutoconnectoSDK library** so they can `#include <AutoconnectoIsrgRoots.h>` for the shared TLS bundle. The sketch folder name matches the `.ino` basename (Arduino IDE rule). Pairs share the **same telemetry and attribute keys** so one dashboard layout can be used for either transport.
 
+**Credentials:** every sketch folder has `secrets.h.example`. Copy it to `secrets.h` (gitignored), fill Wi‑Fi / token / APN / claim code / fleet tokens as needed, and never commit `secrets.h`.
+
 ### `BasicTelemetry_mqtt` / `BasicTelemetry_http`
 - MQTT: `examples/BasicTelemetry_mqtt/BasicTelemetry_mqtt.ino`
 - HTTPS: `examples/BasicTelemetry_http/BasicTelemetry_http.ino`
@@ -409,6 +411,34 @@ Posts multiple samples in one request to `POST /api/v1/{token}/telemetry/batch` 
 ### OTA firmware update
 
 - MQTT: `examples/OtaFirmwareUpdate_mqtt/OtaFirmwareUpdate_mqtt.ino`
+
+### `BoardSelfTest_mqtt`
+- `examples/BoardSelfTest_mqtt/BoardSelfTest_mqtt.ino`
+- Board verify sketch: shared/client attrs echo, RPC replies, OTA state lines, forced reconnect (`drop_network`). Serial tags: `[ATTR]`, `[RPC]`, `[TEL]`, `[NET]`, `[OTA-STATE]`.
+
+### `OfflineBuffer_mqtt`
+- `examples/OfflineBuffer_mqtt/OfflineBuffer_mqtt.ino`
+- Queues readings in RAM/LittleFS while MQTT is down, flushes with original `ts` after reconnect.
+
+### `Claim_https`
+- `examples/Claim_https/Claim_https.ino`
+- HTTPS claim-code handoff with root CA; stores `deviceToken` in NVS. Prefer this over `esp32-claim` (plain HTTP).
+
+### `DeepSleep_http`
+- `examples/DeepSleep_http/DeepSleep_http.ino`
+- Wake → HTTPS telemetry → deep sleep. Raise the device inactivity timeout above `SLEEP_SEC`.
+
+### `GpsTracker_mqtt`
+- `examples/GpsTracker_mqtt/GpsTracker_mqtt.ino`
+- Publishes `latitude`, `longitude`, `speed_kmh`, `ignition`, `fuel_volume_l` for trips, geofences and fuel.
+
+### `Attributes_ClientVsShared_mqtt`
+- `examples/Attributes_ClientVsShared_mqtt/Attributes_ClientVsShared_mqtt.ino`
+- Shared attrs (cloud desired) vs client attrs (device-reported confirmation), with `requestSharedAttributes()` on connect.
+
+### `HttpControlPoll_http`
+- `examples/HttpControlPoll_http/HttpControlPoll_http.ino`
+- HTTP-only control: poll `attributes/flat?scope=SHARED`, apply, POST client confirmation (no server push over HTTPS).
 - Docs: **[OTA.md](OTA.md)** (chunked HTTPS API for non-ESP32 devices)
 
 If the device stays disconnected for too long, restarts the ESP32 to recover from wedged network states.

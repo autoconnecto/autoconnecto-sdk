@@ -19,6 +19,7 @@
 #include <OtaUpdate.h>
 #include <ArduinoJson.h>
 #include <LittleFS.h>
+#include "secrets.h"
 
 AutoconnectoSDK sdk;
 AutoconnectoOta ota;
@@ -28,9 +29,9 @@ void setup() {
   delay(2000);
 
   SDKConfig config;
-  config.wifiSSID = "YOUR_WIFI_SSID";
-  config.wifiPassword = "YOUR_WIFI_PASSWORD";
-  config.deviceToken = "YOUR_DEVICE_TOKEN";
+  config.wifiSSID = WIFI_SSID;
+  config.wifiPassword = WIFI_PASSWORD;
+  config.deviceToken = DEVICE_TOKEN;
   config.mqttHost = "mqtt.autoconnecto.in";
   config.mqttPort = 8883;
   config.mqttUseTls = true;

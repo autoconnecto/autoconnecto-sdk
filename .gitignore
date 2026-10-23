@@ -5,3 +5,5 @@ libdeps
 *.log
 *.bak
 .development
+**/secrets.h
+**/qa171_secrets.h

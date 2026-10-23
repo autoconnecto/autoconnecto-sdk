@@ -21,13 +21,8 @@
 #include <ArduinoJson.h>
 #include <time.h>
 #include <AutoconnectoIsrgRoots.h>
-
-static const char* WIFI_SSID          = "YOUR_WIFI_SSID";
-static const char* WIFI_PASSWORD      = "YOUR_WIFI_PASSWORD";
+#include "secrets.h"
 static const char* API_HOST           = "api.autoconnecto.in";
-static const char* GATEWAY_TOKEN      = "YOUR_GATEWAY_DEVICE_TOKEN";
-static const char* CHILD_DEVICE_ID    = "YOUR_CHILD_DEVICE_UUID";
-
 WiFiClientSecure tlsClient;
 
 void prepareTlsClient() {

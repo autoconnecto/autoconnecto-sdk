@@ -1,7 +1,8 @@
-// Claim-code handoff. The QR and this sketch hold the code, not the device token.
+// Claim-code handoff (legacy plain HTTP). Prefer examples/Claim_https for TLS.
+// The QR and this sketch hold the code, not the device token.
 // Not board-verified. Poll until a person claims the code, then store the token.
 //
-// POST http://<host>/api/v1/device-claims/handoff
+// Prefer: POST https://api.autoconnecto.in/api/v1/device-claims/handoff
 // Body: {"code":"acc_..."}
 // 200: {"deviceId":"...","deviceToken":"..."}  — use the token for MQTT after this.
 // 401 before claim: the code has not been claimed yet. Wait and try again.
@@ -9,11 +10,9 @@
 
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include "secrets.h"
 
-const char *WIFI_SSID = "your-ssid";
-const char *WIFI_PASSWORD = "your-password";
 const char *API_BASE = "https://api.autoconnecto.in";
-const char *CLAIM_CODE = "acc_replace_me";
 
 void setup() {
   Serial.begin(115200);

@@ -35,12 +35,9 @@
 #include <time.h>
 #include <AutoconnectoIsrgRoots.h>
 #include <math.h>
+#include "secrets.h"
 
 // ---- Network & API -------------------------------------------------------
-
-static const char* WIFI_SSID     = "YOUR_WIFI_SSID";
-static const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
-
 // Production:
 //static const char* API_HOST = "api.autoconnecto.in";
 // Local Caddy (uncomment):
@@ -57,18 +54,18 @@ struct FleetDevice {
   const char* token;      // paste from platform UI
 };
 
-// Tokens: replace REPLACE_WITH_TOKEN_N from Devices → device details.
+// Tokens: set FLEET_TOKEN_1..10 in secrets.h (from secrets.h.example).
 static FleetDevice kFleet[] = {
-  { "88d6da44-3a99-4373-94c7-9d1d1aa40be7", "machine-01", "REPLACE_WITH_TOKEN_1" },
-  { "ff13ef77-56f0-4805-b865-2495ffd49734", "machine-02", "REPLACE_WITH_TOKEN_2" },
-  { "88b88a74-4af8-4424-9461-c97c2ce7088a", "machine-03", "REPLACE_WITH_TOKEN_3" },
-  { "e4f9e53f-f312-46e0-91bd-63db4644c05a", "machine-04", "REPLACE_WITH_TOKEN_4" },
-  { "2e4a59b6-535f-4cfe-ac73-5706a66b3038", "machine-05", "REPLACE_WITH_TOKEN_5" },
-  { "afb363fb-0b29-421e-b291-8c06aca19ece", "machine-06", "REPLACE_WITH_TOKEN_6" },
-  { "72c6a849-2ce5-4760-94a5-e1bfb673d74a", "machine-07", "REPLACE_WITH_TOKEN_7" },
-  { "950848a4-d873-4779-b433-b6d99605fc53", "machine-08", "REPLACE_WITH_TOKEN_8" },
-  { "5ea53525-9868-4be3-bbd8-b9f2f1868395", "machine-09", "REPLACE_WITH_TOKEN_9" },
-  { "840415bf-a261-45b1-a76a-4fd29d896266", "machine-10", "REPLACE_WITH_TOKEN_10" },
+  { "88d6da44-3a99-4373-94c7-9d1d1aa40be7", "machine-01", FLEET_TOKEN_1 },
+  { "ff13ef77-56f0-4805-b865-2495ffd49734", "machine-02", FLEET_TOKEN_2 },
+  { "88b88a74-4af8-4424-9461-c97c2ce7088a", "machine-03", FLEET_TOKEN_3 },
+  { "e4f9e53f-f312-46e0-91bd-63db4644c05a", "machine-04", FLEET_TOKEN_4 },
+  { "2e4a59b6-535f-4cfe-ac73-5706a66b3038", "machine-05", FLEET_TOKEN_5 },
+  { "afb363fb-0b29-421e-b291-8c06aca19ece", "machine-06", FLEET_TOKEN_6 },
+  { "72c6a849-2ce5-4760-94a5-e1bfb673d74a", "machine-07", FLEET_TOKEN_7 },
+  { "950848a4-d873-4779-b433-b6d99605fc53", "machine-08", FLEET_TOKEN_8 },
+  { "5ea53525-9868-4be3-bbd8-b9f2f1868395", "machine-09", FLEET_TOKEN_9 },
+  { "840415bf-a261-45b1-a76a-4fd29d896266", "machine-10", FLEET_TOKEN_10 },
 };
 
 static const size_t kFleetCount = sizeof(kFleet) / sizeof(kFleet[0]);

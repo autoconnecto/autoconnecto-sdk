@@ -19,12 +19,8 @@
 #include <ArduinoJson.h>
 #include <time.h>
 #include <AutoconnectoIsrgRoots.h>
-
-static const char* WIFI_SSID = "YOUR_WIFI_SSID";
-static const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+#include "secrets.h"
 static const char* API_HOST = "api.autoconnecto.in";
-static const char* DEVICE_TOKEN = "YOUR_DEVICE_TOKEN";
-
 static const int COMMAND_PIN = 2;
 
 BearSSL::WiFiClientSecure tlsClient;

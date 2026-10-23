@@ -20,6 +20,7 @@
 // =============================================================
 
 #include <AutoconnectoSDK.h>
+#include "secrets.h"
 
 AutoconnectoSDK sdk;
 
@@ -41,12 +42,12 @@ void setup() {
   delay(2000);
 
   SDKConfig config;
-  config.wifiSSID = "YOUR_WIFI_SSID";
-  config.wifiPassword = "YOUR_WIFI_PASSWORD";
+  config.wifiSSID = WIFI_SSID;
+  config.wifiPassword = WIFI_PASSWORD;
   config.mqttHost = "mqtt.autoconnecto.in";
   config.mqttPort = 8883;
   config.wssPort = 8084;
-  config.deviceToken = "YOUR_DEVICE_TOKEN";
+  config.deviceToken = DEVICE_TOKEN;
   config.enableWS = true;
   config.enableMQTT = true;
   config.allowInsecureTLS = false;

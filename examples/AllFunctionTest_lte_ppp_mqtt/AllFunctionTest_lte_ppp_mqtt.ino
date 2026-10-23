@@ -12,6 +12,7 @@
 // =============================================================
 
 #include <AutoconnectoSDK.h>
+#include "secrets.h"
 
 AutoconnectoSDK sdk;
 
@@ -380,7 +381,7 @@ void setup() {
 
   // ---- LTE PPP (EC200) ----
   config.networkMode      = NetworkMode::LtePpp;
-  config.lteApn           = "YOUR_CARRIER_APN";
+  config.lteApn = LTE_APN;
   config.lteUartRx        = 16;
   config.lteUartTx        = 17;
   config.lteResetPin      = -1;   // set if RESET is wired
@@ -391,7 +392,7 @@ void setup() {
   config.mqttPort = 8883;
 
   // ---- Device ----
-  config.deviceToken = "YOUR_DEVICE_TOKEN";
+  config.deviceToken = DEVICE_TOKEN;
 
   // ---- Transport (LTE uses MQTTS; WSS not used) ----
   config.enableWS   = false;

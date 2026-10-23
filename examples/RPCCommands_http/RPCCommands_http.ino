@@ -31,12 +31,8 @@
 #include <ArduinoJson.h>
 #include <time.h>
 #include <AutoconnectoIsrgRoots.h>
-
-static const char* WIFI_SSID     = "YOUR_WIFI_SSID";
-static const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+#include "secrets.h"
 static const char* API_HOST      = "api.autoconnecto.in";
-static const char* DEVICE_TOKEN  = "YOUR_DEVICE_TOKEN";
-
 #define RELAY_PIN_1 2
 #define RELAY_PIN_2 4
 #define RELAY_PIN_3 5

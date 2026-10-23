@@ -242,11 +242,32 @@ bool AutoconnectoOta::reportState(const char* state) {
     _title.c_str(),
     _version.c_str()
   );
-  if (_progress) {
-    return _progress(stateKey(), state, _title.c_str(), _version.c_str());
+
+  // Board evidence (v1.7.71): VERIFIED then UPDATING+UPDATED in the same ms
+  // left the server stuck at UPDATING — later MQTT client-attr publishes were
+  // dropped. Space reports and retry terminal states.
+  const bool critical =
+    strcmp(state, "VERIFIED") == 0 ||
+    strcmp(state, "UPDATING") == 0 ||
+    strcmp(state, "UPDATED") == 0 ||
+    strcmp(state, "FAILED") == 0;
+  const int attempts = critical ? 3 : 1;
+
+  bool ok = false;
+  for (int i = 0; i < attempts; i++) {
+    if (_progress) {
+      ok = _progress(stateKey(), state, _title.c_str(), _version.c_str());
+    } else if (_sendAttr) {
+      ok = _sendAttr(stateKey(), state);
+    } else {
+      return false;
+    }
+    // Let the MQTT/WSS client flush before the next state transition.
+    delay(critical ? 200 : 50);
+    if (ok) break;
+    delay(150);
   }
-  if (!_sendAttr) return false;
-  return _sendAttr(stateKey(), state);
+  return ok;
 }
 
 bool AutoconnectoOta::downloadNextChunk() {
@@ -273,7 +294,15 @@ bool AutoconnectoOta::downloadNextChunk() {
 
   const int code = http.GET();
   if (code != 200) {
-    Serial.printf("[OTA] HTTP GET %d url=%s\n", code, url.c_str());
+    // Never print the full URL — it embeds the device token.
+    Serial.printf(
+      "[OTA] HTTP GET %d path=/%s title=%s version=%s chunk=%u\n",
+      code,
+      downloadPath(),
+      _title.c_str(),
+      _version.c_str(),
+      static_cast<unsigned>(_chunkIndex)
+    );
     http.end();
     fail("http_get_failed");
     return false;
@@ -439,7 +468,11 @@ bool AutoconnectoOta::finishApply() {
     }
   }
 
-  reportState("UPDATED");
+  // Extra gap before UPDATED — this is the report that closes the server row.
+  delay(250);
+  if (!reportState("UPDATED")) {
+    Serial.println("[OTA] UPDATED report failed after retries; server may stay UPDATING");
+  }
   const bool reboot = _kind == OtaPackageKind::Firmware && _cfg.autoReboot;
   rememberInstalled();
   resetTarget();

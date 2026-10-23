@@ -31,14 +31,10 @@
 #include <ArduinoJson.h>
 #include <time.h>
 #include <AutoconnectoIsrgRoots.h>
+#include "secrets.h"
 
-// ---- Edit for your network and device --------------------------------
-
-static const char* WIFI_SSID     = "YOUR_WIFI_SSID";
-static const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+// Credentials: secrets.h (from secrets.h.example)
 static const char* API_HOST      = "api.autoconnecto.in";
-static const char* DEVICE_TOKEN  = "YOUR_DEVICE_TOKEN";
-
 WiFiClientSecure tlsClient;
 
 void prepareTlsClient() {

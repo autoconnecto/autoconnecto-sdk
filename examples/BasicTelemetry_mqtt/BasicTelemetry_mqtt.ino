@@ -29,6 +29,8 @@
 // =============================================================
 
 #include <AutoconnectoSDK.h>
+// Copy secrets.h.example → secrets.h (gitignored) and fill Wi‑Fi + device token.
+#include "secrets.h"
 
 AutoconnectoSDK sdk;
 
@@ -45,8 +47,8 @@ void setup() {
   SDKConfig config;
 
   // ---- WiFi ----
-  config.wifiSSID     = "YOUR_WIFI_SSID";
-  config.wifiPassword = "YOUR_WIFI_PASSWORD";
+  config.wifiSSID     = WIFI_SSID;
+  config.wifiPassword = WIFI_PASSWORD;
 
   // ---- MQTT / WSS ----
   config.mqttHost = "mqtt.autoconnecto.in";
@@ -54,7 +56,7 @@ void setup() {
   config.wssPort  = 8084;
 
   // ---- Device ----
-  config.deviceToken = "YOUR_DEVICE_TOKEN";
+  config.deviceToken = DEVICE_TOKEN;
 
   // ---- Transport ----
   config.enableWS   = true;

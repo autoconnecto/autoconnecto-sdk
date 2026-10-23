@@ -9,7 +9,10 @@
 //   Raspberry Pi mirrors of these examples live under `raspberrypi/`.
 // =============================================================
 
+#include <WiFi.h>
 #include <AutoconnectoSDK.h>
+// Copy secrets.h.example → secrets.h (gitignored). Do not put real Wi‑Fi or tokens in this .ino.
+#include "secrets.h"
 
 AutoconnectoSDK sdk;
 
@@ -379,8 +382,21 @@ void setup() {
   SDKConfig config;
 
   // ---- WiFi ----
-  config.wifiSSID     = "YOUR_WIFI_SSID";
-  config.wifiPassword = "YOUR_WIFI_PASSWORD";
+  // Prefer secrets.h. If WIFI_SSID is still the placeholder, join the network
+  // already stored on the board (NVS) so a wrong example SSID cannot brick field tests.
+  if (String(WIFI_SSID) == "YOUR_WIFI_SSID") {
+    WiFi.mode(WIFI_STA);
+    WiFi.begin();
+    for (int i = 0; i < 40 && WiFi.status() != WL_CONNECTED; i++) delay(500);
+    WiFi.persistent(false);
+    Serial.printf(
+      "[NET] stored-wifi %s\n",
+      WiFi.status() == WL_CONNECTED ? "connected" : "not connected"
+    );
+  } else {
+    config.wifiSSID = WIFI_SSID;
+    config.wifiPassword = WIFI_PASSWORD;
+  }
 
   // ---- MQTT ----
   config.mqttHost = "mqtt.autoconnecto.in";
@@ -390,7 +406,7 @@ void setup() {
   config.wssPort = 8084;
 
   // ---- Device ----
-  config.deviceToken = "YOUR_DEVICE_TOKEN";
+  config.deviceToken = DEVICE_TOKEN;
 
   // ---- Transport ----
   config.enableWS   = true;
