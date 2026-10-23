@@ -1,10 +1,16 @@
-# Changelog
+﻿# Changelog
 
 This repository ships the **Autoconnecto Arduino SDK** (`src/`, `examples/`) and a **Raspberry Pi examples** sibling (`raspberrypi/`).
 
 Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library. Raspberry Pi examples track the same git history.
 
 ## Unreleased
+
+## v1.7.73
+
+- Logger redacts device tokens in MQTT topic INFO/WARN/ERROR lines (`devices/***/…`).
+- OfflineBuffer_mqtt: NTP wall-clock timestamps; skip queue until time is synced (no 1970 dates).
+
 
 ## v1.7.68
 
@@ -13,11 +19,11 @@ Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library.
 ## v1.7.58
 
 - **OTA:** firmware/software download no longer waits forever for the whole file in one HTTP request. Each response is one chunk (`Content-Length` / idle timeout); then the next `chunk=` index is fetched until size is met.
-- **Examples:** Switch widgets — handle shared `channelN` attrs and RPC `set_channel_state` (same as `relay_set`). `RPCCommands_mqtt` registers `onAttributeUpdate`.
+- **Examples:** Switch widgets â€” handle shared `channelN` attrs and RPC `set_channel_state` (same as `relay_set`). `RPCCommands_mqtt` registers `onAttributeUpdate`.
 - **Examples:** `telemetry_burst` arms a counter and sends on the normal 35 s interval (no 35 s `delay` inside RPC).
 - **Examples:** remove hard-coded Wi-Fi credentials from `FleetSimulator_10_machines_http`.
 - **Examples:** `WidgetCoverage_mqtt` for Phase 7 Solution keys.
-- **Docs:** `BOARD_VERIFY.md` — board path must be proven before claiming fixed.
+- **Docs:** `BOARD_VERIFY.md` â€” board path must be proven before claiming fixed.
 - Pair with platform: Command Log for `POST /api/devices/:id/commands`; MQTT shared-attribute publish even when the profile transport list omits MQTT.
 
 ## v1.7.57
@@ -52,3 +58,4 @@ Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library.
 ## v1.0.0
 
 - Initial public release for Arduino Library Manager.
+

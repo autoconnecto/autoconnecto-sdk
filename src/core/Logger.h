@@ -13,6 +13,9 @@ public:
 
   static void error(const String& msg);
 
+  /** Strip device tokens from MQTT topic strings before Serial print. */
+  static String redactSecrets(const String& msg);
+
 private:
 
   static bool _enabled;

@@ -1,16 +1,16 @@
-# Autoconnecto Arduino SDK
+﻿# Autoconnecto Arduino SDK
 
 **ESP32 MQTT / HTTPS client** for the [Autoconnecto](https://www.autoconnecto.in/) IoT platform (India): telemetry, shared and client attributes, RPC, and OTA.
 
-- Quick path: [ESP32 MQTT on the site](https://www.autoconnecto.in/esp32-mqtt) · [Docs quick start](https://docs.autoconnecto.in/guide/esp32-quickstart.html)
+- Quick path: [ESP32 MQTT on the site](https://www.autoconnecto.in/esp32-mqtt) Â· [Docs quick start](https://docs.autoconnecto.in/guide/esp32-quickstart.html)
 - Arduino Library Manager: search **AutoconnectoSDK**
 
-**Version:** 1.7.72  
+**Version:** 1.7.73  
 **Platform:** Autoconnecto IoT  
 **Target:** ESP32 (all variants)  
 **Transport:** MQTT over WSS (primary) / MQTTS (fallback)
 
-**Source & updates:** [github.com/autoconnecto/autoconnecto-sdk](https://github.com/autoconnecto/autoconnecto-sdk) — clone or download ZIP from the green **Code** button; use [Releases](https://github.com/autoconnecto/autoconnecto-sdk/releases) when you publish versioned zips.
+**Source & updates:** [github.com/autoconnecto/autoconnecto-sdk](https://github.com/autoconnecto/autoconnecto-sdk) â€” clone or download ZIP from the green **Code** button; use [Releases](https://github.com/autoconnecto/autoconnecto-sdk/releases) when you publish versioned zips.
 
 See **[CHANGELOG.md](CHANGELOG.md)** for release notes.
 
@@ -22,7 +22,7 @@ The Autoconnecto SDK connects your ESP32 to the Autoconnecto IoT platform. Once 
 
 - Send **telemetry** (sensor readings) that appear as realtime charts on your dashboard
 - Receive **shared attributes** from the dashboard (e.g. switch state, slider value, voltage limit) and apply them to hardware
-- Send **client attributes** back to confirm the applied state — this enables the power-cycle sync mechanism
+- Send **client attributes** back to confirm the applied state â€” this enables the power-cycle sync mechanism
 - Receive **RPC commands** from the dashboard (e.g. reboot, get status, set relay) and reply with a result
 - Reconnect automatically after WiFi or broker drops
 
@@ -61,21 +61,21 @@ This is what makes Autoconnecto different from a plain MQTT broker:
 
 ```
 Dashboard user changes Switch widget
-        ↓
-Platform writes shared attribute  →  device/token/attributes/shared
-        ↓
+        â†“
+Platform writes shared attribute  â†’  device/token/attributes/shared
+        â†“
 Device receives it via onAttributeUpdate()
-        ↓
+        â†“
 Device applies value to hardware (relay ON/OFF)
-        ↓
-Device sends client attribute confirmation  →  device/token/attributes/client
-        ↓
+        â†“
+Device sends client attribute confirmation  â†’  device/token/attributes/client
+        â†“
 Platform stores client attribute
-        ↓
-Dashboard reads client attribute — confirms hardware state
+        â†“
+Dashboard reads client attribute â€” confirms hardware state
 ```
 
-**On power cycle:** the device calls `sdk.requestSharedAttributes()` at startup. The platform sends back all stored shared attributes. `onAttributeUpdate()` fires for each one — the device applies them and sends confirmations. The dashboard stays in sync without any user action.
+**On power cycle:** the device calls `sdk.requestSharedAttributes()` at startup. The platform sends back all stored shared attributes. `onAttributeUpdate()` fires for each one â€” the device applies them and sends confirmations. The dashboard stays in sync without any user action.
 
 After a power cycle, the dashboard stays aligned with the hardware because shared attributes are restored and confirmed as client attributes.
 
@@ -87,15 +87,15 @@ After a power cycle, the dashboard stays aligned with the hardware because share
 Download from [arduino.cc](https://www.arduino.cc/en/software). Version 2.x recommended.
 
 ### ESP32 Board Support
-In Arduino IDE: **File → Preferences → Additional boards manager URLs**, add:
+In Arduino IDE: **File â†’ Preferences â†’ Additional boards manager URLs**, add:
 ```
 https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
 ```
-Then: **Tools → Board → Boards Manager** → search `esp32` → install **esp32 by Espressif Systems**.
+Then: **Tools â†’ Board â†’ Boards Manager** â†’ search `esp32` â†’ install **esp32 by Espressif Systems**.
 
 ### Required libraries
 
-Install from **Sketch → Include Library → Manage Libraries**:
+Install from **Sketch â†’ Include Library â†’ Manage Libraries**:
 
 | Library | Author | Purpose |
 |---------|--------|---------|
@@ -107,7 +107,7 @@ The ESP32 Arduino core provides the MQTT client used by this SDK (MQTTS and MQTT
 
 Arduino users can update dependencies independently (Boards Manager / Library Manager). For stable deployments:
 
-- **ESP32 Arduino core**: test upgrades intentionally (this SDK depends on Espressif’s MQTT client, and optional PPP for LTE).
+- **ESP32 Arduino core**: test upgrades intentionally (this SDK depends on Espressifâ€™s MQTT client, and optional PPP for LTE).
 - **ArduinoJson**: major updates can change APIs and memory usage.
 
 This repo includes CI that compiles a representative set of sketches to catch breaking updates early.
@@ -116,7 +116,7 @@ This repo includes CI that compiles a representative set of sketches to catch br
 
 ## Installation
 
-### Option A — Directory Junction (recommended for development)
+### Option A â€” Directory Junction (recommended for development)
 
 Run once in PowerShell (Windows):
 ```powershell
@@ -125,7 +125,7 @@ cmd /c mklink /J "$env:USERPROFILE\Documents\Arduino\libraries\AutoconnectoSDK" 
 
 Any SDK changes you make are immediately visible to Arduino IDE. Restart Arduino IDE after creating the junction.
 
-### Option B — Copy folder
+### Option B â€” Copy folder
 
 Copy the entire `sdk/` folder to:
 ```
@@ -136,9 +136,9 @@ Linux:    ~/Arduino/libraries/AutoconnectoSDK/
 
 Restart Arduino IDE.
 
-### Option C — Arduino Library Manager (after registration)
+### Option C â€” Arduino Library Manager (after registration)
 
-Once this repository is **public** and has been **accepted** into the [Arduino Library Manager index](https://github.com/arduino/library-registry), install it from **Sketch → Include Library → Manage Libraries…** and search for **AutoconnectoSDK**.
+Once this repository is **public** and has been **accepted** into the [Arduino Library Manager index](https://github.com/arduino/library-registry), install it from **Sketch â†’ Include Library â†’ Manage Librariesâ€¦** and search for **AutoconnectoSDK**.
 
 Maintainers: see **`ARDUINO_LIBRARY_MANAGER.md`** for the compliance checklist, `arduino-lint`, and how to open the registry pull request.
 
@@ -190,7 +190,7 @@ void setup() {
 }
 
 void loop() {
-  sdk.loop(); // must be called frequently — never delay() > 50ms
+  sdk.loop(); // must be called frequently â€” never delay() > 50ms
   sdk.sendTelemetry("temperature", 25.4);
   delay(10);
 }
@@ -210,7 +210,7 @@ void loop() {
 | `deviceToken` | `String` | Yes | Device token from Autoconnecto platform |
 | `enableWS` | `bool` | No | Use WSS as primary transport (default `true`) |
 | `enableMQTT` | `bool` | No | Use MQTTS as fallback (default `true`) |
-| `allowInsecureTLS` | `bool` | No | Skip cert verification — only for local dev |
+| `allowInsecureTLS` | `bool` | No | Skip cert verification â€” only for local dev |
 | `rootCA` | `const char*` | No | PEM root CA bundle for TLS. Default: `AUTOCONNECTO_ROOT_CA` (macro in `src/AutoconnectoIsrgRoots.h`, included by `AutoconnectoSDK.h`). ISRG Root X1 + X2; chain valid if it terminates at **any** root in the bundle. |
 | `enableSerialLogs` | `bool` | No | Print SDK logs to Serial |
 
@@ -222,13 +222,13 @@ void loop() {
 
 ```cpp
 sdk.begin(config);       // connect WiFi, start MQTT, register callbacks
-sdk.loop();              // must run every iteration — handles keepalive and incoming messages
+sdk.loop();              // must run every iteration â€” handles keepalive and incoming messages
 bool ok = sdk.connected(); // true if transport is active
 ```
 
 ### Telemetry
 
-Plan `min_telemetry_interval_sec` applies per device (Free **30s**, Hobby 10s, Starter 5s, Growth/Enterprise 1s). Each `sendTelemetry` call is one reading. Prefer **one JsonDocument** with all keys per interval — back-to-back calls in the same second drop every key after the first.
+Plan `min_telemetry_interval_sec` applies per device (Free **30s**, Hobby 10s, Starter 5s, Growth/Enterprise 1s). Each `sendTelemetry` call is one reading. Prefer **one JsonDocument** with all keys per interval â€” back-to-back calls in the same second drop every key after the first.
 
 ```cpp
 // Preferred: one message, all keys
@@ -242,7 +242,7 @@ sdk.sendTelemetry(doc);
 sdk.sendTelemetry("temperature", 25.4f);
 ```
 
-### Client Attributes (device → platform)
+### Client Attributes (device â†’ platform)
 
 ```cpp
 // Single value (float only)
@@ -255,7 +255,7 @@ attrs["uptime"]   = millis() / 1000;
 sdk.sendClientAttributes(attrs);
 ```
 
-### Shared Attributes (platform → device)
+### Shared Attributes (platform â†’ device)
 
 ```cpp
 // Request all shared attributes (call at startup and on reconnect)
@@ -280,7 +280,7 @@ sdk.replyRPC(reply);
 sdk.replyRPC(true);
 ```
 
-Always call `sdk.replyRPC()` inside your `onRPC` handler — even for unknown methods. Never drop an RPC silently.
+Always call `sdk.replyRPC()` inside your `onRPC` handler â€” even for unknown methods. Never drop an RPC silently.
 
 ### Transport status
 
@@ -323,8 +323,8 @@ sdk.onDisconnect([](bool connected) {
 
 When the dashboard sends an RPC command, the `onRPC` callback receives:
 
-- `method` — the method name string (e.g. `"reboot"`, `"getStatus"`)
-- `payload` — full JsonObject including `params` and `requestId`
+- `method` â€” the method name string (e.g. `"reboot"`, `"getStatus"`)
+- `payload` â€” full JsonObject including `params` and `requestId`
 
 ```cpp
 void onRPC(const String& method, JsonObject payload) {
@@ -361,11 +361,11 @@ See **[CONNECTIVITY.md](CONNECTIVITY.md)** for HTTP batch, gateway relay, generi
 
 ## Examples
 
-**Matching dashboards in the platform:** every sketch below has a ready Solution in the Autoconnecto app under **Solutions** (sidebar). Titles are **`SDK · <example folder>`** — for example flash `BasicTelemetry_mqtt`, then open **Solutions → SDK · BasicTelemetry_mqtt**, turn **Sample data** On to preview, or **Use** to copy the dashboard into your tenant. Search Solutions for `SDK` to list them all.
+**Matching dashboards in the platform:** every sketch below has a ready Solution in the Autoconnecto app under **Solutions** (sidebar). Titles are **`SDK Â· <example folder>`** â€” for example flash `BasicTelemetry_mqtt`, then open **Solutions â†’ SDK Â· BasicTelemetry_mqtt**, turn **Sample data** On to preview, or **Use** to copy the dashboard into your tenant. Search Solutions for `SDK` to list them all.
 
-Naming: each example has an **MQTT** variant (`*_mqtt`, uses `AutoconnectoSDK`) and, where applicable, an **HTTPS** variant (`*_http`, device-token REST only — no SDK calls). HTTPS sketches still **install the AutoconnectoSDK library** so they can `#include <AutoconnectoIsrgRoots.h>` for the shared TLS bundle. The sketch folder name matches the `.ino` basename (Arduino IDE rule). Pairs share the **same telemetry and attribute keys** so one dashboard layout can be used for either transport.
+Naming: each example has an **MQTT** variant (`*_mqtt`, uses `AutoconnectoSDK`) and, where applicable, an **HTTPS** variant (`*_http`, device-token REST only â€” no SDK calls). HTTPS sketches still **install the AutoconnectoSDK library** so they can `#include <AutoconnectoIsrgRoots.h>` for the shared TLS bundle. The sketch folder name matches the `.ino` basename (Arduino IDE rule). Pairs share the **same telemetry and attribute keys** so one dashboard layout can be used for either transport.
 
-**Credentials:** every sketch folder has `secrets.h.example`. Copy it to `secrets.h` (gitignored), fill Wi‑Fi / token / APN / claim code / fleet tokens as needed, and never commit `secrets.h`.
+**Credentials:** every sketch folder has `secrets.h.example`. Copy it to `secrets.h` (gitignored), fill Wiâ€‘Fi / token / APN / claim code / fleet tokens as needed, and never commit `secrets.h`.
 
 ### `BasicTelemetry_mqtt` / `BasicTelemetry_http`
 - MQTT: `examples/BasicTelemetry_mqtt/BasicTelemetry_mqtt.ino`
@@ -376,13 +376,13 @@ Start here. Sends the same telemetry (and HTTPS sends the same periodic client h
 ### `Generator_Monitoring_mqtt`
 - `examples/Generator_Monitoring_mqtt/Generator_Monitoring_mqtt.ino`
 
-Simulated diesel generator telemetry using the **`gen_*`** key contract for the dashboard **Generator Monitoring** widget (`generatorMonitoring`). Cycles stopped → starting → running → fault with realistic electrical and engine fields.
+Simulated diesel generator telemetry using the **`gen_*`** key contract for the dashboard **Generator Monitoring** widget (`generatorMonitoring`). Cycles stopped â†’ starting â†’ running â†’ fault with realistic electrical and engine fields.
 
 ### `Machine_Runtime_mqtt`
 - `examples/Machine_Runtime_mqtt/Machine_Runtime_mqtt.ino`
 - Contract: [`MACHINE_RUNTIME.md`](MACHINE_RUNTIME.md)
 
-Factory machine current telemetry for the dashboard **Machine Fleet** widget (`machineFleetRuntime`). Publishes `machine_current_a` (amps) from ESP32 + PZEM; load thresholds are set in the widget and stored on the platform (SERVER attributes). Optional **Brevo email reports** (test, save & send, scheduled) are configured in the widget panel — see [`MACHINE_RUNTIME.md`](MACHINE_RUNTIME.md). Assign each device to a ZONE under your SITE/AREA asset tree before scoping the widget.
+Factory machine current telemetry for the dashboard **Machine Fleet** widget (`machineFleetRuntime`). Publishes `machine_current_a` (amps) from ESP32 + PZEM; load thresholds are set in the widget and stored on the platform (SERVER attributes). Optional **Brevo email reports** (test, save & send, scheduled) are configured in the widget panel â€” see [`MACHINE_RUNTIME.md`](MACHINE_RUNTIME.md). Assign each device to a ZONE under your SITE/AREA asset tree before scoping the widget.
 
 ### `SwitchControl_mqtt` / `SwitchControl_http`
 - MQTT: `examples/SwitchControl_mqtt/SwitchControl_mqtt.ino`
@@ -394,7 +394,7 @@ Full attribute feedback loop (Switch, SliderControl, AttributeControlCard). HTTP
 - MQTT: `examples/RPCCommands_mqtt/RPCCommands_mqtt.ino`
 - HTTPS: `examples/RPCCommands_http/RPCCommands_http.ino`
 
-MQTT: RPC from the dashboard (`ping`, `getStatus`, `getConfig`, `getDiagnostics`, `relay_set`, `setValue`, `reset`, `reboot`, `telemetry_burst`) with mandatory `replyRPC()`. HTTPS: same telemetry and client attributes as the MQTT sketch; **dashboard RPC is not delivered over device-token HTTPS** — see the `RPCCommands_http` header comment.
+MQTT: RPC from the dashboard (`ping`, `getStatus`, `getConfig`, `getDiagnostics`, `relay_set`, `setValue`, `reset`, `reboot`, `telemetry_burst`) with mandatory `replyRPC()`. HTTPS: same telemetry and client attributes as the MQTT sketch; **dashboard RPC is not delivered over device-token HTTPS** â€” see the `RPCCommands_http` header comment.
 
 ### `AllFunctionTest_mqtt` / `AllFunctionTest_http`
 - MQTT: `examples/AllFunctionTest_mqtt/AllFunctionTest_mqtt.ino`
@@ -431,7 +431,7 @@ Posts multiple samples in one request to `POST /api/v1/{token}/telemetry/batch` 
 
 ### `DeepSleep_http`
 - `examples/DeepSleep_http/DeepSleep_http.ino`
-- Wake → HTTPS telemetry → deep sleep. Raise the device inactivity timeout above `SLEEP_SEC`.
+- Wake â†’ HTTPS telemetry â†’ deep sleep. Raise the device inactivity timeout above `SLEEP_SEC`.
 
 ### `GpsTracker_mqtt`
 - `examples/GpsTracker_mqtt/GpsTracker_mqtt.ino`
@@ -454,18 +454,18 @@ If the device stays disconnected for too long, restarts the ESP32 to recover fro
 Gateway hub publishes child telemetry using `childDeviceId` + gateway token. Requires gateway + child devices configured in the platform.
 
 ### Integration webhooks (scripts, not Arduino)
-- `examples/integrations/README.md` — generic, ChirpStack, and TTN samples (`*.sh`, `*.py`, sample JSON bodies).
+- `examples/integrations/README.md` â€” generic, ChirpStack, and TTN samples (`*.sh`, `*.py`, sample JSON bodies).
 
 ### Raspberry Pi (Python)
 
-Same example names under **[`raspberrypi/`](raspberrypi/README.md)** — not installed via Arduino Library Manager.
+Same example names under **[`raspberrypi/`](raspberrypi/README.md)** â€” not installed via Arduino Library Manager.
 
-### `AllFunctionTest_lte_ppp_mqtt` (optional — LTE / EC200)
+### `AllFunctionTest_lte_ppp_mqtt` (optional â€” LTE / EC200)
 - Same AllFunctions behaviour over **LTE PPP** (Quectel EC200, UART 16/17).
-- **Does not change default WiFi builds** — enable with `build_opt.h` in the sketch folder.
+- **Does not change default WiFi builds** â€” enable with `build_opt.h` in the sketch folder.
 - See **[LTE_PPP_EC200.md](LTE_PPP_EC200.md)** (ESP32 core **3.x**, no TinyGSM).
 
-### `BasicTelemetry_lte_ppp_mqtt` (optional — LTE / EC200)
+### `BasicTelemetry_lte_ppp_mqtt` (optional â€” LTE / EC200)
 - Minimal LTE PPP + MQTTS publish to validate modem bring-up first.
 - `examples/BasicTelemetry_lte_ppp_mqtt/BasicTelemetry_lte_ppp_mqtt.ino`
 
@@ -477,7 +477,7 @@ Reference combining telemetry, attributes, and (on MQTT only) RPC. HTTPS matches
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Can't compile — `AutoconnectoSDK.h` not found | Library not installed | See Installation section |
+| Can't compile â€” `AutoconnectoSDK.h` not found | Library not installed | See Installation section |
 | Connects but attributes not updating | `delay()` too long in loop | Replace with `delay(10)` |
 | Switch widget shows stale state after device reboot | Not calling `requestSharedAttributes()` at startup | Add `sdk.requestSharedAttributes()` in `setup()` after `sdk.begin()` |
 | RPC times out on dashboard | Not calling `sdk.replyRPC()` | Always reply, even for unknown methods |
@@ -490,10 +490,11 @@ Reference combining telemetry, attributes, and (on MQTT only) RPC. HTTPS matches
 
 | Direction | Topic | Purpose |
 |---|---|---|
-| Device → Platform | `devices/{token}/telemetry` | Sensor readings |
-| Device → Platform | `devices/{token}/attributes/client` | Client attribute updates |
-| Device → Platform | `devices/{token}/attributes/shared/request` | Request shared attributes |
-| Device → Platform | `devices/{token}/rpc/response/{requestId}` | RPC reply |
-| Platform → Device | `devices/{token}/attributes/shared` | Live shared attribute push |
-| Platform → Device | `devices/{token}/attributes/shared/response` | Response to attribute request |
-| Platform → Device | `devices/{token}/rpc/request/{requestId}` | Incoming RPC command |
+| Device â†’ Platform | `devices/{token}/telemetry` | Sensor readings |
+| Device â†’ Platform | `devices/{token}/attributes/client` | Client attribute updates |
+| Device â†’ Platform | `devices/{token}/attributes/shared/request` | Request shared attributes |
+| Device â†’ Platform | `devices/{token}/rpc/response/{requestId}` | RPC reply |
+| Platform â†’ Device | `devices/{token}/attributes/shared` | Live shared attribute push |
+| Platform â†’ Device | `devices/{token}/attributes/shared/response` | Response to attribute request |
+| Platform â†’ Device | `devices/{token}/rpc/request/{requestId}` | Incoming RPC command |
+
