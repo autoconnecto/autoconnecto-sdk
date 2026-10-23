@@ -72,7 +72,7 @@ Dashboard reads client attribute — confirms hardware state
 
 **On power cycle:** the device calls `sdk.requestSharedAttributes()` at startup. The platform sends back all stored shared attributes. `onAttributeUpdate()` fires for each one — the device applies them and sends confirmations. The dashboard stays in sync without any user action.
 
-This solves the common stale-state problem after device reboot on many IoT platforms.
+After a power cycle, the dashboard stays aligned with the hardware because shared attributes are restored and confirmed as client attributes.
 
 ---
 
