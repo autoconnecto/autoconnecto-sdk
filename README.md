@@ -1,5 +1,10 @@
 # Autoconnecto Arduino SDK
 
+**ESP32 MQTT / HTTPS client** for the [Autoconnecto](https://www.autoconnecto.in/) IoT platform (India): telemetry, shared and client attributes, RPC, and OTA.
+
+- Quick path: [ESP32 MQTT on the site](https://www.autoconnecto.in/esp32-mqtt) · [Docs quick start](https://docs.autoconnecto.in/guide/esp32-quickstart.html)
+- Arduino Library Manager: search **AutoconnectoSDK**
+
 **Version:** 1.7.72  
 **Platform:** Autoconnecto IoT  
 **Target:** ESP32 (all variants)  
