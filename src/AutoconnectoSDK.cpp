@@ -19,6 +19,8 @@ void AutoconnectoSDK::begin(
 
   _config = config;
 
+  Logger::begin(_config.enableSerialLogs);
+
   if (!networkConnect(_config)) {
 
     Logger::warn(

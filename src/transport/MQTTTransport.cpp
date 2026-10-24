@@ -7,6 +7,8 @@
 
 #include "MQTTTransport.h"
 
+#include <esp_system.h>
+
 // =========================================
 // GLOBAL INSTANCE
 // =========================================
@@ -56,7 +58,119 @@ bool MQTTTransport::begin() {
 // LOOP
 // =========================================
 
+void MQTTTransport::armReconnect(
+  bool countFailure,
+  bool flipTransport
+) {
+
+  if (
+    flipTransport &&
+    _config &&
+    _config->networkMode == NetworkMode::WiFi
+  ) {
+
+    wifiUseAlternateTransport =
+      !wifiUseAlternateTransport;
+
+    Logger::warn(
+      wifiUseAlternateTransport
+        ? "MQTT connect failed — trying alternate transport"
+        : "MQTT connect failed — trying primary transport"
+    );
+  }
+
+  if (countFailure && reconnectAttempt < 8) {
+    reconnectAttempt++;
+  }
+
+  unsigned shift = reconnectAttempt > 0
+    ? reconnectAttempt - 1
+    : 0;
+  if (shift > 5) shift = 5;
+
+  unsigned long delayMs = 1000UL << shift;
+  if (delayMs > 30000UL) delayMs = 30000UL;
+  delayMs += esp_random() % 500UL;
+
+  reconnectEarliestMs = millis() + delayMs;
+  reconnectRequested = true;
+  failureArmed = true;
+}
+
+bool MQTTTransport::duplicateShared(
+  const char* key,
+  const String& value
+) {
+
+  const unsigned long now = millis();
+  const String shown = value.length() > 47
+    ? value.substring(0, 47)
+    : value;
+
+  for (int i = 0; i < seenSharedCount; i++) {
+    if (
+      strcmp(seenShared[i].key, key) == 0 &&
+      shown == seenShared[i].value &&
+      now - seenShared[i].at < 15000UL
+    ) {
+      return true;
+    }
+  }
+
+  SeenShared* slot = nullptr;
+  if (seenSharedCount < 8) {
+    slot = &seenShared[seenSharedCount++];
+  } else {
+    slot = &seenShared[0];
+    for (int i = 1; i < 8; i++) {
+      if (seenShared[i].at < slot->at) slot = &seenShared[i];
+    }
+  }
+
+  strncpy(slot->key, key, sizeof(slot->key) - 1);
+  slot->key[sizeof(slot->key) - 1] = '\0';
+  strncpy(slot->value, shown.c_str(), sizeof(slot->value) - 1);
+  slot->value[sizeof(slot->value) - 1] = '\0';
+  slot->at = now;
+  return false;
+}
+
+void MQTTTransport::maybePullShared() {
+
+  if (!sharedSubAck || !responseSubAck || sharedPullAt != 0) {
+    return;
+  }
+
+  const String keys =
+    _config ? _config->sharedAttributeKeys : "";
+
+  Logger::info(
+    "MQTT pull shared attributes" +
+    (keys.length() ? " keys=" + keys : " (all)")
+  );
+
+  requestAttributes(keys);
+  sharedPullAt = millis();
+  sharedRetried = false;
+  sharedDataSeen = false;
+}
+
 void MQTTTransport::loop() {
+
+  if (
+    mqttConnected &&
+    sharedPullAt != 0 &&
+    !sharedDataSeen &&
+    !sharedRetried &&
+    millis() - sharedPullAt >= 6000UL
+  ) {
+
+    sharedRetried = true;
+    Logger::info("MQTT pull shared attributes retry");
+    const String keys =
+      _config ? _config->sharedAttributeKeys : "";
+    requestAttributes(keys);
+  }
 
   if (
     reconnectRequested &&
@@ -65,6 +179,7 @@ void MQTTTransport::loop() {
   ) {
 
     reconnectRequested = false;
+    failureArmed = false;
 
     Logger::warn(
       "Reconnecting MQTT..."
@@ -521,6 +636,13 @@ void MQTTTransport::mqttEventHandler(
     case MQTT_EVENT_CONNECTED: {
 
       mqttConnected = true;
+      reconnectAttempt = 0;
+      failureArmed = false;
+      sharedSubAck = false;
+      responseSubAck = false;
+      sharedPullAt = 0;
+      sharedRetried = false;
+      sharedDataSeen = false;
 
       Logger::info(
         "MQTT CONNECTED"
@@ -573,42 +695,25 @@ void MQTTTransport::mqttEventHandler(
         rpcTopic
       );
 
-      subscribePending = 0;
+      subSharedId = esp_mqtt_client_subscribe(
+        client,
+        sharedTopic.c_str(),
+        1
+      );
 
-      if (
-        esp_mqtt_client_subscribe(
-          client,
-          sharedTopic.c_str(),
-          1
-        ) >= 0
-      ) {
+      subResponseId = esp_mqtt_client_subscribe(
+        client,
+        responseTopic.c_str(),
+        1
+      );
 
-        subscribePending++;
-      }
+      esp_mqtt_client_subscribe(
+        client,
+        rpcTopic.c_str(),
+        1
+      );
 
-      if (
-        esp_mqtt_client_subscribe(
-          client,
-          responseTopic.c_str(),
-          1
-        ) >= 0
-      ) {
-
-        subscribePending++;
-      }
-
-      if (
-        esp_mqtt_client_subscribe(
-          client,
-          rpcTopic.c_str(),
-          1
-        ) >= 0
-      ) {
-
-        subscribePending++;
-      }
-
-      if (subscribePending == 0) {
+      if (subSharedId < 0 || subResponseId < 0) {
 
         Logger::warn(
           "MQTT SUB failed — cannot pull/push attributes"
@@ -629,27 +734,13 @@ void MQTTTransport::mqttEventHandler(
         String(event->msg_id)
       );
 
-      if (subscribePending > 0) {
-
-        subscribePending--;
-
-        if (subscribePending == 0) {
-
-          const String keys =
-            _config
-              ? _config->sharedAttributeKeys
-              : "";
-
-          Logger::info(
-            "MQTT pull shared attributes" +
-            (keys.length()
-              ? " keys=" + keys
-              : " (all)")
-          );
-
-          requestAttributes(keys);
-        }
+      if (event->msg_id == subSharedId) {
+        sharedSubAck = true;
       }
+      if (event->msg_id == subResponseId) {
+        responseSubAck = true;
+      }
+      maybePullShared();
 
       break;
     }
@@ -660,18 +751,19 @@ void MQTTTransport::mqttEventHandler(
 
     case MQTT_EVENT_DISCONNECTED: {
 
+      const bool wasUp = mqttConnected;
       mqttConnected = false;
-      subscribePending = 0;
+      sharedPullAt = 0;
 
       Logger::warn(
         "MQTT disconnected"
       );
 
-      reconnectEarliestMs =
-        millis() + 3000;
-
-      reconnectRequested =
-        true;
+      if (wasUp) {
+        armReconnect(true, false);
+      } else if (!failureArmed) {
+        armReconnect(true, true);
+      }
 
       break;
     }
@@ -723,27 +815,11 @@ void MQTTTransport::mqttEventHandler(
           )
         );
 
-        // 32774 = ESP_ERR_ESP_TLS_CONNECTION_TIMEOUT — try other WiFi port
-        if (
-          tlsErr == 32774 &&
-          _config &&
-          _config->networkMode ==
-            NetworkMode::WiFi
-        ) {
-
-          wifiUseAlternateTransport =
-            !wifiUseAlternateTransport;
-
-          Logger::warn(
-            wifiUseAlternateTransport
-              ? "MQTT timeout — trying alternate transport"
-              : "MQTT timeout — trying primary transport"
-          );
-        }
       }
 
-      reconnectEarliestMs =
-        millis() + 3000;
+      if (!failureArmed) {
+        armReconnect(true, true);
+      }
 
       break;
     }
@@ -826,9 +902,24 @@ void MQTTTransport::mqttEventHandler(
           obj = obj["shared"].as<JsonObject>();
         }
 
+        sharedDataSeen = true;
+
         for (
           JsonPair kv : obj
         ) {
+
+          String canonical;
+          if (kv.value().is<const char*>() || kv.value().is<String>()) {
+            const char* raw = kv.value().as<const char*>();
+            canonical = raw ? raw : "";
+          } else if (kv.value().is<bool>()) {
+            canonical = kv.value().as<bool>() ? "1" : "0";
+          } else {
+            canonical = String(kv.value().as<float>(), 4);
+          }
+          if (duplicateShared(kv.key().c_str(), canonical)) {
+            continue;
+          }
 
           // Dashboard Attribute modal may store numbers as JSON strings ("3").
           // as<float>() on a string is often 0 — parse explicitly.

@@ -4,7 +4,11 @@ This repository ships the **Autoconnecto Arduino SDK** (`src/`, `examples/`) and
 
 Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library. Raspberry Pi examples track the same git history.
 
-## Unreleased
+## v1.7.74
+
+- Package text is plain UTF-8. `library.properties` sentence no longer contains `???`. Architectures list ESP32, the board that has been tested. `library.json` is the PlatformIO manifest (`lib_deps = autoconnecto/AutoconnectoSDK`).
+- Wi-Fi join defaults to a full-channel scan sorted by signal (`wifiJoinStrongest`). Connect attempt times out (default 15 s). One `[WIFI] joined` line names BSSID, channel, and RSSI. A failed MQTT connect switches WSS/MQTTS and backs off. Identical shared attributes within 15 s are applied once. `enableSerialLogs=false` is honoured. Examples: `WifiJoinStrongest_mqtt`, `Attributes_RestoreOnBoot_mqtt`. Code review + static only — not board-verified.
+- `Claim_https` accepts HTTP 201 (any 2xx) and stores the token. A failure prints the server message only. The token and the claim code are not printed. `esp32-claim` no longer prints the handoff body. Code review + static only — not board-verified.
 
 ## v1.7.73
 

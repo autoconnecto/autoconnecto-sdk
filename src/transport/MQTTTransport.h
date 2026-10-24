@@ -134,14 +134,49 @@ private:
   bool usingWSS =
     true;
 
-  /** Toggle on WiFi connect timeout to try the other port (WSS ↔ MQTTS). */
+  /** Toggle after a failed Wi-Fi connect to try the other port (WSS ↔ MQTTS). */
   bool wifiUseAlternateTransport =
     false;
 
   unsigned long reconnectEarliestMs =
     0;
 
-  int subscribePending =
+  int reconnectAttempt =
+    0;
+
+  bool failureArmed =
+    false;
+
+  int subSharedId =
+    -1;
+
+  int subResponseId =
+    -1;
+
+  bool sharedSubAck =
+    false;
+
+  bool responseSubAck =
+    false;
+
+  unsigned long sharedPullAt =
+    0;
+
+  bool sharedRetried =
+    false;
+
+  bool sharedDataSeen =
+    false;
+
+  struct SeenShared {
+    char key[40];
+    char value[48];
+    unsigned long at;
+  };
+
+  SeenShared seenShared[8];
+
+  int seenSharedCount =
     0;
 
   String lastRPCRequestId =
@@ -163,6 +198,18 @@ private:
     const String& topic,
     const String& payload
   );
+
+  void armReconnect(
+    bool countFailure,
+    bool flipTransport
+  );
+
+  bool duplicateShared(
+    const char* key,
+    const String& value
+  );
+
+  void maybePullShared();
 
   // =========================================
   // EVENTS

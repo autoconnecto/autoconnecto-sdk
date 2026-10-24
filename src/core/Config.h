@@ -21,6 +21,12 @@ struct SDKConfig {
 
   String wifiPassword;
 
+  /** true: scan every channel and join the strongest AP. false: first match found. */
+  bool wifiJoinStrongest = true;
+
+  /** Give up the Wi-Fi join after this long. Default 15 s. */
+  unsigned long wifiConnectTimeoutMs = 15000;
+
   // =========================================
   // LTE PPP (EC200) — used when networkMode == LtePpp
   // UART defaults: ESP32 Serial2 RX=16, TX=17

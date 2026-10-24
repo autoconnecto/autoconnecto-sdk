@@ -49,3 +49,9 @@ void Logger::error(const String& msg) {
   Serial.print("[ERROR] ");
   Serial.println(redactSecrets(msg));
 }
+
+void Logger::note(const String& msg) {
+  if (!_enabled) return;
+
+  Serial.println(redactSecrets(msg));
+}
