@@ -47,6 +47,10 @@ public:
     RPCCallback cb
   );
 
+  void onMqttRefuse(
+    MqttRefuseCallback cb
+  );
+
 private:
 
   SDKConfig* _config = nullptr;

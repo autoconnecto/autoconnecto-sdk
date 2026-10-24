@@ -100,6 +100,10 @@ public:
     RPCCallback cb
   );
 
+  void onMqttRefuse(
+    MqttRefuseCallback cb
+  );
+
 private:
 
   // =========================================
@@ -162,6 +166,20 @@ private:
   unsigned long sharedPullAt =
     0;
 
+  unsigned long sharedPullDueAt =
+    0;
+
+  unsigned long sharedDataAt =
+    0;
+
+  unsigned long lastSharedRequestAt =
+    0;
+
+  String lastSharedRequestKeys;
+
+  MqttRefuseCallback _refuseCb =
+    nullptr;
+
   bool sharedRetried =
     false;
 
@@ -199,7 +217,7 @@ private:
     const String& payload
   );
 
-  void armReconnect(
+  unsigned long armReconnect(
     bool countFailure,
     bool flipTransport
   );

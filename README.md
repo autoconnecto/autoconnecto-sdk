@@ -6,7 +6,7 @@
 - [Arduino Library Manager](https://docs.arduino.cc/libraries/autoconnectosdk/): search **AutoconnectoSDK**
 - [PlatformIO Registry](https://registry.platformio.org/libraries/autoconnecto/AutoconnectoSDK): `lib_deps = autoconnecto/AutoconnectoSDK`
 
-**Version:** 1.7.74  
+**Version:** 1.7.76  
 **Platform:** Autoconnecto IoT  
 **Tested board:** ESP32 (ESP32 Arduino core). This is the only architecture in `library.properties`.  
 **Transport:** MQTT over WSS (primary) / MQTTS (fallback)

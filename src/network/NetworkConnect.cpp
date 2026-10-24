@@ -14,6 +14,18 @@
 static uint8_t lastBssid[6];
 static bool haveAp = false;
 static int lastChannel = -1;
+static WifiJoinInfo lastJoin = {};
+static WifiJoinCallback joinCb = nullptr;
+
+void networkOnWifiJoin(WifiJoinCallback cb) {
+  joinCb = cb;
+}
+
+bool networkLastWifiJoin(WifiJoinInfo& out) {
+  if (!lastJoin.valid) return false;
+  out = lastJoin;
+  return true;
+}
 
 static void applyJoinPreference(const SDKConfig& config) {
   WiFi.persistent(false);
@@ -31,7 +43,9 @@ static void patchStoredJoin(const SDKConfig& config) {
   conf.sta.scan_method = config.wifiJoinStrongest
     ? WIFI_ALL_CHANNEL_SCAN
     : WIFI_FAST_SCAN;
-  conf.sta.sort_method = WIFI_CONNECT_AP_BY_SIGNAL;
+  if (config.wifiJoinStrongest) {
+    conf.sta.sort_method = WIFI_CONNECT_AP_BY_SIGNAL;
+  }
   esp_wifi_set_config(WIFI_IF_STA, &conf);
 }
 
@@ -48,12 +62,20 @@ static void logWifiAp(const char* verb) {
   memcpy(lastBssid, bssid, 6);
   lastChannel = channel;
   haveAp = true;
+  const String bssidText = WiFi.BSSIDstr();
+  const int rssi = WiFi.RSSI();
+  memset(&lastJoin, 0, sizeof(lastJoin));
+  lastJoin.valid = true;
+  lastJoin.channel = channel;
+  lastJoin.rssi = rssi;
+  strncpy(lastJoin.bssid, bssidText.c_str(), sizeof(lastJoin.bssid) - 1);
+  if (joinCb) joinCb(lastJoin.bssid, channel, rssi);
   Logger::note(
     String("[WIFI] ") +
     (verb ? verb : "joined") +
-    " bssid=" + WiFi.BSSIDstr() +
+    " bssid=" + bssidText +
     " ch=" + String(channel) +
-    " rssi=" + String(WiFi.RSSI())
+    " rssi=" + String(rssi)
   );
 }
 

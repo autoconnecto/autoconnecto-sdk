@@ -58,7 +58,7 @@ bool MQTTTransport::begin() {
 // LOOP
 // =========================================
 
-void MQTTTransport::armReconnect(
+unsigned long MQTTTransport::armReconnect(
   bool countFailure,
   bool flipTransport
 ) {
@@ -95,6 +95,7 @@ void MQTTTransport::armReconnect(
   reconnectEarliestMs = millis() + delayMs;
   reconnectRequested = true;
   failureArmed = true;
+  return delayMs;
 }
 
 bool MQTTTransport::duplicateShared(
@@ -137,7 +138,12 @@ bool MQTTTransport::duplicateShared(
 
 void MQTTTransport::maybePullShared() {
 
-  if (!sharedSubAck || !responseSubAck || sharedPullAt != 0) {
+  if (
+    !sharedSubAck ||
+    !responseSubAck ||
+    sharedPullAt != 0 ||
+    sharedDataSeen
+  ) {
     return;
   }
 
@@ -156,6 +162,14 @@ void MQTTTransport::maybePullShared() {
 }
 
 void MQTTTransport::loop() {
+
+  if (
+    sharedPullDueAt != 0 &&
+    (long)(millis() - sharedPullDueAt) >= 0
+  ) {
+    sharedPullDueAt = 0;
+    maybePullShared();
+  }
 
   if (
     mqttConnected &&
@@ -234,6 +248,21 @@ void MQTTTransport::connectClient() {
     return;
   }
 
+  if (_config->injectConnectFailures > 0) {
+    _config->injectConnectFailures--;
+    const unsigned long delayMs = armReconnect(true, true);
+    const bool nextWss = wifiUseAlternateTransport
+      ? !_config->enableWS
+      : _config->enableWS;
+    Logger::warn(
+      String("MQTT fault injection delayMs=") +
+      String(delayMs) +
+      " next=" +
+      (nextWss ? "WSS" : "MQTTS")
+    );
+    return;
+  }
+
   String brokerURI =
     buildBrokerURI();
 
@@ -255,7 +284,9 @@ void MQTTTransport::connectClient() {
     _config->deviceToken.c_str();
 
   mqtt_cfg.network.timeout_ms = 45000;
-  mqtt_cfg.network.reconnect_timeout_ms = 10000;
+  mqtt_cfg.network.disable_auto_reconnect = true;
+  mqtt_cfg.session.disable_clean_session = true;
+  mqtt_cfg.session.keepalive = 60;
 
   // =====================================
   // TLS
@@ -517,6 +548,30 @@ void MQTTTransport::requestAttributes(
   const String& keys
 ) {
 
+  if (
+    sharedDataSeen &&
+    millis() - sharedDataAt < 15000UL
+  ) {
+    Logger::info(
+      "MQTT shared request skipped — snapshot already received"
+    );
+    return;
+  }
+
+  if (
+    keys == lastSharedRequestKeys &&
+    lastSharedRequestAt != 0 &&
+    millis() - lastSharedRequestAt < 2000UL
+  ) {
+    Logger::info(
+      "MQTT shared request skipped — same keys just sent"
+    );
+    return;
+  }
+
+  lastSharedRequestAt = millis();
+  lastSharedRequestKeys = keys;
+
   StaticJsonDocument<256> doc;
 
   if (keys.length()) {
@@ -594,6 +649,13 @@ void MQTTTransport::onRPC(
 ) {
 
   _rpcCb = cb;
+}
+
+void MQTTTransport::onMqttRefuse(
+  MqttRefuseCallback cb
+) {
+
+  _refuseCb = cb;
 }
 
 // =========================================
@@ -740,7 +802,15 @@ void MQTTTransport::mqttEventHandler(
       if (event->msg_id == subResponseId) {
         responseSubAck = true;
       }
-      maybePullShared();
+      if (
+        sharedSubAck &&
+        responseSubAck &&
+        sharedPullDueAt == 0 &&
+        sharedPullAt == 0 &&
+        !sharedDataSeen
+      ) {
+        sharedPullDueAt = millis() + 400UL;
+      }
 
       break;
     }
@@ -754,15 +824,20 @@ void MQTTTransport::mqttEventHandler(
       const bool wasUp = mqttConnected;
       mqttConnected = false;
       sharedPullAt = 0;
+      sharedPullDueAt = 0;
+      sharedSubAck = false;
+      responseSubAck = false;
 
       Logger::warn(
         "MQTT disconnected"
       );
 
-      if (wasUp) {
-        armReconnect(true, false);
-      } else if (!failureArmed) {
-        armReconnect(true, true);
+      if (!failureArmed) {
+        if (wasUp) {
+          armReconnect(true, false);
+        } else {
+          armReconnect(true, true);
+        }
       }
 
       break;
@@ -815,6 +890,21 @@ void MQTTTransport::mqttEventHandler(
           )
         );
 
+      }
+
+      if (
+        event->error_handle &&
+        (event->error_handle->connect_return_code == 4 ||
+         event->error_handle->connect_return_code == 5)
+      ) {
+        Logger::warn(
+          "MQTT broker refused the token (code " +
+          String(event->error_handle->connect_return_code) +
+          ")"
+        );
+        if (_refuseCb) {
+          _refuseCb(event->error_handle->connect_return_code);
+        }
       }
 
       if (!failureArmed) {
@@ -903,6 +993,7 @@ void MQTTTransport::mqttEventHandler(
         }
 
         sharedDataSeen = true;
+        sharedDataAt = millis();
 
         for (
           JsonPair kv : obj

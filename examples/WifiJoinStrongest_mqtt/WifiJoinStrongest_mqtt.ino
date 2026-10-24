@@ -5,9 +5,11 @@
 // strongest access point (config.wifiJoinStrongest = true).
 // Set it false to keep the first match the radio finds.
 //
-// Serial, when logs are on:
+// enableSerialLogs is false in this sketch. The join line still
+// prints, because onWifiJoin is not gated by the log switch.
 //   [WIFI] joined bssid=.. ch=N rssi=-N
-// The sketch does not print the Wi-Fi password or the device token.
+// A refused token prints from onMqttRefuse. The sketch does not
+// print the Wi-Fi password or the device token.
 // =============================================================
 
 #include <AutoconnectoSDK.h>
@@ -33,8 +35,14 @@ void setup() {
   config.enableWS = true;
   config.allowInsecureTLS = false;
   config.rootCA = AUTOCONNECTO_ROOT_CA;
-  config.enableSerialLogs = true;
+  config.enableSerialLogs = false;
 
+  sdk.onWifiJoin([](const char* bssid, int channel, int rssi) {
+    Serial.printf("[WIFI] joined bssid=%s ch=%d rssi=%d\n", bssid, channel, rssi);
+  });
+  sdk.onMqttRefuse([](int code) {
+    Serial.printf("[MQTT] broker refused the token (code %d)\n", code);
+  });
   sdk.begin(config);
   Serial.println("[SDK] WifiJoinStrongest_mqtt started");
 }

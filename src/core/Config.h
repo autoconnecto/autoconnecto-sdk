@@ -27,6 +27,13 @@ struct SDKConfig {
   /** Give up the Wi-Fi join after this long. Default 15 s. */
   unsigned long wifiConnectTimeoutMs = 15000;
 
+  /**
+   * Test hook. 0 = off.
+   * N = fail the next N MQTT connect attempts in software (no socket),
+   * then connect. Each failure flips WSS/MQTTS and arms backoff.
+   */
+  uint8_t injectConnectFailures = 0;
+
   // =========================================
   // LTE PPP (EC200) — used when networkMode == LtePpp
   // UART defaults: ESP32 Serial2 RX=16, TX=17

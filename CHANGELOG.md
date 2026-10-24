@@ -4,6 +4,13 @@ This repository ships the **Autoconnecto Arduino SDK** (`src/`, `examples/`) and
 
 Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library. Raspberry Pi examples track the same git history.
 
+## v1.7.76
+
+- Shared attributes: one retained push on boot. A pull is not sent when that push already arrived. The broker client does not auto-reconnect on top of the SDK backoff. An unchanged snapshot is not published again (server v1.7.76).
+- `onWifiJoin` / `lastWifiJoin` report BSSID, channel, and RSSI when serial logs are off.
+- `injectConnectFailures` and `examples/MqttConnectFault_mqtt` fail connects in software so the transport switch and backoff can be checked.
+- `onMqttRefuse` fires on MQTT CONNACK 4 or 5 (token refused). Code review + static only — not board-verified.
+
 ## v1.7.74
 
 - Package text is plain UTF-8. `library.properties` sentence no longer contains `???`. Architectures list ESP32, the board that has been tested. `library.json` is the PlatformIO manifest (`lib_deps = autoconnecto/AutoconnectoSDK`).

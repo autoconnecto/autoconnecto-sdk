@@ -106,4 +106,11 @@ void ConnectionManager::onRPC(
   mqtt.onRPC(cb);
 }
 
+void ConnectionManager::onMqttRefuse(
+  MqttRefuseCallback cb
+) {
+
+  mqtt.onMqttRefuse(cb);
+}
+
 #endif

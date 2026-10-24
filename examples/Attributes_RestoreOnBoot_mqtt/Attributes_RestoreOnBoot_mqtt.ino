@@ -1,10 +1,9 @@
 // =============================================================
 // Attributes_RestoreOnBoot_mqtt
 //
-// On connect the SDK subscribes to shared attributes (retained push),
-// then pulls them once. Apply the shared key "relay" to a GPIO and
-// confirm with a client attribute. The same value is not applied again
-// when the push, the response, and the pull carry it within 15 s.
+// On connect the SDK takes the retained shared-attribute push.
+// It does not also pull when that push arrived. Apply "relay" to a
+// GPIO and confirm with a client attribute.
 // =============================================================
 
 #include <AutoconnectoSDK.h>

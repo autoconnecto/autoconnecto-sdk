@@ -39,6 +39,16 @@ public:
 
   int getNetworkRssi();
 
+  /** Last access point. Valid after a join, including when serial logs are off. */
+  bool lastWifiJoin(WifiJoinInfo& out);
+
+  void onWifiJoin(WifiJoinCallback cb);
+
+  /** Broker CONNACK 4 or 5. 0 if the token has not been refused. */
+  int mqttRefuseCode() const;
+
+  void onMqttRefuse(MqttRefuseCallback cb);
+
   NetworkMode getNetworkMode() const;
 
   // =====================================
@@ -175,6 +185,15 @@ private:
 
   RPCCallback rpcCb =
     nullptr;
+
+  WifiJoinCallback wifiJoinCb =
+    nullptr;
+
+  MqttRefuseCallback mqttRefuseCb =
+    nullptr;
+
+  int lastMqttRefuseCode =
+    0;
 
   // =====================================
   // INTERNAL STATE

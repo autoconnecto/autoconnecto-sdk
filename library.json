@@ -1,6 +1,6 @@
 {
   "name": "AutoconnectoSDK",
-  "version": "1.7.74",
+  "version": "1.7.76",
   "description": "ESP32 MQTT and HTTPS IoT client for Autoconnecto - telemetry, attributes, RPC, and OTA.",
   "keywords": [
     "esp32",

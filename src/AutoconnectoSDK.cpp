@@ -20,6 +20,7 @@ void AutoconnectoSDK::begin(
   _config = config;
 
   Logger::begin(_config.enableSerialLogs);
+  networkOnWifiJoin(wifiJoinCb);
 
   if (!networkConnect(_config)) {
 
@@ -128,6 +129,28 @@ int AutoconnectoSDK::getNetworkRssi() {
 NetworkMode AutoconnectoSDK::getNetworkMode() const {
 
   return _config.networkMode;
+}
+
+bool AutoconnectoSDK::lastWifiJoin(WifiJoinInfo& out) {
+
+  return networkLastWifiJoin(out);
+}
+
+void AutoconnectoSDK::onWifiJoin(WifiJoinCallback cb) {
+
+  wifiJoinCb = cb;
+  networkOnWifiJoin(cb);
+}
+
+int AutoconnectoSDK::mqttRefuseCode() const {
+
+  return lastMqttRefuseCode;
+}
+
+void AutoconnectoSDK::onMqttRefuse(MqttRefuseCallback cb) {
+
+  mqttRefuseCb = cb;
+  manager.onMqttRefuse(cb);
 }
 
 // =========================================

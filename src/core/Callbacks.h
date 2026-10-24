@@ -26,6 +26,25 @@ typedef void (*ConnectionCallback)(
   bool connected
 );
 
+/** Fires when the radio joins an access point. Not gated by enableSerialLogs. */
+typedef void (*WifiJoinCallback)(
+  const char* bssid,
+  int channel,
+  int rssi
+);
+
+struct WifiJoinInfo {
+  bool valid;
+  char bssid[18];
+  int channel;
+  int rssi;
+};
+
+/** MQTT CONNACK 4 or 5: the broker refused the device token. */
+typedef void (*MqttRefuseCallback)(
+  int returnCode
+);
+
 // =========================================
 // LOG CALLBACK
 // =========================================
