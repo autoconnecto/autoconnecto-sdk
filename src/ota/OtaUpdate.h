@@ -121,5 +121,6 @@ private:
   bool downloadNextChunk();
   bool verifyChecksum();
   bool finishApply();
+  void clearReportedError();
   void fail(const char* reason);
 };

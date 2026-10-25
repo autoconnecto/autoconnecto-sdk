@@ -18,6 +18,10 @@
 #include <ArduinoJson.h>
 #include "secrets.h"
 
+// Leave the new image PENDING_VERIFY until markValidAfterHealthyCheck().
+// Without this, the chip marks the image valid as soon as the download ends.
+extern "C" bool verifyRollbackLater() { return true; }
+
 AutoconnectoSDK sdk;
 AutoconnectoOta ota;
 bool confirmed = false;

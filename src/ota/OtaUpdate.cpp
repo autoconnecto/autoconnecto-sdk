@@ -138,6 +138,8 @@ void AutoconnectoOta::onSharedAttribute(const String& key, const String& value) 
 
   if (_title.length() || _version.length() || _fileSize || _checksum.length()) {
     if (kind != _kind) {
+      // A complete fw_* set must survive stale sw_* in the same push.
+      if (metadataComplete() || _startRequested) return;
       resetTarget();
     }
   }
@@ -175,6 +177,7 @@ void AutoconnectoOta::onSharedAttribute(const String& key, float value) {
 
   if (_title.length() || _version.length() || _fileSize || _checksum.length()) {
     if (kind != _kind) {
+      if (metadataComplete() || _startRequested) return;
       resetTarget();
     }
   }
@@ -252,6 +255,7 @@ void AutoconnectoOta::startDownload() {
     f.close();
   }
 
+  clearReportedError();
   reportState("DOWNLOADING");
 }
 
@@ -499,6 +503,7 @@ bool AutoconnectoOta::finishApply() {
   if (!reportState("UPDATED")) {
     Serial.println("[OTA] UPDATED report failed after retries; server may stay UPDATING");
   }
+  clearReportedError();
   const bool reboot = _kind == OtaPackageKind::Firmware && _cfg.autoReboot;
   closeHttp();
   rememberInstalled();
@@ -512,13 +517,28 @@ bool AutoconnectoOta::finishApply() {
   return true;
 }
 
+void AutoconnectoOta::clearReportedError() {
+  if (!_sendAttr) return;
+  _sendAttr(_kind == OtaPackageKind::Software ? "sw_error" : "fw_error", "");
+}
+
 void AutoconnectoOta::fail(const char* reason) {
   closeHttp();
+  const char* why = reason && reason[0] ? reason : "failed";
+  Serial.printf("[OTA] failed: %s\n", why);
   reportState("FAILED");
+  if (_sendAttr) {
+    delay(200);
+    // Only the reason. Title and version already went with fw_state=FAILED.
+    // Publishing fw_version alone is misread as a boot report of the running image.
+    _sendAttr(
+      _kind == OtaPackageKind::Software ? "sw_error" : "fw_error",
+      why
+    );
+  }
   if (_kind == OtaPackageKind::Firmware) {
     Update.abort();
   }
-  Serial.printf("[OTA] failed: %s\n", reason);
   resetTarget();
 }
 

@@ -60,7 +60,7 @@ sdk.requestSharedAttributes("fw_title,fw_version,fw_size,fw_checksum,fw_checksum
 
 Chunks reuse one TLS connection. Each response is still one chunk.
 
-After an OTA install the running slot is `app0` or `app1` and the boot state is `PENDING_VERIFY` until the sketch confirms it. After a USB flash the state is `UNDEFINED` and `markValidAfterHealthyCheck()` does nothing. `rollbackIfUnhealthy()` reboots to the previous image only while the state is `PENDING_VERIFY`. See `examples/OtaHealthCheck_mqtt/`.
+After an OTA install the running slot is `app0` or `app1` and the boot state is `PENDING_VERIFY` until the sketch confirms it. `examples/OtaHealthCheck_mqtt/` defines `verifyRollbackLater()` so the image stays `PENDING_VERIFY` until `markValidAfterHealthyCheck()`. Without that function the chip marks the image valid as soon as the download ends. After a USB flash the state is `UNDEFINED` and `markValidAfterHealthyCheck()` does nothing. `rollbackIfUnhealthy()` reboots to the previous image only while the state is `PENDING_VERIFY`. A stale `sw_*` set in the same push as a complete `fw_*` set does not cancel the firmware download. `fail()` also publishes `fw_error` or `sw_error` with the serial reason.
 
 A boot report of `fw_version` or `sw_version` without `fw_state` is the image the chip is running. If that differs from a target the platform already marked updated, the platform fails that update and clears the shared target.
 
