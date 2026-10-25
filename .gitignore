@@ -7,3 +7,10 @@ libdeps
 .development
 **/secrets.h
 **/qa171_secrets.h
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+python/.venv/
+raspberrypi/.venv/
+raspberrypi/.env
