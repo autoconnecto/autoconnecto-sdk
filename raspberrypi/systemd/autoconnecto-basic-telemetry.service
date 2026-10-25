@@ -7,7 +7,8 @@ Wants=network-online.target
 Type=simple
 WorkingDirectory=/opt/autoconnecto-sdk/raspberrypi
 EnvironmentFile=/opt/autoconnecto-sdk/raspberrypi/.env
-ExecStart=/opt/autoconnecto-sdk/raspberrypi/.venv/bin/python3 examples/BasicTelemetry_mqtt/basic_telemetry_mqtt.py
+# Install once: python3 -m venv /opt/autoconnecto-sdk/python/.venv && /opt/autoconnecto-sdk/python/.venv/bin/pip install -e /opt/autoconnecto-sdk/python
+ExecStart=/opt/autoconnecto-sdk/python/.venv/bin/python3 examples/BasicTelemetry_mqtt/basic_telemetry_mqtt.py
 Restart=always
 RestartSec=3
 

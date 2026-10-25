@@ -1,18 +1,2 @@
-"""Platform helpers for examples."""
-
-from __future__ import annotations
-
-import os
-import subprocess
-
-
-def reboot_device() -> None:
-    print("[RPC] Rebooting...")
-    try:
-        subprocess.run(["sudo", "reboot"], check=False)
-    except OSError:
-        pass
-    try:
-        os.execv("/sbin/reboot", ["reboot"])
-    except OSError:
-        print("[RPC] reboot failed — run: sudo reboot")
+﻿"""Shim — use autoconnecto.platform_util (or `from autoconnecto import ...`)."""
+from autoconnecto.platform_util import *  # noqa: F401,F403

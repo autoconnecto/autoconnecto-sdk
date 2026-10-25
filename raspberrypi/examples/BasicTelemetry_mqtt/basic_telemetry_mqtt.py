@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""BasicTelemetry_mqtt — Raspberry Pi (pairs with ESP32 example of same name)."""
+"""BasicTelemetry_mqtt - Raspberry Pi (pairs with ESP32 example of same name)."""
 
 from __future__ import annotations
 
@@ -7,14 +7,15 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+SDK_ROOT = Path(__file__).resolve().parents[3]
+SRC = SDK_ROOT / "python" / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
-from common.config import load_dotenv_if_present, load_settings
-from common.health import health_attributes
-from common.mqtt_device import AutoconnectoMqttDevice
-from common.telemetry_keys import sample_telemetry
+from autoconnecto.config import load_dotenv_if_present, load_settings
+from autoconnecto.health import health_attributes
+from autoconnecto.mqtt_device import AutoconnectoMqttDevice
+from autoconnecto.telemetry_keys import sample_telemetry
 
 load_dotenv_if_present()
 

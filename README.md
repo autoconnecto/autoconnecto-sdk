@@ -44,10 +44,13 @@ If your users start on STM32 boards, begin with the Arduino-core path here:
 
 ### Linux SBC / gateways (Debian/Ubuntu/OpenWrt/x86)
 
-Many industrial deployments use Linux-based gateways (Raspberry Pi, routers, industrial PCs) to bridge field protocols to cloud. Start here:
+Installable Python client (MQTT/HTTPS + GPIO; same cloud contract as ESP32) — **not** a local platform edge:
 
-- `raspberrypi/README.md` (Python examples mirroring the ESP32 example names)
-- `examples/integrations/` (gateway/webhook scripts: curl, Python, ChirpStack/TTN)
+- `python/` — full: `pip install -e "./python[gpio,dotenv]"` (package **`autoconnecto`**)
+- Boards: Raspberry Pi 5/4/3/Zero 2 W, Orange Pi 5, Radxa ROCK 5, BeagleBone, Debian gateways
+- `raspberrypi/README.md` — examples mirroring ESP32 sketch names
+- Docs: [Linux SBC quick start](https://docs.autoconnecto.in/guide/linux-sbc-quickstart.html)
+- `examples/integrations/` — gateway/webhook scripts (curl, Python, ChirpStack/TTN)
 
 ### Other MCU families (docs)
 
@@ -471,9 +474,9 @@ Gateway hub publishes child telemetry using `childDeviceId` + gateway token. Req
 ### Integration webhooks (scripts, not Arduino)
 - `examples/integrations/README.md` — generic, ChirpStack, and TTN samples (`*.sh`, `*.py`, sample JSON bodies).
 
-### Raspberry Pi (Python)
+### Raspberry Pi / Linux SBC (Python)
 
-Same example names under **[`raspberrypi/`](raspberrypi/README.md)** — not installed via Arduino Library Manager.
+Install: **[`python/`](python/README.md)** (`pip install -e ./python`). Examples: **[`raspberrypi/`](raspberrypi/README.md)**. Not part of Arduino Library Manager.
 
 ### `AllFunctionTest_lte_ppp_mqtt` (optional — LTE / EC200)
 - Same AllFunctions behaviour over **LTE PPP** (Quectel EC200, UART 16/17).

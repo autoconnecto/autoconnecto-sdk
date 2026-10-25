@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generator_Monitoring_mqtt — Raspberry Pi mirror of ESP32 generator demo."""
+"""Generator_Monitoring_mqtt - Raspberry Pi mirror of ESP32 generator demo."""
 
 from __future__ import annotations
 
@@ -7,12 +7,13 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+SDK_ROOT = Path(__file__).resolve().parents[3]
+SRC = SDK_ROOT / "python" / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
-from common.config import load_dotenv_if_present, load_settings
-from common.mqtt_device import AutoconnectoMqttDevice
+from autoconnecto.config import load_dotenv_if_present, load_settings
+from autoconnecto.mqtt_device import AutoconnectoMqttDevice
 
 load_dotenv_if_present()
 

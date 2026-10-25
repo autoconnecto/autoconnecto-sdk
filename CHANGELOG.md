@@ -1,8 +1,13 @@
 # Changelog
 
-This repository ships the **Autoconnecto Arduino SDK** (`src/`, `examples/`) and a **Raspberry Pi examples** sibling (`raspberrypi/`).
+This repository ships the **Autoconnecto Arduino SDK** (`src/`, `examples/`), an installable **Python package** (`python/` — `pip install -e ./python`, name **`autoconnecto`**), and **Linux SBC examples** (`raspberrypi/`).
 
-Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library. Raspberry Pi examples track the same git history.
+Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library. Python and Raspberry Pi examples track the same git history.
+
+## v1.7.79
+
+- Installable Python SDK under `python/` (package **`autoconnecto`**): MQTT + HTTPS + GPIO (`gpio.write` / `read` / `set_relay`, extra `gpiozero`). Named SBCs: Raspberry Pi 5/4/3/Zero 2 W, Orange Pi 5, Radxa ROCK 5, BeagleBone. `raspberrypi/common` is a shim; examples import `autoconnecto`. Install: `pip install -e "./python[gpio,dotenv]"` (PyPI publish still pending). Code review + static only — not board-verified on a Pi.
+- Arduino library version aligned to 1.7.79 (no ESP32 behaviour change in this tag).
 
 ## v1.7.78
 
