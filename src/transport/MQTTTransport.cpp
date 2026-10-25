@@ -548,7 +548,11 @@ void MQTTTransport::requestAttributes(
   const String& keys
 ) {
 
+  // An empty pull is the automatic snapshot. A named request, such as the
+  // firmware keys on connect, must still go out or an update assigned
+  // during boot is missed.
   if (
+    keys.length() == 0 &&
     sharedDataSeen &&
     millis() - sharedDataAt < 15000UL
   ) {

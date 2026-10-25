@@ -52,6 +52,18 @@ ota.onProgressReport([](const char* stateKey, const char* state, const char* tit
 
 Call `ota.loop()` from `loop()` while the SDK runs.
 
+On connect, request the firmware keys by name. An empty shared-attribute pull can be skipped for 15 seconds after a snapshot. A named request is not skipped.
+
+```cpp
+sdk.requestSharedAttributes("fw_title,fw_version,fw_size,fw_checksum,fw_checksum_algorithm");
+```
+
+Chunks reuse one TLS connection. Each response is still one chunk.
+
+After an OTA install the running slot is `app0` or `app1` and the boot state is `PENDING_VERIFY` until the sketch confirms it. After a USB flash the state is `UNDEFINED` and `markValidAfterHealthyCheck()` does nothing. `rollbackIfUnhealthy()` reboots to the previous image only while the state is `PENDING_VERIFY`. See `examples/OtaHealthCheck_mqtt/`.
+
+A boot report of `fw_version` or `sw_version` without `fw_state` is the image the chip is running. If that differs from a target the platform already marked updated, the platform fails that update and clears the shared target.
+
 ## Device download API (any platform)
 
 ```

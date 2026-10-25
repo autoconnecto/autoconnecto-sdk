@@ -66,6 +66,16 @@ public:
 
   bool isBusy() const { return _busy; }
 
+  /**
+   * Boot slot after an OTA install is app0 or app1.
+   * After a USB flash the state is undefined and mark-valid does nothing.
+   * Chip rollback exists only after an OTA install that has not been confirmed.
+   */
+  bool markValidAfterHealthyCheck();
+  bool rollbackIfUnhealthy();
+  const char* bootPartitionLabel() const;
+  const char* bootStateName() const;
+
   OtaPackageKind activeKind() const { return _kind; }
 
 private:
@@ -96,6 +106,7 @@ private:
   size_t _chunkIndex = 0;
   size_t _bytesWritten = 0;
   bool _shaStarted = false;
+  void closeHttp();
 
   void resetTarget();
   void clearPackageBytes();

@@ -4,6 +4,12 @@ This repository ships the **Autoconnecto Arduino SDK** (`src/`, `examples/`) and
 
 Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library. Raspberry Pi examples track the same git history.
 
+## v1.7.77
+
+- A named shared-attribute request is sent even when a snapshot arrived in the last 15 seconds. An empty pull is still skipped.
+- Firmware and software chunks reuse one TLS connection. Each response is still one chunk.
+- `markValidAfterHealthyCheck`, `rollbackIfUnhealthy`, `bootPartitionLabel`, and `bootStateName`. After a USB flash the state is UNDEFINED and mark-valid does nothing. Example `OtaHealthCheck_mqtt`. Code review + static only — not board-verified.
+
 ## v1.7.76
 
 - Shared attributes: one retained push on boot. A pull is not sent when that push already arrived. The broker client does not auto-reconnect on top of the SDK backoff. An unchanged snapshot is not published again (server v1.7.76).

@@ -13,6 +13,14 @@
 #endif
 
 #include <mbedtls/sha256.h>
+extern "C" {
+#include <esp_ota_ops.h>
+}
+
+namespace {
+WiFiClientSecure* tlsClient = nullptr;
+HTTPClient* httpClient = nullptr;
+}
 
 namespace {
 
@@ -191,6 +199,19 @@ const char* AutoconnectoOta::downloadPath() const {
   return _kind == OtaPackageKind::Software ? "software" : "firmware";
 }
 
+void AutoconnectoOta::closeHttp() {
+  if (httpClient) {
+    httpClient->end();
+    delete httpClient;
+    httpClient = nullptr;
+  }
+  if (tlsClient) {
+    tlsClient->stop();
+    delete tlsClient;
+    tlsClient = nullptr;
+  }
+}
+
 void AutoconnectoOta::startDownload() {
   _busy = true;
   _phase = Phase::Downloading;
@@ -273,26 +294,31 @@ bool AutoconnectoOta::reportState(const char* state) {
 bool AutoconnectoOta::downloadNextChunk() {
   if (_phase != Phase::Downloading) return false;
 
-  WiFiClientSecure client;
-  if (_cfg.allowInsecureTLS) {
-    client.setInsecure();
-  } else if (_cfg.rootCA) {
-    client.setCACert(_cfg.rootCA);
+  if (!tlsClient) {
+    tlsClient = new WiFiClientSecure();
+    if (_cfg.allowInsecureTLS) {
+      tlsClient->setInsecure();
+    } else if (_cfg.rootCA) {
+      tlsClient->setCACert(_cfg.rootCA);
+    }
+  }
+  if (!httpClient) {
+    httpClient = new HTTPClient();
+    httpClient->setReuse(true);
   }
 
-  HTTPClient http;
   String url = String("https://") + _cfg.apiHost + "/api/v1/" +
                _cfg.deviceToken + "/" + downloadPath() + "?title=" +
                urlEncode(_title) + "&version=" + urlEncode(_version) +
                "&size=" + String(_cfg.chunkSize) +
                "&chunk=" + String(_chunkIndex);
 
-  if (!http.begin(client, url)) {
+  if (!httpClient->begin(*tlsClient, url)) {
     fail("http_begin_failed");
     return false;
   }
 
-  const int code = http.GET();
+  const int code = httpClient->GET();
   if (code != 200) {
     // Never print the full URL — it embeds the device token.
     Serial.printf(
@@ -303,26 +329,26 @@ bool AutoconnectoOta::downloadNextChunk() {
       _version.c_str(),
       static_cast<unsigned>(_chunkIndex)
     );
-    http.end();
+    httpClient->end();
     fail("http_get_failed");
     return false;
   }
 
   // One HTTP response is one chunk (Content-Length = this slice), not the
-  // whole package. Waiting for _fileSize on a keep-alive connection hangs forever.
-  const int contentLen = http.getSize();
+  // whole package. The TLS client is kept so the next chunk does not handshake again.
+  const int contentLen = httpClient->getSize();
   const size_t chunkExpect =
     contentLen > 0
       ? static_cast<size_t>(contentLen)
       : static_cast<size_t>(_cfg.chunkSize);
 
-  WiFiClient* stream = http.getStreamPtr();
+  WiFiClient* stream = httpClient->getStreamPtr();
   File softFile;
   if (_kind == OtaPackageKind::Software) {
     const char* path = _cfg.softwarePath ? _cfg.softwarePath : "/ota/package.bin";
     softFile = LittleFS.open(path, _chunkIndex == 0 ? "w" : "a");
     if (!softFile) {
-      http.end();
+      httpClient->end();
       fail("software_write_open_failed");
       return false;
     }
@@ -333,7 +359,7 @@ bool AutoconnectoOta::downloadNextChunk() {
   const unsigned long idleTimeoutMs = 8000;
 
   while (_bytesWritten < _fileSize && chunkGot < chunkExpect) {
-    if (!http.connected() && stream->available() == 0) break;
+    if (!httpClient->connected() && stream->available() == 0) break;
 
     const size_t avail = stream->available();
     if (!avail) {
@@ -369,14 +395,14 @@ bool AutoconnectoOta::downloadNextChunk() {
 
     if (_kind == OtaPackageKind::Firmware) {
       if (Update.write(buf, n) != n) {
-        http.end();
+        httpClient->end();
         fail("flash_write_failed");
         return false;
       }
     } else {
       if (softFile.write(buf, n) != n) {
         softFile.close();
-        http.end();
+        httpClient->end();
         fail("software_write_failed");
         return false;
       }
@@ -389,7 +415,7 @@ bool AutoconnectoOta::downloadNextChunk() {
   if (_kind == OtaPackageKind::Software) {
     softFile.close();
   }
-  http.end();
+  httpClient->end();
 
   // Empty body at past-EOF means the server has no more bytes.
   if (chunkGot == 0 && _bytesWritten >= _fileSize) {
@@ -474,6 +500,7 @@ bool AutoconnectoOta::finishApply() {
     Serial.println("[OTA] UPDATED report failed after retries; server may stay UPDATING");
   }
   const bool reboot = _kind == OtaPackageKind::Firmware && _cfg.autoReboot;
+  closeHttp();
   rememberInstalled();
   resetTarget();
 
@@ -486,6 +513,7 @@ bool AutoconnectoOta::finishApply() {
 }
 
 void AutoconnectoOta::fail(const char* reason) {
+  closeHttp();
   reportState("FAILED");
   if (_kind == OtaPackageKind::Firmware) {
     Update.abort();
@@ -519,6 +547,64 @@ void AutoconnectoOta::loop() {
       if (!verifyChecksum()) return;
       finishApply();
     }
+  }
+}
+
+bool AutoconnectoOta::markValidAfterHealthyCheck() {
+  const esp_partition_t* running = esp_ota_get_running_partition();
+  if (!running) return false;
+  esp_ota_img_states_t state = ESP_OTA_IMG_UNDEFINED;
+  if (esp_ota_get_state_partition(running, &state) != ESP_OK) return false;
+  if (state == ESP_OTA_IMG_UNDEFINED) {
+    Serial.printf("[OTA] boot state UNDEFINED on %s. A USB flash has nothing to confirm.\n", running->label);
+    return false;
+  }
+  if (state != ESP_OTA_IMG_PENDING_VERIFY) {
+    Serial.printf("[OTA] boot state %s on %s. Nothing to confirm.\n", bootStateName(), running->label);
+    return state == ESP_OTA_IMG_VALID;
+  }
+  const esp_err_t err = esp_ota_mark_app_valid_cancel_rollback();
+  Serial.printf("[OTA] mark valid on %s err=%d\n", running->label, (int)err);
+  return err == ESP_OK;
+}
+
+bool AutoconnectoOta::rollbackIfUnhealthy() {
+  const esp_partition_t* running = esp_ota_get_running_partition();
+  if (!running) return false;
+  esp_ota_img_states_t state = ESP_OTA_IMG_UNDEFINED;
+  if (esp_ota_get_state_partition(running, &state) != ESP_OK) return false;
+  if (state != ESP_OTA_IMG_PENDING_VERIFY) {
+    Serial.printf(
+      "[OTA] rollback skipped. state=%s slot=%s. Chip rollback exists only after an OTA install.\n",
+      bootStateName(),
+      running->label
+    );
+    return false;
+  }
+  Serial.printf("[OTA] mark invalid and reboot slot=%s\n", running->label);
+  Serial.flush();
+  esp_ota_mark_app_invalid_rollback_and_reboot();
+  return true;
+}
+
+const char* AutoconnectoOta::bootPartitionLabel() const {
+  const esp_partition_t* running = esp_ota_get_running_partition();
+  return running ? running->label : "none";
+}
+
+const char* AutoconnectoOta::bootStateName() const {
+  const esp_partition_t* running = esp_ota_get_running_partition();
+  if (!running) return "none";
+  esp_ota_img_states_t state = ESP_OTA_IMG_UNDEFINED;
+  if (esp_ota_get_state_partition(running, &state) != ESP_OK) return "unknown";
+  switch (state) {
+    case ESP_OTA_IMG_NEW: return "NEW";
+    case ESP_OTA_IMG_PENDING_VERIFY: return "PENDING_VERIFY";
+    case ESP_OTA_IMG_VALID: return "VALID";
+    case ESP_OTA_IMG_INVALID: return "INVALID";
+    case ESP_OTA_IMG_ABORTED: return "ABORTED";
+    case ESP_OTA_IMG_UNDEFINED: return "UNDEFINED";
+    default: return "OTHER";
   }
 }
 
