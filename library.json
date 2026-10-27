@@ -1,20 +1,27 @@
 {
   "name": "AutoconnectoSDK",
-  "version": "1.7.78",
-  "description": "ESP32 MQTT and HTTPS IoT client for Autoconnecto - telemetry, attributes, RPC, and OTA.",
+  "version": "1.7.84",
+  "description": "ESP32 MQTT and HTTPS IoT client for Autoconnecto (India): telemetry, shared and client attributes, RPC, and OTA firmware. Arduino and PlatformIO.",
   "keywords": [
     "esp32",
     "mqtt",
+    "mqtts",
+    "wss",
     "telemetry",
     "attributes",
+    "rpc",
     "ota",
     "iot",
-    "autoconnecto"
+    "autoconnecto",
+    "arduino",
+    "india",
+    "dashboard",
+    "https"
   ],
   "homepage": "https://docs.autoconnecto.in/guide/esp32-quickstart.html",
   "repository": {
     "type": "git",
-    "url": "https://github.com/autoconnecto/autoconnecto-sdk"
+    "url": "https://github.com/autoconnecto/autoconnecto-sdk.git"
   },
   "authors": [
     {
