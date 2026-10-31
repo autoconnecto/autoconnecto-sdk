@@ -65,6 +65,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # secrets.h is gitignored; sketches #include it. Seed from *.example for CI.
+      - name: Seed example secrets.h from secrets.h.example
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' example; do
+            cp -f "$example" "$(dirname "$example")/secrets.h"
+          done < <(find examples -name 'secrets.h.example' -print0)
+
       - name: Compile sketches (${{ matrix.fqbn }} core ${{ matrix.core }})
         uses: arduino/compile-sketches@v1
         with:
@@ -85,6 +93,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Seed example secrets.h from secrets.h.example
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' example; do
+            cp -f "$example" "$(dirname "$example")/secrets.h"
+          done < <(find examples -name 'secrets.h.example' -print0)
+
       - name: Compile ESP8266 HTTPS sketch
         uses: arduino/compile-sketches@v1
         with:
@@ -104,6 +119,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Seed example secrets.h from secrets.h.example
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' example; do
+            cp -f "$example" "$(dirname "$example")/secrets.h"
+          done < <(find examples -name 'secrets.h.example' -print0)
 
       - name: Compile Pico W HTTPS sketch
         uses: arduino/compile-sketches@v1
