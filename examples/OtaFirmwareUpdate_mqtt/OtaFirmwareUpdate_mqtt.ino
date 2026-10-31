@@ -3,7 +3,8 @@
 //
 // PURPOSE
 //   Download firmware when the platform assigns a FIRMWARE package
-//   (shared fw_* attributes) and flash via esp_ota.
+//   (shared fw_* attributes) and flash via esp_ota. Outside OTA,
+//   sdk.loop() still recovers MQTT after a Wi‑Fi/router flap.
 //
 // SETUP
 //   1. Flash this sketch with your WiFi + device token.

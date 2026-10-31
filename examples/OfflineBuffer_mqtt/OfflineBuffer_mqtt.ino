@@ -5,6 +5,8 @@
 // sample is lost (board verify: drop_network lost one reading).
 // This sketch queues samples in RAM (+ LittleFS ring) with a
 // real Unix timestamp (NTP), then flushes after reconnect.
+// The SDK also rejoins Wi‑Fi after repeated MQTT failures so
+// the outage ends without a manual reset (BOARD_VERIFY B8).
 //
 // Copy secrets.h.example → secrets.h before flashing.
 // =============================================================

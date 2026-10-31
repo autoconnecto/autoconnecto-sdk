@@ -5,6 +5,9 @@
 
 bool networkConnect(SDKConfig& config);
 
+/** Tear down and rejoin Wi-Fi (or re-attach LTE PPP) for a fresh DNS/route. */
+bool networkReconnect(SDKConfig& config);
+
 void networkOnWifiJoin(WifiJoinCallback cb);
 
 bool networkLastWifiJoin(WifiJoinInfo& out);

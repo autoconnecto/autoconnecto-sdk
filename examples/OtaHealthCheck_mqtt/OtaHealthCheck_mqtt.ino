@@ -11,6 +11,7 @@
 // ota.markValidAfterHealthyCheck(). To exercise a bad image,
 // call ota.rollbackIfUnhealthy() instead of mark-valid while
 // the state is still PENDING_VERIFY.
+// Keep sdk.loop() running so MQTT recovers after a Wi‑Fi flap.
 // =============================================================
 
 #include <AutoconnectoSDK.h>

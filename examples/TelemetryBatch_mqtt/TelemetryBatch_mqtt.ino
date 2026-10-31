@@ -4,7 +4,8 @@
 // PURPOSE
 //   Demonstrates a simple buffer-and-flush pattern over MQTT:
 //   buffer telemetry locally and then publish multiple samples
-//   sequentially when online.
+//   sequentially when online. Network recovery after a router
+//   flap is handled inside sdk.loop().
 //
 // NOTE
 //   MQTT ingress is per-message JSON object (no single "batch"

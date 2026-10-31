@@ -4,6 +4,7 @@
 // PURPOSE
 //   Simulates diesel generator telemetry for the dashboard
 //   "Generator Monitoring" widget (type: generatorMonitoring).
+//   Keep sdk.loop() running — MQTT recovers after a Wi‑Fi flap without reset.
 //
 // DASHBOARD
 //   Add widget: Generator Monitoring → bind device alias → this device.

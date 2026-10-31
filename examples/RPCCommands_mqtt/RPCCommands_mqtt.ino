@@ -6,7 +6,8 @@
 //
 // PURPOSE
 //   Demonstrates how to receive and reply to RPC commands sent
-//   from the Autoconnecto dashboard RPC Widget.
+//   from the Autoconnecto dashboard RPC Widget. Keep sdk.loop()
+//   running so MQTT recovers after a Wi‑Fi/router flap.
 //
 // NOTE
 //   Raspberry Pi mirrors of these examples live under `raspberrypi/`.

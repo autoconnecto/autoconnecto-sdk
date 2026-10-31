@@ -7,6 +7,10 @@
 //   MQTT connect failed — trying alternate transport
 //   MQTT fault injection delayMs=...
 //
+// After every mqttWifiRefreshEveryFailures attempts (default 3)
+// the SDK also rejoins Wi‑Fi. With injectConnectFailures=2 the
+// third attempt should connect for real.
+//
 // Wi-Fi timeout is config.wifiConnectTimeoutMs (default 15 s).
 // To check that clock, set wifiSSID to a name that is not here
 // and watch for "WiFi connect timed out" within that budget.

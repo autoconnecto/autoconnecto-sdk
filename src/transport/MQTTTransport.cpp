@@ -7,6 +7,8 @@
 
 #include "MQTTTransport.h"
 
+#include "../network/NetworkConnect.h"
+
 #include <esp_system.h>
 
 // =========================================
@@ -95,7 +97,55 @@ unsigned long MQTTTransport::armReconnect(
   reconnectEarliestMs = millis() + delayMs;
   reconnectRequested = true;
   failureArmed = true;
+  if (mqttDownSinceMs == 0) {
+    mqttDownSinceMs = millis();
+  }
   return delayMs;
+}
+
+void MQTTTransport::maybeRecoverLink() {
+
+  if (!_config) {
+    return;
+  }
+
+  if (mqttDownSinceMs == 0) {
+    mqttDownSinceMs = millis();
+  }
+
+  const unsigned long restartAfter =
+    _config->mqttRestartAfterDisconnectMs;
+
+  if (
+    restartAfter > 0 &&
+    (millis() - mqttDownSinceMs) >= restartAfter
+  ) {
+    Logger::warn(
+      "MQTT unreachable too long — esp_restart()"
+    );
+    delay(250);
+    esp_restart();
+  }
+
+  const uint8_t every =
+    _config->mqttWifiRefreshEveryFailures;
+
+  const bool linkUp = networkLinkUp(*_config);
+  const bool dueByCount =
+    every > 0 &&
+    reconnectAttempt > 0 &&
+    (reconnectAttempt % every) == 0 &&
+    lastWifiRefreshAttempt != reconnectAttempt;
+
+  if (!linkUp || dueByCount) {
+    lastWifiRefreshAttempt = reconnectAttempt;
+    Logger::warn(
+      linkUp
+        ? "MQTT failures — rejoining network for fresh DNS"
+        : "Network link down — rejoining before MQTT"
+    );
+    networkReconnect(*_config);
+  }
 }
 
 bool MQTTTransport::duplicateShared(
@@ -199,6 +249,7 @@ void MQTTTransport::loop() {
       "Reconnecting MQTT..."
     );
 
+    maybeRecoverLink();
     connectClient();
   }
 }
@@ -703,6 +754,8 @@ void MQTTTransport::mqttEventHandler(
 
       mqttConnected = true;
       reconnectAttempt = 0;
+      lastWifiRefreshAttempt = -1;
+      mqttDownSinceMs = 0;
       failureArmed = false;
       sharedSubAck = false;
       responseSubAck = false;

@@ -2,12 +2,12 @@
 // WatchdogReconnect_mqtt — Autoconnecto SDK example (MQTT)
 //
 // PURPOSE
-//   Demonstrates a conservative "don't hang forever" pattern:
-//   - runs the SDK loop frequently
-//   - if disconnected for too long, restarts the device
-//
-// This is useful on unstable networks where cellular/WiFi drops
-// can wedge the system. Keep the thresholds conservative.
+//   The SDK (v1.7.85+) already rejoins Wi‑Fi after repeated MQTT
+//   failures and calls esp_restart() after ~3 minutes down
+//   (mqttRestartAfterDisconnectMs). This sketch adds a longer
+//   sketch-level safety net (default 5 minutes) and prints [NET]
+//   lines so you can watch recovery. Prefer BOARD_VERIFY B8
+//   (pull router power ~60 s) to prove library recovery.
 // =============================================================
 
 #include <AutoconnectoSDK.h>

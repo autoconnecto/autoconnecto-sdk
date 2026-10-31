@@ -1,6 +1,11 @@
 // =============================================================
 // AllFunctionTest_mqtt — Autoconnecto SDK example (MQTT + WSS)
 //
+// Network: sdk.loop() recovers after a Wi‑Fi/router flap (Wi‑Fi rejoin +
+// MQTT rebuild; esp_restart if still down ~3 min). Keep onConnect
+// requestSharedAttributes so controls restore after reconnect.
+// BOARD_VERIFY B8: pull router power ~60 s and wait for MQTT CONNECTED.
+//
 // Pair sketch: examples/AllFunctionTest_http/AllFunctionTest_http.ino
 //   Same telemetry + attribute keys; uses HTTPS polling instead
 //   of MQTT. Dashboard RPC widget requires MQTT (or JWT API).

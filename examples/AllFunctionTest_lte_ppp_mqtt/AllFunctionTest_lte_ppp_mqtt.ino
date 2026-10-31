@@ -4,6 +4,9 @@
 // Same app logic as AllFunctionTest_mqtt; network is cellular PPP
 // (ESP32 core PPP library), MQTTS :8883 — not WSS.
 //
+// Network recovery: after repeated MQTT failures the SDK re-attaches
+// PPP and rebuilds the client; esp_restart if still down ~3 min.
+//
 // REQUIRED: build_opt.h in this folder (-DAUTOCONNECTO_ENABLE_LTE_PPP=1)
 // REQUIRED: ESP32 Arduino core 3.x
 // See: LTE_PPP_EC200.md

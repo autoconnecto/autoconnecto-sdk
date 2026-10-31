@@ -6,6 +6,7 @@
 //
 // Simulated path around Delhi for lab demos. Replace the
 // updateFix() body with a real GPS module when you have one.
+// Keep sdk.loop() running so MQTT recovers after a Wi‑Fi flap.
 //
 // Copy secrets.h.example → secrets.h before flashing.
 // =============================================================

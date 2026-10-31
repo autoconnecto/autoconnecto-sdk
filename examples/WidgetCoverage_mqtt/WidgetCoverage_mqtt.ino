@@ -4,7 +4,8 @@
 // PURPOSE
 //   One board that exercises the telemetry / attribute / RPC keys
 //   used by Phase 7 Solutions (widget palette coverage) and the
-//   AllFunctionTest-style control widgets.
+//   AllFunctionTest-style control widgets. Network recovery after a
+//   router flap is in sdk.loop() (BOARD_VERIFY B8).
 //
 // PAIR WITH SOLUTIONS (exact titles in Solutions catalog)
 //   MeteringChartsFleet, ControlsLabFleet, StatusWallboardFleet,

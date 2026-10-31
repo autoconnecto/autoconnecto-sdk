@@ -4,7 +4,8 @@
 // PURPOSE
 //   Download a SOFTWARE package when the platform assigns one
 //   (shared sw_* attributes) to LittleFS, then notify your sketch.
-//   Does not flash firmware and does not reboot.
+//   Does not flash firmware and does not reboot. Outside OTA,
+//   sdk.loop() recovers MQTT after a Wi‑Fi/router flap.
 //
 // SETUP
 //   1. Flash this sketch with your WiFi + device token.

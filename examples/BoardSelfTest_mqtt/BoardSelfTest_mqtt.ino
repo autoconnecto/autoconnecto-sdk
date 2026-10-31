@@ -3,7 +3,12 @@
 //
 // Covers attrs echo, RPC with replies, SOTA state reporting, and
 // a forced reconnect path. Serial lines use clear [TAG] prefixes
-// for support triage (BOARD_VERIFY.md B1–B7).
+// for support triage (BOARD_VERIFY.md B1–B8).
+//
+// B8 router outage: pull the router power ~60 s, restore it, leave
+// the board alone. Within ~1 min after the LAN returns, expect
+// Wi‑Fi rejoin + MQTT CONNECTED (SDK auto-recovery). Optional:
+// RPC drop_network for a short Wi‑Fi drop without touching the router.
 //
 // Credentials: copy secrets.h.example → secrets.h (gitignored).
 // =============================================================

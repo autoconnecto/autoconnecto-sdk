@@ -4,6 +4,8 @@
 // On a mesh, the default join scans every channel and picks the
 // strongest access point (config.wifiJoinStrongest = true).
 // Set it false to keep the first match the radio finds.
+// After MQTT failures the SDK may rejoin Wi‑Fi the same way
+// (mqttWifiRefreshEveryFailures) so DNS stays fresh.
 //
 // enableSerialLogs is false in this sketch. The join line still
 // prints, because onWifiJoin is not gated by the log switch.

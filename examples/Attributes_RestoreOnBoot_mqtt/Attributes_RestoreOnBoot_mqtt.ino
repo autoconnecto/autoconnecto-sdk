@@ -3,7 +3,8 @@
 //
 // On connect the SDK takes the retained shared-attribute push.
 // It does not also pull when that push arrived. Apply "relay" to a
-// GPIO and confirm with a client attribute.
+// GPIO and confirm with a client attribute. Same restore path runs
+// after MQTT reconnect (including after a Wi‑Fi/router recovery).
 // =============================================================
 
 #include <AutoconnectoSDK.h>

@@ -133,6 +133,21 @@ bool networkConnect(SDKConfig& config) {
   return wifiConnect(config);
 }
 
+bool networkReconnect(SDKConfig& config) {
+
+  if (config.networkMode == NetworkMode::LtePpp) {
+    Logger::warn("LTE: re-attaching PPP for a fresh route");
+    return ltePppConnect(config);
+  }
+
+  Logger::warn("WiFi: disconnect and rejoin (fresh DNS)");
+  haveAp = false;
+  lastChannel = -1;
+  WiFi.disconnect(false);
+  delay(800);
+  return wifiConnect(config);
+}
+
 void networkMaintain(SDKConfig& config) {
 
   if (config.networkMode == NetworkMode::LtePpp) {

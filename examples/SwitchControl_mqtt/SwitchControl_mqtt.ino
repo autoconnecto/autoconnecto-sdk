@@ -7,7 +7,9 @@
 //   Demonstrates the shared attribute → hardware → client
 //   attribute feedback loop. This is the core mechanism that
 //   keeps dashboard widgets in sync with device state across
-//   power cycles without any user action.
+//   power cycles without any user action. After a Wi‑Fi flap,
+//   sdk.loop() rejoins the network and MQTT; keep onConnect
+//   requestSharedAttributes so relays restore without a reset.
 //
 // NOTE
 //   Raspberry Pi mirrors of these examples live under `raspberrypi/`.

@@ -12,6 +12,8 @@
 // NOTES
 //   - LTE uses MQTTS :8883 (no WSS).
 //   - GPIO 16/17 are default UART2 pins; ensure they're free on your board.
+//   - sdk.loop() re-attaches PPP after repeated MQTT failures; restarts if
+//     still down ~3 min (mqttRestartAfterDisconnectMs).
 // =============================================================
 
 #include <AutoconnectoSDK.h>

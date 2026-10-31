@@ -34,6 +34,19 @@ struct SDKConfig {
    */
   uint8_t injectConnectFailures = 0;
 
+  /**
+   * After this many failed MQTT reconnect attempts (and when the link is
+   * down), tear down and rejoin Wi-Fi so DNS/routing refresh. 0 = never.
+   * Default 3 (~ tens of seconds with backoff).
+   */
+  uint8_t mqttWifiRefreshEveryFailures = 3;
+
+  /**
+   * If MQTT stays down this long, call esp_restart(). 0 = never.
+   * Default 3 minutes. Shared-attribute restore still runs on the next connect.
+   */
+  unsigned long mqttRestartAfterDisconnectMs = 180000UL;
+
   // =========================================
   // LTE PPP (EC200) — used when networkMode == LtePpp
   // UART defaults: ESP32 Serial2 RX=16, TX=17

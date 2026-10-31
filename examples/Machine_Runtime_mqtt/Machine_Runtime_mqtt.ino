@@ -12,6 +12,7 @@
 // SHARED (platform → device, synced on boot + reconnect + every 60s):
 //   machine_allow_run, machine_tool_remaining, machine_tool_limit,
 //   machine_tool_cycles_used
+//   (After a Wi‑Fi flap, SDK rejoins then MQTT; shared restore still runs.)
 //
 // CLIENT (device → platform, every 30s + after RFID):
 //   session + tool mirror for power-cycle recovery

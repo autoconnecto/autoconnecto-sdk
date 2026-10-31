@@ -148,6 +148,12 @@ private:
   int reconnectAttempt =
     0;
 
+  int lastWifiRefreshAttempt =
+    -1;
+
+  unsigned long mqttDownSinceMs =
+    0;
+
   bool failureArmed =
     false;
 
@@ -221,6 +227,8 @@ private:
     bool countFailure,
     bool flipTransport
   );
+
+  void maybeRecoverLink();
 
   bool duplicateShared(
     const char* key,

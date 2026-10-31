@@ -26,7 +26,8 @@ Device code provides `SDKConfig` including:
 ### 3) Run loop
 
 `AutoconnectoSDK::loop()`:
-- calls `manager.loop()` to drive reconnect logic
+- calls `networkMaintain` (Wi‑Fi/LTE link housekeeping)
+- calls `manager.loop()` to drive MQTT reconnect (backoff, WSS↔MQTTS flip, Wi‑Fi rejoin after repeated failures, optional `esp_restart` if down too long)
 - derives connection state from `activeTransport() != nullptr`
 - triggers `onConnect` / `onDisconnect` callbacks on state transitions
 

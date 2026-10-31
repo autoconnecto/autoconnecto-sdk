@@ -37,7 +37,7 @@ On `MQTT_EVENT_CONNECTED`, the SDK subscribes to:
 - `devices/{deviceToken}/attributes/shared/response`
 - `devices/{deviceToken}/rpc/request/+`
 
-After both attribute subscriptions are acknowledged it waits 400 ms. If the retained shared snapshot has already arrived, it does not send a request. `requestSharedAttributes()` during the next 15 seconds is skipped as well. The broker client does not auto-reconnect. The SDK backs off with jitter and, after a failed connect, tries the other of WSS and MQTTS.
+After both attribute subscriptions are acknowledged it waits 400 ms. If the retained shared snapshot has already arrived, it does not send a request. `requestSharedAttributes()` during the next 15 seconds is skipped as well. The broker client does not auto-reconnect. The SDK backs off with jitter and, after a failed connect, tries the other of WSS and MQTTS. Every few failed attempts (default 3), or when the link is down, it disconnects and rejoins Wi‑Fi (or re-attaches LTE PPP) so DNS and routing refresh, then rebuilds the MQTT/TLS client. If MQTT stays down for the configured limit (default 3 minutes), it calls `esp_restart()`. Shared-attribute restore on the next connect is unchanged.
 
 ### Publish topics (confirmed)
 

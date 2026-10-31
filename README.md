@@ -222,6 +222,8 @@ void loop() {
 | `wifiPassword` | `String` | Yes | WiFi password |
 | `wifiJoinStrongest` | `bool` | No | `true` (default): scan every channel and join the strongest access point. `false`: first match found. |
 | `wifiConnectTimeoutMs` | `unsigned long` | No | Give up the Wi-Fi join after this long. Default `15000` (15 s). |
+| `mqttWifiRefreshEveryFailures` | `uint8_t` | No | After this many failed MQTT reconnects (default `3`), or when the link is down, rejoin Wi‑Fi / re-attach LTE for fresh DNS. `0` = never. |
+| `mqttRestartAfterDisconnectMs` | `unsigned long` | No | If MQTT stays down this long, `esp_restart()`. Default `180000` (3 min). `0` = never. |
 | `mqttHost` | `String` | Yes | Broker hostname e.g. `mqtt.autoconnecto.in` |
 | `mqttPort` | `int` | Yes | MQTTS port, usually `8883` |
 | `wssPort` | `int` | Yes | MQTT-over-WSS port. Default `8084` |
@@ -437,7 +439,7 @@ Posts multiple samples in one request to `POST /api/v1/{token}/telemetry/batch` 
 
 ### `BoardSelfTest_mqtt`
 - `examples/BoardSelfTest_mqtt/BoardSelfTest_mqtt.ino`
-- Board verify sketch: shared/client attrs echo, RPC replies, OTA state lines, forced reconnect (`drop_network`). Serial tags: `[ATTR]`, `[RPC]`, `[TEL]`, `[NET]`, `[OTA-STATE]`.
+- Board verify sketch: shared/client attrs echo, RPC replies, OTA state lines, forced reconnect (`drop_network`), router outage recovery (BOARD_VERIFY **B8**). Serial tags: `[ATTR]`, `[RPC]`, `[TEL]`, `[NET]`, `[OTA-STATE]`.
 
 ### `OfflineBuffer_mqtt`
 - `examples/OfflineBuffer_mqtt/OfflineBuffer_mqtt.ino`

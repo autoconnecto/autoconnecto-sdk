@@ -31,6 +31,7 @@ Run against a real ESP32 (or HTTP sketch) on the tenant the founder uses. Prefer
 | B5 | **Command log** | After B4 (or RPC widget), row appears in Command Log for that device. |
 | B6 | **OTA chunk** | Assign package → serial `chunk N ok` → `DOWNLOADED` → `VERIFIED` (or clear `FAILED`). No silent hang after `DOWNLOADING`. |
 | B7 | **Secrets** | No live Wi‑Fi password or device token committed in examples. |
+| B8 | **Router outage** | With a live MQTT sketch (`BasicTelemetry_mqtt` or `BoardSelfTest_mqtt`), pull the **router power for ~60 s**, restore power, leave the board alone. Within about **1 minute** after the LAN is back, serial shows Wi‑Fi rejoin and `MQTT CONNECTED` (no manual reset). Optional: RPC `drop_network` on BoardSelfTest for a short Wi‑Fi drop. |
 
 Mark **N/A** only if that surface was not in the change.
 

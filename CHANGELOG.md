@@ -4,6 +4,10 @@ This repository ships the **Autoconnecto Arduino SDK** (`src/`, `examples/`), an
 
 Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library. Python and Raspberry Pi examples track the same git history.
 
+## v1.7.85
+
+- MQTT recovery after a Wi‑Fi/router flap: after repeated connect failures (default every 3), or when the link is down, the SDK rejoins Wi‑Fi (fresh DNS) or re-attaches LTE PPP, then rebuilds the MQTT/TLS client. If MQTT stays down for 3 minutes (configurable), it calls `esp_restart()`. Shared-attribute restore on reconnect is unchanged. Config: `mqttWifiRefreshEveryFailures`, `mqttRestartAfterDisconnectMs`. BOARD_VERIFY **B8** (pull router power ~60 s). Code review + static only — not board-verified.
+
 ## v1.7.79
 
 - Installable Python SDK under `python/` (package **`autoconnecto`**): MQTT + HTTPS + GPIO (`gpio.write` / `read` / `set_relay`, extra `gpiozero`). Named SBCs: Raspberry Pi 5/4/3/Zero 2 W, Orange Pi 5, Radxa ROCK 5, BeagleBone. `raspberrypi/common` is a shim; examples import `autoconnecto`. Install: `pip install -e "./python[gpio,dotenv]"` (PyPI publish still pending). Code review + static only — not board-verified on a Pi.

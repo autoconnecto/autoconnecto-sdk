@@ -8,6 +8,8 @@
 //   Simplest possible sketch. Connect to the platform and send
 //   sensor readings on a plan-safe interval. No attributes, no RPC.
 //   Use this first to verify your device token and connection.
+//   sdk.loop() also recovers MQTT after a Wi‑Fi/router flap (rejoin
+//   Wi‑Fi, rebuild TLS client; restart if still down ~3 min).
 //
 // PLAN INTERVAL
 //   Free plan stores at most one reading every 30 seconds. Hobby 10s,
