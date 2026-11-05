@@ -99,7 +99,7 @@ def load_config(path: Path) -> Config:
         mqtt_port=int(ac.get("mqttPort", 8883)),
         ca_file=Path(str(ac.get("caFile", ""))).resolve(),
         insecure_tls=bool(ac.get("insecureTls", False)),
-        poll_interval_ms=int(raw.get("pollIntervalMs", 1000)),
+        poll_interval_ms=int(raw.get("pollIntervalMs", 30000)),
         mapping=mapping,
     )
 
@@ -120,27 +120,41 @@ def make_mqtt(cfg: Config) -> mqtt.Client:
     return client
 
 
+async def _read_registers(client, cfg: Config, m: MapItem, kind: str):
+    """pymodbus >= 3.10 uses count=/device_id=; older builds used count positional + slave=."""
+    kwargs_new = {"address": m.address, "count": m.count, "device_id": cfg.unit_id}
+    kwargs_old = {"address": m.address, "count": m.count, "slave": cfg.unit_id}
+    reader = (
+        client.read_holding_registers
+        if kind == "holding"
+        else client.read_input_registers
+    )
+    try:
+        return await reader(**kwargs_new)
+    except TypeError:
+        return await reader(**kwargs_old)
+
+
 async def poll_once(client, cfg: Config) -> Dict[str, Any]:
     payload: Dict[str, Any] = {"ts": int(time.time() * 1000)}
 
     for m in cfg.mapping:
         try:
             if m.reg_type == "holding":
-                rr = await client.read_holding_registers(
-                    m.address, m.count, slave=cfg.unit_id
-                )
+                rr = await _read_registers(client, cfg, m, "holding")
                 regs = rr.registers if rr and not rr.isError() else []
             elif m.reg_type == "input":
-                rr = await client.read_input_registers(
-                    m.address, m.count, slave=cfg.unit_id
-                )
+                rr = await _read_registers(client, cfg, m, "input")
                 regs = rr.registers if rr and not rr.isError() else []
             else:
                 regs = []
             if regs:
                 payload[m.key] = _coerce_num(regs[0], m.scale, m.signed)
-        except Exception:
-            continue
+        except Exception as exc:
+            print(
+                f"[MODBUS] read {m.reg_type}@{m.address} failed: "
+                f"{exc.__class__.__name__}: {exc}"
+            )
 
     return payload
 
@@ -177,8 +191,12 @@ async def run(cfg: Config) -> None:
 
                 while True:
                     payload = await poll_once(mbc, cfg)
-                    data = json.dumps(payload).encode("utf-8")
-                    mqttc.publish(topic, data, qos=1)
+                    # Skip publish when only ts is present (all reads failed).
+                    if len(payload) <= 1 and "ts" in payload:
+                        print("[MODBUS] skip publish: no register values")
+                    else:
+                        data = json.dumps(payload).encode("utf-8")
+                        mqttc.publish(topic, data, qos=1)
                     await asyncio.sleep(cfg.poll_interval_ms / 1000.0)
             except Exception as exc:
                 print(f"[MODBUS] error: {exc.__class__.__name__}: {exc}")

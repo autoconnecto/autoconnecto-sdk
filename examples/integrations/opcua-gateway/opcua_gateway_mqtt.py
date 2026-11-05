@@ -71,7 +71,7 @@ def load_config(path: Path) -> Config:
         mqtt_port=int(ac.get("mqttPort", 8883)),
         ca_file=ca,
         insecure_tls=bool(ac.get("insecureTls", False)),
-        poll_interval_ms=int(raw.get("pollIntervalMs", 1000)),
+        poll_interval_ms=int(raw.get("pollIntervalMs", 30000)),
         mapping=mapping,
     )
 

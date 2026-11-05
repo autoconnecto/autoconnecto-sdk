@@ -4,6 +4,14 @@ This repository ships the **Autoconnecto Arduino SDK** (`src/`, `examples/`), an
 
 Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library. Python and Raspberry Pi examples track the same git history.
 
+## v1.7.100
+
+- Integration webhook examples: document gateway child `parentDeviceId`; Modbus/OPC-UA default poll 30 s; Modbus uses pymodbus `count=`/`device_id=` with `slave=` fallback, logs read errors, skips ts-only publish.
+- `python/pyproject.toml` re-saved as UTF-8 (cp1252 em dash broke `pip install`); CI `utf8-check` rejects non-UTF-8 text files.
+- Raspberry Pi examples: telemetry every 30 s (Free plan); `sdkVersion` string from one constant; shared attributes requested once on MQTT connect.
+- `DeepSleep_http/secrets.h.example`: default `SLEEP_SEC` 300.
+- Code review + static only — not board-verified.
+
 ## v1.7.85
 
 - MQTT recovery after a Wi‑Fi/router flap: after repeated connect failures (default every 3), or when the link is down, the SDK rejoins Wi‑Fi (fresh DNS) or re-attaches LTE PPP, then rebuilds the MQTT/TLS client. If MQTT stays down for 3 minutes (configurable), it calls `esp_restart()`. Shared-attribute restore on reconnect is unchanged. Config: `mqttWifiRefreshEveryFailures`, `mqttRestartAfterDisconnectMs`. BOARD_VERIFY **B8** (pull router power ~60 s). Code review + static only — not board-verified.

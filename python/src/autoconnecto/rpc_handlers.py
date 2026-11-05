@@ -10,6 +10,7 @@ from typing import Any, Callable, Dict
 from .device_state import DeviceState
 from .health import health_attributes
 from .telemetry_keys import sample_telemetry
+from .version import SDK_VERSION
 
 
 def handle_rpc(
@@ -57,7 +58,7 @@ def handle_rpc(
         reply(
             {
                 "success": True,
-                "sdkVersion": 1.7,
+                "sdkVersion": SDK_VERSION,
                 "platform": "linux-sbc",
                 "hostname": os.uname().nodename,
             }

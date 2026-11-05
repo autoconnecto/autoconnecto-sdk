@@ -5,8 +5,9 @@ from .config import Settings, load_dotenv_if_present, load_settings
 from .http_device import AutoconnectoHttpDevice
 from .http_shared_poll import SharedAttributePoller
 from .mqtt_device import AutoconnectoMqttDevice
+from .version import SDK_VERSION
 
-__version__ = "1.7.79"
+__version__ = SDK_VERSION
 
 __all__ = [
     "Settings",
@@ -16,5 +17,6 @@ __all__ = [
     "AutoconnectoHttpDevice",
     "SharedAttributePoller",
     "gpio",
+    "SDK_VERSION",
     "__version__",
 ]

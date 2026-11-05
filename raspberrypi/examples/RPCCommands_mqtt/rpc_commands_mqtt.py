@@ -40,7 +40,8 @@ def main() -> None:
         )
 
     def on_connect() -> None:
-        mqtt.request_shared_attributes()
+        # Shared attributes are requested once inside AutoconnectoMqttDevice.on_connect.
+        print("[NET] Connected")
 
     mqtt.on_rpc(on_rpc)
     mqtt.on_connected(on_connect)
@@ -54,7 +55,7 @@ def main() -> None:
     try:
         while True:
             now = time.monotonic()
-            if now - last_telemetry >= 10:
+            if now - last_telemetry >= 30:
                 last_telemetry = now
                 mqtt.send_telemetry(sample_telemetry())
 

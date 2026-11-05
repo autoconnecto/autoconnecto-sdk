@@ -40,8 +40,8 @@ def main() -> None:
         )
 
     def on_connect() -> None:
+        # Shared attributes are requested once inside AutoconnectoMqttDevice.on_connect.
         print("[NET] Connected")
-        mqtt.request_shared_attributes()
 
     mqtt.on_attribute_update(state.on_attribute_update)
     mqtt.on_rpc(on_rpc)
@@ -61,7 +61,7 @@ def main() -> None:
                 last_status = now
                 print("[STATUS] transport=MQTTS platform=raspberrypi")
 
-            if now - last_telemetry >= 10:
+            if now - last_telemetry >= 30:
                 last_telemetry = now
                 mqtt.send_telemetry(sample_telemetry())
                 print("[TEL] Sent telemetry")

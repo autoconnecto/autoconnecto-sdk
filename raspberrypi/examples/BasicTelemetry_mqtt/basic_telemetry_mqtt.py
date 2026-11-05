@@ -33,7 +33,7 @@ def main() -> None:
     try:
         while True:
             now = time.monotonic()
-            if now - last_telemetry >= 10:
+            if now - last_telemetry >= 30:
                 last_telemetry = now
                 mqtt.send_telemetry(sample_telemetry())
                 print("[TEL] Sent telemetry")

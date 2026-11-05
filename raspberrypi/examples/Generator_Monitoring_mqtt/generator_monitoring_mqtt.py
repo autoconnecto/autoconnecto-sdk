@@ -118,7 +118,7 @@ def main() -> None:
         while True:
             now = time.monotonic()
 
-            if now - last_tel >= 10:
+            if now - last_tel >= 30:
                 last_tel = now
                 send_telemetry()
 

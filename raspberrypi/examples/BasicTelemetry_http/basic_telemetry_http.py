@@ -33,7 +33,7 @@ def main() -> None:
     try:
         while True:
             now = time.monotonic()
-            if now - last_telemetry >= 10:
+            if now - last_telemetry >= 30:
                 last_telemetry = now
                 code = http.post_telemetry(sample_telemetry())
                 print(f"[TELEMETRY] {code}")

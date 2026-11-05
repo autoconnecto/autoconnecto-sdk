@@ -12,7 +12,7 @@
     "caFile": "../../../raspberrypi/ca/isrg_roots.pem",
     "insecureTls": false
   },
-  "pollIntervalMs": 1000,
+  "pollIntervalMs": 30000,
   "mapping": [
     { "key": "temperature", "type": "holding", "address": 0, "count": 1, "scale": 0.1, "signed": false },
     { "key": "humidity", "type": "input", "address": 1, "count": 1, "scale": 0.1, "signed": false }

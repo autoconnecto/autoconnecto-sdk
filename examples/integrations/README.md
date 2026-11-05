@@ -61,6 +61,8 @@ Same DevEUI attribute as ChirpStack. Create a **TTN** integration, paste the web
 
 ## Gateway relay
 
+The child device’s **parentDeviceId** must be set to the gateway device id before relay ingest will accept `childDeviceId`. Create the child under that gateway (or set parent on the device), then use either path below. Webhook `MODE=webhook` responses include the **child** `deviceId` in `results`.
+
 Two supported paths:
 
 1. **Device-token HTTP** (preferred for edge gateways) — matches `GatewayRelay_http.ino`:
@@ -72,6 +74,15 @@ export CHILD_DEVICE_ID=your-child-device-uuid
 ```
 
 2. **Generic integration webhook** — set `MODE=webhook` plus `TENANT_ID` / `WEBHOOK_SECRET`.
+
+```bash
+export MODE=webhook
+export TENANT_ID=your-tenant-uuid
+export WEBHOOK_SECRET=your-secret
+export GATEWAY_TOKEN=your-gateway-device-token
+export CHILD_DEVICE_ID=your-child-device-uuid
+./gateway-relay-webhook.sh
+```
 
 PowerShell: `gateway-relay-webhook.ps1`.
 

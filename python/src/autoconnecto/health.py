@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
-import os
 import time
+
+from .version import SDK_VERSION
 
 _START = time.time()
 
@@ -23,6 +24,6 @@ def health_attributes() -> dict:
         "freeHeap": free_kb * 1024,
         "wifiRSSI": 0,
         "uptime": int(time.time() - _START),
-        "sdkVersion": 1.7,
+        "sdkVersion": SDK_VERSION,
         "platform": "linux-sbc",
     }

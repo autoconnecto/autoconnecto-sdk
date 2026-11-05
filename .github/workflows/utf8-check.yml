@@ -1,0 +1,17 @@
+name: UTF-8 text check
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  utf8:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decode every text file as UTF-8
+        run: python3 scripts/check-utf8.py

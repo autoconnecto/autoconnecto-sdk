@@ -11,7 +11,7 @@
     "caFile": "../../../raspberrypi/ca/isrg_roots.pem",
     "insecureTls": false
   },
-  "pollIntervalMs": 1000,
+  "pollIntervalMs": 30000,
   "mapping": [
     { "key": "temperature", "nodeId": "ns=2;s=Demo.Temperature" },
     { "key": "humidity", "nodeId": "ns=2;s=Demo.Humidity" }
