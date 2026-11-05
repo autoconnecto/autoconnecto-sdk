@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "autoconnecto"
-version = "1.7.100"
+version = "1.7.101"
 description = "Autoconnecto IoT client for Linux SBCs (Raspberry Pi, Orange Pi, Rockchip, BeagleBone, Debian gateways) — MQTT, HTTPS, and GPIO (gpiozero), same contract as the ESP32 Arduino SDK."
 readme = "README.md"
 requires-python = ">=3.9"

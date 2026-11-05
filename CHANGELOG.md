@@ -4,6 +4,11 @@ This repository ships the **Autoconnecto Arduino SDK** (`src/`, `examples/`), an
 
 Library Manager users receive tagged releases (`vX.Y.Z`) of the Arduino library. Python and Raspberry Pi examples track the same git history.
 
+## v1.7.101
+
+- Python `device_state.on_attribute_update` echoes CLIENT confirm only for handled keys (`channel1`–`4`, `volume`, `limitVoltage*`). Unknown keys (e.g. `lorawan.dev_eui`) are ignored.
+- Code review + static only — not board-verified.
+
 ## v1.7.100
 
 - Integration webhook examples: document gateway child `parentDeviceId`; Modbus/OPC-UA default poll 30 s; Modbus uses pymodbus `count=`/`device_id=` with `slave=` fallback, logs read errors, skips ts-only publish.

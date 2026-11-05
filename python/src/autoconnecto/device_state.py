@@ -74,7 +74,8 @@ class DeviceState:
             self._client_attr("setVoltage3", self.set_voltage3)
             return
 
-        self._client_attr(key, value)
+        # Unknown keys (e.g. SERVER lorawan.dev_eui leaked into a snapshot) are not echoed.
+        print(f"[ATTR] ignore unhandled key={key}")
 
     def _client_attr(self, key: str, value: float) -> None:
         if self._publish_client:
